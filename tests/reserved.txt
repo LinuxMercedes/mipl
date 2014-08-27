@@ -1,0 +1,5 @@
+( *)+,-...::=;<<=<>=>>=[]
+and array begin boolean char div do else end false
+if integer not of or procedure program read then
+true var while write
+

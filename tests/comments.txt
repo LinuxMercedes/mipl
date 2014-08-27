@@ -1,0 +1,9 @@
+(*
+	multiline comment
+*)
+not a
+(* another comment *)
+
+comment (****** comment with embedded * and ) *******)
+
+(* (* (* (* (* (* (* (* (* (* (* (* (* (* (* *)

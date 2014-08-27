@@ -1,0 +1,13 @@
+**** Invalid character constant: '
+**** Invalid character constant: ''
+TOKEN: T_CHARCONST LEXEME: '''
+**** Invalid character constant: '
+**** Invalid character constant: '
+TOKEN: T_IDENT     LEXEME: d
+**** Invalid character constant: '
+TOKEN: T_IDENT     LEXEME: dog
+**** Invalid character constant: '
+**** Invalid character constant: '
+TOKEN: UNKNOWN     LEXEME: \
+TOKEN: T_IDENT     LEXEME: n
+**** Invalid character constant: '
