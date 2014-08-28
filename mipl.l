@@ -66,10 +66,20 @@
 INTCONST [0-9]+
 CHARCONST '.'
 IDENT [a-zA-Z_][a-zA-Z0-9_]*
-COMMENT "\(\*((?!\*\)).)*\*\)"
-/* COMMENT \(\*((?!\*\)).*)\*\) */
 WHITESPACE [ \t\r\n]+
+
+%x comment
 %%
+
+"(*" { /* Comment handling comes first so other rules don't match inside comments */
+	BEGIN(comment);
+}
+
+<comment>[^*]* {} /* Match everything not a * */
+<comment>"*"+[^*)]* {} /* Match *s not followed by ) */
+<comment>"*)" { /* Match *) */
+	BEGIN(INITIAL);
+}
 
 ":=" {
 	printToken("T_ASSIGN", yytext);
@@ -271,14 +281,14 @@ WHITESPACE [ \t\r\n]+
 	return T_COMMA;
 }
 
-"\.(?!\.)" {
-	printToken("T_DOT", yytext);
-	return T_DOT;
-}
-
-"\.\." {
+\.\. {
 	printToken("T_DOTDOT", yytext);
 	return T_DOTDOT;
+}
+
+\. {
+	printToken("T_DOT", yytext);
+	return T_DOT;
 }
 
 {INTCONST} {
@@ -315,8 +325,6 @@ WHITESPACE [ \t\r\n]+
 	printToken("T_IDENT", yytext);
 	return T_IDENT;
 }
-
-{COMMENT} {} 
 
 {WHITESPACE} {}
 
