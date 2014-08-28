@@ -176,7 +176,7 @@ WHITESPACE [ \t\r\n]+
 	return T_CHAR;
 }
 
-"int" {
+"integer" {
 	printToken("T_INT", yytext);
 	return T_INT;
 }
