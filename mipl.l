@@ -335,7 +335,7 @@ WHITESPACE [ \t\r\n]+
 {WHITESPACE} {}
 
 . {
-	printToken("T_UNKNOWN", yytext);
+	printToken("UNKNOWN", yytext);
 	return T_UNKNOWN;
 }
 
