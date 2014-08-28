@@ -18,3 +18,10 @@
 # Executables
 *.exe
 *.app
+
+# Vim swapfiles
+.*.sw?
+
+# Assignment files
+jarusn.*
+
