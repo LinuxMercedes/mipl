@@ -65,6 +65,7 @@
 
 INTCONST [0-9]+
 CHARCONST '.'
+INVALIDCHARCONST ''?
 IDENT [a-zA-Z_][a-zA-Z0-9_]*
 WHITESPACE [ \t\r\n]+
 
@@ -319,6 +320,11 @@ WHITESPACE [ \t\r\n]+
 {CHARCONST} {
 	printToken("T_CHARCONST", yytext);
 	return T_CHARCONST;
+}
+
+{INVALIDCHARCONST} {
+	printf("**** Invalid character constant: %s\n", yytext);
+	return T_UNKNOWN;
 }
 
 {IDENT} {
