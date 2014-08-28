@@ -55,6 +55,7 @@
 #define T_INTCONST 44
 #define T_CHARCONST 45
 #define T_UNKNOWN 46
+#define T_IDENT 47
 
 	const char* MAX_INT_STR = "2147483647";
 	
@@ -64,9 +65,10 @@
 
 INTCONST [0-9]+
 CHARCONST '.'
+IDENT [a-zA-Z_][a-zA-Z0-9_]*
+COMMENT "\(\*((?!\*\)).)*\*\)"
 /* COMMENT \(\*((?!\*\)).*)\*\) */
 WHITESPACE [ \t\r\n]+
-
 %%
 
 ":=" {
@@ -309,7 +311,12 @@ WHITESPACE [ \t\r\n]+
 	return T_CHARCONST;
 }
 
-"\(\*((?!\*\)).*)\*\)" { }
+{IDENT} {
+	printToken("T_IDENT", yytext);
+	return T_IDENT;
+}
+
+{COMMENT} {} 
 
 {WHITESPACE} {}
 
