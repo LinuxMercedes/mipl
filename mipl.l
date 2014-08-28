@@ -298,7 +298,8 @@ WHITESPACE [ \t\r\n]+
 		return T_INTCONST;
 	}
 	else if(strlen(yytext) > strlen(MAX_INT_STR)) {
-		printToken("T_UNKNOWN", yytext);
+		printf("**** Invalid integer constant: %s\n", yytext);
+		//printToken("T_UNKNOWN", yytext);
 		return T_UNKNOWN;
 	}
 	else {
@@ -307,7 +308,8 @@ WHITESPACE [ \t\r\n]+
 				break;
 			}
 			else if(MAX_INT_STR[i] < yytext[i]) {
-				printToken("T_UNKNOWN", yytext);
+				printf("**** Invalid integer constant: %s\n", yytext);
+				//printToken("T_UNKNOWN", yytext);
 				return T_UNKNOWN;
 			}
 		}
