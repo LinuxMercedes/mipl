@@ -293,23 +293,27 @@ WHITESPACE [ \t\r\n]+
 }
 
 {INTCONST} {
-	if(strlen(yytext) < strlen(MAX_INT_STR)) {
+	/* Eat leading zeros, but keep them for printing */
+	char* text = yytext;
+	while(*text == '0' && *(text + 1) != '\0') {
+		text++;
+	}
+
+	if(strlen(text) < strlen(MAX_INT_STR)) {
 		printToken("T_INTCONST", yytext);
 		return T_INTCONST;
 	}
-	else if(strlen(yytext) > strlen(MAX_INT_STR)) {
+	else if(strlen(text) > strlen(MAX_INT_STR)) {
 		printf("**** Invalid integer constant: %s\n", yytext);
-		//printToken("T_UNKNOWN", yytext);
 		return T_UNKNOWN;
 	}
 	else {
 		for(unsigned int i = 0; i < strlen(MAX_INT_STR); i++) {
-			if(MAX_INT_STR[i] > yytext[i]) {
+			if(MAX_INT_STR[i] > text[i]) {
 				break;
 			}
-			else if(MAX_INT_STR[i] < yytext[i]) {
+			else if(MAX_INT_STR[i] < text[i]) {
 				printf("**** Invalid integer constant: %s\n", yytext);
-				//printToken("T_UNKNOWN", yytext);
 				return T_UNKNOWN;
 			}
 		}
