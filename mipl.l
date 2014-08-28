@@ -8,6 +8,8 @@
 
 %{
 
+#include <string.h>
+
 #define T_ASSIGN 1
 #define T_MULT 2
 #define T_PLUS 3
@@ -54,13 +56,15 @@
 #define T_CHARCONST 45
 #define T_UNKNOWN 46
 
+	const char* MAX_INT_STR = "2147483647";
+	
 	void printToken(const char* token, const char* lexeme);
 
 %}
 
 INTCONST [0-9]+
 CHARCONST '.'
-COMMENT \(\*(?!\*\).)*\*\)
+/* COMMENT \(\*((?!\*\)).*)\*\) */
 WHITESPACE [ \t\r\n]+
 
 %%
@@ -276,6 +280,28 @@ WHITESPACE [ \t\r\n]+
 }
 
 {INTCONST} {
+	if(strlen(yytext) < strlen(MAX_INT_STR)) {
+		printToken("T_INTCONST", yytext);
+		return T_INTCONST;
+	}
+	else if(strlen(yytext) > strlen(MAX_INT_STR)) {
+		printToken("T_UNKNOWN", yytext);
+		return T_UNKNOWN;
+	}
+	else {
+		for(unsigned int i = 0; i < strlen(MAX_INT_STR); i++) {
+			if(MAX_INT_STR[i] > yytext[i]) {
+				break;
+			}
+			else if(MAX_INT_STR[i] < yytext[i]) {
+				printToken("T_UNKNOWN", yytext);
+				return T_UNKNOWN;
+			}
+		}
+
+		printToken("T_INTCONST", yytext);
+		return T_INTCONST;
+	}
 }
 
 {CHARCONST} {
@@ -283,7 +309,7 @@ WHITESPACE [ \t\r\n]+
 	return T_CHARCONST;
 }
 
-{COMMENT} {}
+"\(\*((?!\*\)).*)\*\)" { }
 
 {WHITESPACE} {}
 
