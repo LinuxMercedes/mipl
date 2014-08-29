@@ -69,10 +69,10 @@ INVALIDCHARCONST ''?
 IDENT [a-zA-Z_][a-zA-Z0-9_]*
 WHITESPACE [ \t\r\n]+
 
-%x comment
+%x comment 
 %%
 
-"(*" { /* Comment handling comes first so other rules don't match inside comments */
+"(*" { /* Comment handling */
 	BEGIN(comment);
 }
 
@@ -282,14 +282,14 @@ WHITESPACE [ \t\r\n]+
 	return T_COMMA;
 }
 
-\.\. {
-	printToken("T_DOTDOT", yytext);
-	return T_DOTDOT;
-}
-
 \. {
 	printToken("T_DOT", yytext);
 	return T_DOT;
+}
+
+\.\. {
+	printToken("T_DOTDOT", yytext);
+	return T_DOTDOT;
 }
 
 {INTCONST} {
