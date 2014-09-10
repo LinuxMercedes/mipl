@@ -1,0 +1,9 @@
+(*
+	This file has a lexical error.
+*)
+
+program DiddleDeDum;
+begin (* DiddleDeDum *)
+  x := 1234567890123;
+  write('e', 'n', 'd', '\')
+end (*DiddleDeDum *) .

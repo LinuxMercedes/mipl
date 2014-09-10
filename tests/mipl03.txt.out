@@ -1,0 +1,8 @@
+TOKEN: T_PROG      LEXEME: program
+N_PROGLBL -> T_PROG
+TOKEN: T_IDENT     LEXEME: DiddleDeDum
+TOKEN: T_SCOLON    LEXEME: ;
+TOKEN: T_MULT      LEXEME: *
+N_VARDECPART -> epsilon
+N_PROCDECPART -> epsilon
+Line 6: syntax error

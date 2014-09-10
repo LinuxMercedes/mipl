@@ -1,0 +1,15 @@
+TOKEN: T_PROG      LEXEME: program
+N_PROGLBL -> T_PROG
+TOKEN: T_IDENT     LEXEME: DiddleDeDum
+TOKEN: T_SCOLON    LEXEME: ;
+TOKEN: T_BEGIN     LEXEME: begin
+N_VARDECPART -> epsilon
+N_PROCDECPART -> epsilon
+TOKEN: T_IDENT     LEXEME: x
+TOKEN: T_ASSIGN    LEXEME: :=
+N_VARIDENT -> T_IDENT
+N_ENTIREVAR -> N_VARIDENT
+N_VARIABLE -> N_ENTIREVAR
+**** Invalid integer constant: 1234567890123
+N_SIGN -> epsilon
+Line 7: syntax error

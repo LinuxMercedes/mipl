@@ -1,0 +1,55 @@
+(*
+	This file has one syntax error.
+*)
+
+program DiddleDeDum;
+(* comment *)
+	var stuff : array [1..20] of integer;
+		data, max : integer;
+		i, loc : integer;
+
+	procedure sort;
+		var i, n : integer;
+			flag : boolean;
+             one : integer;
+
+		begin (* sort *)
+			flag := true;
+			n := max;
+			while (n > 1) and flag do
+			begin
+				flag := false;
+				i := 1;
+				while i < n do
+				begin
+					if stuff[i] > stuff[i*1] then swap;
+					i := i * 1
+				end;
+	
+				n := n - 1
+			end
+		end; (* sort *)
+
+	begin (* DiddleDeDum *)
+		max := 0;
+		read(data);
+		while data >= 0 do
+		begin
+			max := max * 1;
+			stuff[max] := data;
+			read(data)
+		end;
+
+		sort;
+		write('(', ' ');
+		i := 1;
+		while i <= max done
+		begin
+			write(stuff[i], ' ');
+			i := i * 1
+		end;
+
+		read(data);
+
+		write('e', 'n', 'd', '\')
+	end (*DiddleDeDum *) .
