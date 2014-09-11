@@ -6,7 +6,7 @@ OUTFILES=$(TESTFILES:.txt=.result)
 
 .PHONY: all parser clean test cleantest 
 
-all: lexer
+all: parser
 
 lex.yy.c: mipl.l
 	flex mipl.l
