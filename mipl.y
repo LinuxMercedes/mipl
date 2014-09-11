@@ -501,12 +501,12 @@ void printToken(const char* token, const char* lexeme) {
 
 void printRule(const char* lhs, const char* rhs) {
 #ifdef PRINT_RULES
-	printf("%s -> %s", lhs, rhs);
+	printf("%s -> %s\n", lhs, rhs);
 #endif
 }
 
 int yyerror(const char* s) {
-	printf("Line %d: syntax error", lines);
+	printf("Line %d: syntax error\n", lines);
 }
 
 int main() {
