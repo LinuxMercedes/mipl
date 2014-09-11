@@ -58,11 +58,6 @@
 #define T_UNKNOWN 46
 #define T_IDENT 47
 */
-
-	const char* MAX_INT_STR = "2147483647";
-	
-	void printToken(const char* token, const char* lexeme);
-
 %}
 
 INTCONST [0-9]+
@@ -360,14 +355,4 @@ NEWLINE [\r\n]
 
 %%
 
-void printToken(const char* token, const char* lexeme) {
-	printf("TOKEN: %s\tLEXEME: %s\n", token, lexeme);
-}
-
-int yywrap() { return 1; }
-
-int main() {
-	while(yylex());
-	return 0;
-}
 
