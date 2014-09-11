@@ -10,6 +10,7 @@
 
 #include <string.h>
 
+/*
 #define T_ASSIGN 1
 #define T_MULT 2
 #define T_PLUS 3
@@ -56,6 +57,7 @@
 #define T_CHARCONST 45
 #define T_UNKNOWN 46
 #define T_IDENT 47
+*/
 
 	const char* MAX_INT_STR = "2147483647";
 	
@@ -67,7 +69,8 @@ INTCONST [0-9]+
 CHARCONST '.'
 INVALIDCHARCONST ''?
 IDENT [a-zA-Z_][a-zA-Z0-9_]*
-WHITESPACE [ \t\r\n]+
+WHITESPACE [ \t]+
+NEWLINE [\r\n]
 
 %x comment 
 %%
@@ -76,8 +79,14 @@ WHITESPACE [ \t\r\n]+
 	BEGIN(comment);
 }
 
-<comment>[^*]* {} /* Match everything not a * */
-<comment>"*"+[^*)]* {} /* Match *s not followed by ) */
+<comment>[^*\n]* {} /* Match everything not a * */
+
+<comment>"*"+[^*)\n]* {} /* Match *s not followed by ) */
+
+<comment>"\n" { 
+	lines++; 
+}
+
 <comment>"*)" { /* Match *) */
 	BEGIN(INITIAL);
 }
@@ -339,6 +348,10 @@ WHITESPACE [ \t\r\n]+
 }
 
 {WHITESPACE} {}
+
+{NEWLINE} {
+	lines++;
+}
 
 . {
 	printToken("UNKNOWN", yytext);
