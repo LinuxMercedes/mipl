@@ -24,4 +24,6 @@
 
 # Assignment files
 jarusn.*
+lex.yy.c
+mipl.tab.c
 
