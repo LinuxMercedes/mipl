@@ -491,6 +491,9 @@ N_BOOLCONST : T_TRUE
 
 %%
 
+#include "lex.yy.c"
+extern FILE* yyin;
+
 void printToken(const char* token, const char* lexeme) {
 	printf("TOKEN: %s\tLEXEME: %s\n", token, lexeme);
 }
@@ -499,5 +502,17 @@ void printRule(const char* lhs, const char* rhs) {
 #ifdef PRINT_RULES
 	printf("%s -> %s", lhs, rhs);
 #endif
+}
+
+int yyerror(const char* s) {
+	printf("Line %d: syntax error", lines);
+}
+
+int main() {
+	do {
+		yyparse();
+	} while(!feof(yyin));
+
+	return 0;
 }
 
