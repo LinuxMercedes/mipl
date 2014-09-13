@@ -10,7 +10,7 @@
 #include <cstdio>
 #define PRINT_RULES 1
 
-	int lines = 0;
+	int lines = 1;
 
 	void printRule(const char* lhs, const char* rhs);
 	void printToken(const char* token, const char* lexeme);
