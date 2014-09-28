@@ -1,0 +1,15 @@
+(*
+	Declarations of simple types with more than one
+      variable per declaration
+*)
+
+program p;
+
+var x : integer;
+    y,z : boolean;
+    a, b, c, d : char;
+
+begin
+  write(5)
+end.
+

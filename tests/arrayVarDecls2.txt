@@ -1,0 +1,15 @@
+(*
+	Declarations of arrays with more than one
+      variable per declaration
+*)
+
+program p;
+
+var A : array [1..5] of integer;
+    B,C : array [20..50] of boolean;
+    D,E,F : array [100..500] of char;
+
+begin
+  write(5)
+end.
+

@@ -1,0 +1,14 @@
+(*
+	Program name is multiply defined identifier
+*)
+
+program p;
+
+var x : integer;
+    p : boolean;
+    z : char;
+
+begin
+  write(5)
+end.
+

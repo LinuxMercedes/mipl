@@ -1,0 +1,18 @@
+(*
+	Procedure name is multiply defined (same as variable in 
+      same scope)
+*)
+
+program p;
+
+var proc : integer;
+
+procedure proc;
+begin
+  write(99)
+end;
+
+begin
+  write(5)
+end.
+

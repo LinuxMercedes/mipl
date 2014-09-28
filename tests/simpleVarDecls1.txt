@@ -1,0 +1,14 @@
+(*
+	Single declarations of simple types
+*)
+
+program p;
+
+var x : integer;
+    y : boolean;
+    z : char;
+
+begin
+  write(5)
+end.
+

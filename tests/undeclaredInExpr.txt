@@ -1,0 +1,13 @@
+(*
+	Undeclared identifier in expression
+*)
+
+program p;
+
+var x : integer;
+
+begin
+  if (whoIsThis > x) then write(99);
+  write('?')
+end.
+

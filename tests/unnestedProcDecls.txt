@@ -1,0 +1,20 @@
+(*
+	Declarations of procedures, no nesting (no errors)
+*)
+
+program p;
+
+procedure p1;
+begin (* p1 *)
+  write(1)
+end; (* p1 *)
+
+procedure p2;
+begin
+  write(2)
+end;
+
+begin (* main *)
+  write(0)
+end.
+

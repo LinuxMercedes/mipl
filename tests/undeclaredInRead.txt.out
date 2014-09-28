@@ -1,0 +1,29 @@
+TOKEN: T_PROG      LEXEME: program
+N_PROGLBL -> T_PROG
+
+___Entering new scope...
+
+TOKEN: T_IDENT     LEXEME: p
+TOKEN: T_SCOLON    LEXEME: ;
+N_PROG -> N_PROGLBL T_IDENT T_SCOLON N_BLOCK T_DOT
+___Adding p to symbol table with type PROGRAM
+TOKEN: T_VAR       LEXEME: var
+TOKEN: T_IDENT     LEXEME: x
+N_IDENT -> T_IDENT
+TOKEN: T_COLON     LEXEME: :
+N_IDENTLST -> epsilon
+TOKEN: T_INT       LEXEME: integer
+N_SIMPLE -> T_INT
+N_TYPE -> N_SIMPLE
+N_VARDEC -> N_IDENT N_IDENTLST T_COLON N_TYPE
+___Adding x to symbol table with type INTEGER
+TOKEN: T_SCOLON    LEXEME: ;
+TOKEN: T_BEGIN     LEXEME: begin
+N_VARDECLST -> epsilon
+N_VARDECPART -> T_VAR N_VARDEC T_SCOLON N_VARDECLST
+N_PROCDECPART -> epsilon
+TOKEN: T_READ      LEXEME: read
+TOKEN: T_LPAREN    LEXEME: (
+TOKEN: T_IDENT     LEXEME: w
+N_VARIDENT -> T_IDENT
+Line 10: Undefined identifier

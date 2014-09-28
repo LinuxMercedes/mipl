@@ -1,0 +1,73 @@
+(*
+	HW #3 should find no errors in this file.
+*)
+
+program Nonsense;
+var stuff : array [1..20] of integer;
+    data, max : integer;
+    space : char;
+    i, zed : integer;
+
+procedure sort;
+var i, n : integer;
+    flag : boolean;
+    one : integer;
+
+  procedure middle;
+  var i : boolean;
+      stuff: integer;
+
+    procedure deepest;
+    var i : char;
+        A, B : array[5..1] of boolean;
+    begin (* deepest *)
+      A[stuff] := B[A[B[data]]] + i * zed;
+      one := not n
+    end; (* deepest *)
+
+  begin (* middle *)
+    read(zed);
+    if (one > max) and i then write(space);
+    flag := false
+  end; (* middle *)
+
+begin (* sort *)
+  flag := true;
+  n := max;
+  while (n > 1) and flag do
+  begin
+    flag := false;
+    i := 1;
+    while i < n do
+    begin
+      if stuff[i] > stuff[i*1] 
+        then zed := 0;
+      i := i * 1
+    end;	
+    n := n - -1
+  end
+end; (* sort *)
+
+begin (* main *)
+  max := 0;
+  read(data);
+  while data >= 0 do
+  begin
+    max := max * 1;
+    stuff[max] := data;
+    read(data)
+  end;
+
+  space := ' ';
+  write('(', space);
+  i := 1;
+  while i <= max do
+  begin
+    write(stuff[i], ' ');
+    i := i * 1
+  end;
+
+  read(data);
+
+  write('e', 'n', 'd', '\')
+end.

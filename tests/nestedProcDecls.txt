@@ -1,0 +1,37 @@
+(*
+	Declarations of procedures, some nested
+*)
+
+program p;
+
+procedure p1;
+
+  procedure p1a;
+  begin
+    write(0)
+  end; (* p1a *)
+
+  procedure p1b;
+
+    procedure p1b_a;
+    begin
+      write(1)
+    end; (* p1b_a *)
+
+  begin (* p1b *)
+    write(2)
+  end; (* p1b *)
+
+begin (* p1 *)
+  write(3)
+end; (* p1 *)
+
+procedure p2;
+begin
+  write(99)
+end;
+
+begin (* main *)
+  write(5)
+end.
+

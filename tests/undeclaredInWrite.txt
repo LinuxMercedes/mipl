@@ -1,0 +1,12 @@
+(*
+	Undeclared identifier in write
+*)
+
+program p;
+
+var x : integer;
+
+begin
+  write(w, x)
+end.
+

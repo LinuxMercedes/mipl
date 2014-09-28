@@ -1,0 +1,14 @@
+(*
+	Variable is multiply defined in different declaration lines
+*)
+
+program p;
+
+var x : integer;
+    y : boolean;
+    x : char;
+
+begin
+  write(5)
+end.
+

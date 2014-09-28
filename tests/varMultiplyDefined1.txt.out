@@ -1,0 +1,40 @@
+TOKEN: T_PROG      LEXEME: program
+N_PROGLBL -> T_PROG
+
+___Entering new scope...
+
+TOKEN: T_IDENT     LEXEME: p
+TOKEN: T_SCOLON    LEXEME: ;
+N_PROG -> N_PROGLBL T_IDENT T_SCOLON N_BLOCK T_DOT
+___Adding p to symbol table with type PROGRAM
+TOKEN: T_VAR       LEXEME: var
+TOKEN: T_IDENT     LEXEME: x
+N_IDENT -> T_IDENT
+TOKEN: T_COLON     LEXEME: :
+N_IDENTLST -> epsilon
+TOKEN: T_INT       LEXEME: integer
+N_SIMPLE -> T_INT
+N_TYPE -> N_SIMPLE
+N_VARDEC -> N_IDENT N_IDENTLST T_COLON N_TYPE
+___Adding x to symbol table with type INTEGER
+TOKEN: T_SCOLON    LEXEME: ;
+TOKEN: T_IDENT     LEXEME: y
+N_IDENT -> T_IDENT
+TOKEN: T_COLON     LEXEME: :
+N_IDENTLST -> epsilon
+TOKEN: T_BOOL      LEXEME: boolean
+N_SIMPLE -> T_BOOL
+N_TYPE -> N_SIMPLE
+N_VARDEC -> N_IDENT N_IDENTLST T_COLON N_TYPE
+___Adding y to symbol table with type BOOLEAN
+TOKEN: T_SCOLON    LEXEME: ;
+TOKEN: T_IDENT     LEXEME: x
+N_IDENT -> T_IDENT
+TOKEN: T_COLON     LEXEME: :
+N_IDENTLST -> epsilon
+TOKEN: T_CHAR      LEXEME: char
+N_SIMPLE -> T_CHAR
+N_TYPE -> N_SIMPLE
+N_VARDEC -> N_IDENT N_IDENTLST T_COLON N_TYPE
+___Adding x to symbol table with type CHAR
+Line 9: Multiply defined identifier

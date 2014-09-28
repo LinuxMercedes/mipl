@@ -1,0 +1,14 @@
+(*
+	Single declarations of arrays
+*)
+
+program p;
+
+var I : array [10..-5] of integer;
+    B : array [-1..5] of boolean;
+    C : array [1..5] of char;
+
+begin
+  write(5)
+end.
+

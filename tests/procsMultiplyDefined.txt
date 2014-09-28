@@ -1,0 +1,21 @@
+(*
+	Procedure names multiply defined (same names in 
+      same scope)
+*)
+
+program p;
+
+procedure proc;
+begin
+  write(99)
+end;
+
+procedure proc;
+begin
+  write(100)
+end;
+
+begin
+  write(5)
+end.
+

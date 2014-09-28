@@ -1,0 +1,13 @@
+(*
+	Undeclared identifier in read
+*)
+
+program p;
+
+var x : integer;
+
+begin
+  read(w);
+  write(x)
+end.
+

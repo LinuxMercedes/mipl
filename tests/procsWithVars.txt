@@ -1,0 +1,44 @@
+(*
+	Declarations of procedures, some nested, with
+      variable declarations
+*)
+
+program p;
+var w : integer;
+
+procedure p1;
+var x : integer;
+
+  procedure p1a;
+  var y : boolean;
+  begin
+    write(0)
+  end; (* p1a *)
+
+  procedure p1b;
+  var z : char;
+
+    procedure p1b_a;
+    var k : integer;
+    begin
+      write(1)
+    end; (* p1b_a *)
+
+  begin (* p1b *)
+    write(2)
+  end; (* p1b *)
+
+begin (* p1 *)
+  write(3)
+end; (* p1 *)
+
+procedure p2;
+var i : integer;
+begin
+  write(99)
+end;
+
+begin (* main *)
+  write(5)
+end.
+

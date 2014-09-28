@@ -1,0 +1,12 @@
+(*
+	Undeclared identifier in array expression
+*)
+
+program p;
+
+var x : integer;
+
+begin
+  if (A[5] <> 42) then write(99);
+end.
+
