@@ -193,7 +193,6 @@ N_IDX : N_INTCONST
 
 N_IDXRANGE : N_IDX T_DOTDOT N_IDX
 	{
-		/* TODO: range checking */
 		$$.start = $1;
 		$$.end = $3;
 		printRule("N_IDXRANGE", "N_IDX T_DOTDOT N_IDX");
