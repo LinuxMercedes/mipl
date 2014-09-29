@@ -250,6 +250,7 @@ NEWLINE [\r\n]
 
 {INTCONST} {
 	/* Eat leading zeros, but keep them for printing */
+	/* I'm pretty sure this could have been done with a nice call to strtol... */
 	char* text = yytext;
 	while(*text == '0' && *(text + 1) != '\0') {
 		text++;
