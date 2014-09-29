@@ -32,9 +32,7 @@ NEWLINE [\r\n]
 
 <comment>"*"+[^*)\n]* {} /* Match *s not followed by ) */
 
-<comment>"\n" { 
-	lines++; 
-}
+<comment>"\n" {}
 
 <comment>"*)" { /* Match *) */
 	BEGIN(INITIAL);
@@ -301,9 +299,7 @@ NEWLINE [\r\n]
 
 {WHITESPACE} {}
 
-{NEWLINE} {
-	lines++;
-}
+{NEWLINE} {}
 
 . {
 	printToken("UNKNOWN", yytext);
