@@ -31,6 +31,8 @@ clean: cleantest
 	-rm mipl.tab.c
 	-rm lex.yy.c
 	-rm parser
+	-rm scope.o
+	-rm varinfo.o
 
 test: cleantest parser $(OUTFILES) 
 	@echo "[+] All tests passed!"
