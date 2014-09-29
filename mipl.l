@@ -6,58 +6,12 @@
 
 */
 
+%option yylineno
+
 %{
 
 #include <string.h>
 
-/*
-#define T_ASSIGN 1
-#define T_MULT 2
-#define T_PLUS 3
-#define T_MINUS 4
-#define T_DIV 5
-#define T_AND 6
-#define T_OR 7
-#define T_NOT 8
-#define T_LT 9
-#define T_GT 10
-#define T_LE 11
-#define T_GE 12
-#define T_EQ 13
-#define T_NE 14
-#define T_VAR 15
-#define T_ARRAY 16
-#define T_OF 17
-#define T_BOOL 18
-#define T_CHAR 19
-#define T_INT 20
-#define T_PROG 21
-#define T_PROC 22
-#define T_BEGIN 23
-#define T_END 24
-#define T_WHILE 26
-#define T_DO 27
-#define T_IF 28
-#define T_THEN 29
-#define T_ELSE 30
-#define T_READ 31
-#define T_WRITE 32
-#define T_TRUE 33 
-#define T_FALSE 34
-#define T_LBRACK 35
-#define T_RBRACK 36
-#define T_SCOLON 37
-#define T_COLON 38
-#define T_LPAREN 39
-#define T_RPAREN 40
-#define T_COMMA 41
-#define T_DOT 42
-#define T_DOTDOT 43
-#define T_INTCONST 44
-#define T_CHARCONST 45
-#define T_UNKNOWN 46
-#define T_IDENT 47
-*/
 %}
 
 INTCONST [0-9]+
@@ -305,6 +259,7 @@ NEWLINE [\r\n]
 
 	if(strlen(text) < strlen(MAX_INT_STR)) {
 		printToken("T_INTCONST", yytext);
+		yylval.integer = atol(yytext);
 		return T_INTCONST;
 	}
 	else if(strlen(text) > strlen(MAX_INT_STR)) {
@@ -323,6 +278,7 @@ NEWLINE [\r\n]
 		}
 
 		printToken("T_INTCONST", yytext);
+		yylval.integer = atol(yytext);
 		return T_INTCONST;
 	}
 }
@@ -339,6 +295,7 @@ NEWLINE [\r\n]
 
 {IDENT} {
 	printToken("T_IDENT", yytext);
+	yylval.text = strdup(yytext);
 	return T_IDENT;
 }
 

@@ -8,6 +8,8 @@
 
 %{
 #include <cstdio>
+#include "varinfo.h"
+#include "scope.h"
 #define PRINT_RULES 1
 
 	int lines = 1;
@@ -25,13 +27,34 @@
 		int yywrap() { return 1; }
 	}
 
+	Scope scope;
+
+	struct IdentList {
+		char* ident;
+		IdentList* next;
+	};
 %}
+
+%union {
+	char* text;
+	VarInfo varinfo;
+	TypeInfo typeinfo;
+	ArrayInfo arrayinfo;
+	long integer;
+	IdentList* ilist;
+};
 
 %token T_ASSIGN T_MULT T_PLUS T_MINUS T_DIV T_AND T_OR T_NOT T_LT T_GT T_LE T_GE T_EQ T_NE T_VAR T_ARRAY T_OF T_BOOL T_CHAR T_INT T_PROG T_PROC T_BEGIN T_END T_WHILE T_DO T_IF T_READ T_WRITE T_TRUE T_FALSE T_LBRACK T_RBRACK T_SCOLON T_COLON T_LPAREN T_RPAREN T_COMMA T_DOT T_DOTDOT T_INTCONST T_CHARCONST T_UNKNOWN T_IDENT 
 %nonassoc T_THEN %nonassoc T_ELSE
 
 %start N_START
 
+%type<text> T_IDENT N_IDENT; 
+%type<typeinfo> N_TYPE N_ARRAY N_SIMPLE;
+%type<varinfo> N_VARIDENT;
+%type<arrayinfo> N_IDXRANGE;
+%type<integer> N_IDX N_INTCONST N_SIGN T_INTCONST;
+%type<ilist> N_IDENTLST;
 %%
 
 N_START : N_PROG 
@@ -48,9 +71,24 @@ N_PROGLBL : T_PROG
 	}
 ;
 
-N_PROG : N_PROGLBL T_IDENT T_SCOLON N_BLOCK T_DOT
+N_PROG : N_PROGLBL 
+	{
+		scope.push();
+	}
+		T_IDENT T_SCOLON
 	{
 		printRule("N_PROG", "N_PROGLBL T_IDENT T_SCOLON N_BLOCK T_DOT");
+		std::string pname($3);
+		free($3);
+		VarInfo v;
+		v.type.type = PROGRAM;
+		if(!scope.add(pname, v)) {
+			yyerror("Multiply defined identifier");
+		}
+	}
+		N_BLOCK T_DOT
+	{
+		scope.pop();
 	}
 ;
 
@@ -83,63 +121,100 @@ N_VARDECLST : /* epsilon */
 N_VARDEC : N_IDENT N_IDENTLST T_COLON N_TYPE
 	{
 		printRule("N_VARDEC", "N_IDENT N_IDENTLST T_COLON N_TYPE");
+		IdentList* it = $2;
+		IdentList* del;
+		VarInfo v;
+		v.type = $4;
+		if(!scope.add(std::string($1), v)) {
+			yyerror("Multiply defined identifier");
+		}
+		free($1);
+		while(it != NULL) {
+			if(!scope.add(std::string(it->ident), v)) {
+				yyerror("Multiply defined identifier");
+			}
+			free(it->ident);
+			del = it;
+			it = it->next;
+			delete del;
+		}
 	}
 ;
 
 N_IDENT : T_IDENT
 	{
+		$$ = $1;
 		printRule("N_IDENT", "T_IDENT");
 	}
 ;
 
 N_IDENTLST : /* epsilon */
 	{
+		$$ = NULL;
 		printRule("N_IDENTLST", "epsilon");
 	} 
 | T_COMMA N_IDENT N_IDENTLST
 	{
+		IdentList* il = new IdentList;
+		il->ident = $2;
+		il->next = $3;
+
+		$$ = il;
+
 		printRule("N_IDENTLST", "T_COMMA N_IDENT N_IDENTLST");
 	}
 ;
 
 N_TYPE : N_SIMPLE
 	{
+		$$ = $1;
 		printRule("N_TYPE", "N_SIMPLE");
 	}
 | N_ARRAY
 	{
+		$$ = $1;
 		printRule("N_TYPE", "N_ARRAY");
 	}
 ;
 
 N_ARRAY : T_ARRAY T_LBRACK N_IDXRANGE T_RBRACK T_OF N_SIMPLE
 	{
+		$$.array = $3;
+		$$.type = ARRAY;
+		$$.extended = $6.type;
 		printRule("N_ARRAY", "T_ARRAY T_LBRACK N_IDXRANGE T_RBRACK T_OF N_SIMPLE");
 	}
 ;
 
 N_IDX : N_INTCONST 
 	{
+		$$ = $1;
 		printRule("N_IDX", "N_INTCONST");
 	}
 ;
 
 N_IDXRANGE : N_IDX T_DOTDOT N_IDX
 	{
+		/* TODO: range checking */
+		$$.start = $1;
+		$$.end = $3;
 		printRule("N_IDXRANGE", "N_IDX T_DOTDOT N_IDX");
 	}
 ;
 
 N_SIMPLE : T_INT
 	{
+		$$.type = INT;
 		printRule("N_SIMPLE", "T_INT");
 	}
 | T_CHAR
 	{
+		$$.type = CHAR;
 		printRule("N_SIMPLE", "T_CHAR");
 	}
 | T_BOOL
 	{
+		$$.type = BOOL;
 		printRule("N_SIMPLE", "T_BOOL");
 	}
 ;
@@ -157,12 +232,19 @@ N_PROCDECPART : /* epsilon */
 N_PROCDEC : N_PROCHDR N_BLOCK
 	{
 		printRule("N_PROCDEC", "N_PROCHDR N_BLOCK");
+		scope.pop();
 	}
 ;
 
 N_PROCHDR : T_PROC T_IDENT T_SCOLON
 	{
 		printRule("N_PROCHDR", "T_PROC T_IDENT T_SCOLON");
+		VarInfo p;
+		p.type.type = PROCEDURE;
+		if(!scope.add(std::string($2), p)) {
+			yyerror("Multiply defined identifier");
+		}
+		scope.push();
 	}
 ;
 
@@ -358,14 +440,17 @@ N_FACTOR : N_SIGN N_VARIABLE
 
 N_SIGN : /* epsilon */
 	{
+		$$ = 1;
 		printRule("N_SIGN", "epsilon");
 	}
 | T_PLUS
 	{
+		$$ = 1;
 		printRule("N_SIGN", "T_PLUS");
 	}
 | T_MINUS
 	{
+		$$ = -1;
 		printRule("N_SIGN", "T_MINUS");
 	}
 ;
@@ -455,6 +540,11 @@ N_ENTIREVAR : N_VARIDENT
 N_VARIDENT : T_IDENT
 	{
 		printRule("N_VARIDENT", "T_IDENT");
+		$$ = scope.get(std::string($1));
+		free($1);
+		if($$.type.type == UNDEFINED) {
+			yyerror("Undefined identifier");
+		}
 	}
 ;
 
@@ -474,6 +564,7 @@ N_CONST : N_INTCONST
 
 N_INTCONST : N_SIGN T_INTCONST
 	{
+		$$ = $1 * $2;
 		printRule("N_INTCONST", "N_SIGN T_INTCONST");
 	}
 ;
@@ -504,7 +595,8 @@ void printRule(const char* lhs, const char* rhs) {
 }
 
 int yyerror(const char* s) {
-	printf("Line %d: syntax error\n", lines);
+	printf("Line %d: %s\n", yylineno, s);
+	exit(0);
 }
 
 int main() {
