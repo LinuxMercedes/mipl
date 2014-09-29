@@ -121,20 +121,28 @@ N_VARDEC : N_IDENT N_IDENTLST T_COLON N_TYPE
 		printRule("N_VARDEC", "N_IDENT N_IDENTLST T_COLON N_TYPE");
 		IdentList* it = $2;
 		IdentList* del;
+
 		VarInfo v;
 		v.type = $4;
+
 		if(!scope.add(std::string($1), v)) {
+			free($1);
 			yyerror("Multiply defined identifier");
 		}
 		free($1);
+
+		bool mult = false; /* Try to not leak memory */
 		while(it != NULL) {
-			if(!scope.add(std::string(it->ident), v)) {
-				yyerror("Multiply defined identifier");
+			if(!mult && !scope.add(std::string(it->ident), v)) {
+				mult = true;
 			}
 			free(it->ident);
 			del = it;
 			it = it->next;
 			delete del;
+		}
+		if(mult) {
+			yyerror("Multiply defined identifier");
 		}
 	}
 ;
@@ -239,8 +247,10 @@ N_PROCHDR : T_PROC T_IDENT T_SCOLON
 		VarInfo p;
 		p.type.type = PROCEDURE;
 		if(!scope.add(std::string($2), p)) {
+			free($2);
 			yyerror("Multiply defined identifier");
 		}
+		free($2);
 		scope.push();
 	}
 ;
