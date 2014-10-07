@@ -3,7 +3,8 @@
 #include "varinfo.h"
 #include <string>
 #include <map>
-#include <forward_list>
+#include <list>
+#include <stdio.h>
 
 #define SCOPE_PRINTING
 
@@ -17,6 +18,6 @@ class Scope {
     bool add(const std::string& name, const VarInfo& v);
     VarInfo get(const std::string& name);
   private:
-    std::forward_list<SymbolTable> scope;
+    std::list<SymbolTable> scope;
 };
 

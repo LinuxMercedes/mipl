@@ -6,7 +6,7 @@ OUTFILES=$(TESTFILES:.txt=.result)
 
 CC=g++
 
-CFLAGS=-g -std=c++11
+CFLAGS=-g
 
 .PHONY: all parser clean test cleantest 
 

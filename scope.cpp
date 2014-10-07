@@ -33,7 +33,7 @@ bool Scope::add(const std::string& name, const VarInfo& v) {
 }
 
 VarInfo Scope::get(const std::string& name) {
-  for(auto it = scope.begin(); it != scope.end(); it++) {
+  for(std::list<SymbolTable>::iterator it = scope.begin(); it != scope.end(); it++) {
     if(it->find(name) != it->end()) {
       return it->at(name);
     }
