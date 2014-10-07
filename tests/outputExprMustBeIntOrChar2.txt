@@ -1,0 +1,11 @@
+(* 
+   Output expression must be of type integer or char
+*)
+
+program p;
+
+begin
+  write(true);
+  write('!')
+end.
+

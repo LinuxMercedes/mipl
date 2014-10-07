@@ -1,0 +1,14 @@
+(* 
+   Expression must be of type integer
+*)
+
+program p;
+
+var i : integer;
+    c : char;
+
+begin
+  i := -c;
+  write('!')
+end.
+

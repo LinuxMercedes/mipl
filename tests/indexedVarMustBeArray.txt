@@ -1,0 +1,13 @@
+(* 
+   Indexed variable must be of array type
+*)
+
+program p;
+
+var x : integer;
+
+begin
+  read(x[4]);
+  write('!')
+end.
+

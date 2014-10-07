@@ -1,0 +1,13 @@
+(* 
+  Index expression must be of type integer
+*)
+
+program p;
+
+var A : array [5..10] of integer;
+    x : char;
+
+begin
+  A[x] := 99
+end.
+
