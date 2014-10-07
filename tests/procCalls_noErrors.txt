@@ -1,0 +1,53 @@
+(*
+	Nested procedures and calls -- no errors
+*)
+
+program p;
+
+procedure p1;
+
+  procedure p1a;
+  begin
+    p1a;
+    p1;
+    write('p',1,'a')
+  end; (* p1a *)
+
+  procedure p1b;
+
+    procedure p1b_a;
+    begin
+      p1b_a;
+      p1b;
+      p1a;
+      p1;
+      write('p',1,'b','_','a')
+    end; (* p1b_a *)
+
+  begin (* p1b *)
+    p1b_a;
+    p1b;
+    p1a;
+    p1;
+    write('p',1,'b')
+  end; (* p1b *)
+
+begin (* p1 *)
+  p1b;
+  p1a;
+  p1;
+  write('p',1)
+end; (* p1 *)
+
+procedure p2;
+begin
+  p2;
+  write('p',2)
+end;
+
+begin (* main *)
+  p1;
+  p2;
+  write('m','a','i','n','\')
+end.
+

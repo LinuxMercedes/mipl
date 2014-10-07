@@ -1,0 +1,18 @@
+(* 
+   Expression must be of type boolean
+*)
+
+program p;
+
+var i : integer;
+    c : char;
+
+begin
+  while c do
+  begin
+   i := i + 1;
+   write(i)
+  end;
+  write('!')
+end.
+

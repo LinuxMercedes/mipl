@@ -1,0 +1,11 @@
+(* 
+   Expression must be of type boolean
+*)
+
+program p;
+
+begin
+  if 't' then write('5');
+  write('!')
+end.
+
