@@ -10,7 +10,7 @@
 #include <cstdio>
 #include "varinfo.h"
 #include "scope.h"
-#define PRINT_RULES 1
+#undef PRINT_RULES
 
 	void printRule(const char* lhs, const char* rhs);
 	void printToken(const char* token, const char* lexeme);
@@ -43,13 +43,14 @@
 };
 
 %token T_ASSIGN T_MULT T_PLUS T_MINUS T_DIV T_AND T_OR T_NOT T_LT T_GT T_LE T_GE T_EQ T_NE T_VAR T_ARRAY T_OF T_BOOL T_CHAR T_INT T_PROG T_PROC T_BEGIN T_END T_WHILE T_DO T_IF T_READ T_WRITE T_TRUE T_FALSE T_LBRACK T_RBRACK T_SCOLON T_COLON T_LPAREN T_RPAREN T_COMMA T_DOT T_DOTDOT T_INTCONST T_CHARCONST T_UNKNOWN T_IDENT 
-%nonassoc T_THEN %nonassoc T_ELSE
+%nonassoc T_THEN 
+%nonassoc T_ELSE
 
 %start N_START
 
 %type<text> T_IDENT N_IDENT; 
-%type<typeinfo> N_TYPE N_ARRAY N_SIMPLE;
-%type<varinfo> N_VARIDENT;
+%type<typeinfo> N_TYPE N_ARRAY N_SIMPLE N_EXPR N_ADDOPLST N_MULTOPLST N_FACTOR N_ADDOP N_MULTOP N_RELOP N_CONST N_SIMPLEEXPR N_TERM;
+%type<varinfo> N_VARIDENT N_PROCIDENT N_VARIABLE N_IDXVAR N_ENTIREVAR N_ARRAYVAR;
 %type<arrayinfo> N_IDXRANGE;
 %type<integer> N_IDX N_INTCONST N_SIGN T_INTCONST;
 %type<ilist> N_IDENTLST;
@@ -201,9 +202,14 @@ N_IDX : N_INTCONST
 
 N_IDXRANGE : N_IDX T_DOTDOT N_IDX
 	{
+		printRule("N_IDXRANGE", "N_IDX T_DOTDOT N_IDX");
+	
+		if ($1 > $3) {
+			yyerror("Start index must be less than or equal to end index of array");
+		}
+
 		$$.start = $1;
 		$$.end = $3;
-		printRule("N_IDXRANGE", "N_IDX T_DOTDOT N_IDX");
 	}
 ;
 
@@ -310,6 +316,14 @@ N_STMT : N_ASSIGN
 N_ASSIGN : N_VARIABLE T_ASSIGN N_EXPR
 	{
 		printRule("N_ASSIGN", "N_VARIABLE T_ASSIGN N_EXPR");
+
+		if($1.type.type == ARRAY) {
+			yyerror("Cannot make assignment to an array");
+		}
+
+		if($1.type.type != $3.type) {
+			yyerror("Expression must be of same type as variable");
+		}
 	}
 ;
 
@@ -322,6 +336,16 @@ N_PROCSTMT : N_PROCIDENT
 N_PROCIDENT : T_IDENT
 	{
 		printRule("N_PROCIDENT", "T_IDENT");
+		$$ = scope.get(std::string($1));
+		free($1);
+	
+		if($$.type.type == UNDEFINED) {
+			yyerror("Undefined identifier");
+		}
+		
+		if($$.type.type != PROCEDURE) {
+			yyerror("Procedure/variable mismatch");
+		}
 	}
 ;
 
@@ -344,6 +368,10 @@ N_INPUTLST : /* epsilon */
 N_INPUTVAR : N_VARIABLE
 	{
 		printRule("N_INPUTVAR", "N_VARIABLE");
+		
+		if($1.type.type != INT && $1.type.type != CHAR) {
+			yyerror("Input variable must be of type integer or char");
+		}
 	}
 ;
 
@@ -366,20 +394,38 @@ N_OUTPUTLST : /* epsilon */
 N_OUTPUT : N_EXPR
 	{
 		printRule("N_OUTPUT", "N_EXPR");
+
+		if($1.type != INT && $1.type != CHAR) {
+			yyerror("Output expression must be of type integer or char");
+		}
 	}
 ;
 
 N_CONDITION : T_IF N_EXPR T_THEN N_STMT
 	{
 		printRule("N_CONDITION", "T_IF N_EXPR T_THEN N_STMT");
+		
+		if($2.type != BOOL) {
+			yyerror("Expression must be of type boolean");
+		}
 	}
 | T_IF N_EXPR T_THEN N_STMT T_ELSE N_STMT
 	{
 		printRule("N_CONDITION", "T_IF N_EXPR T_THEN N_STMT T_ELSE N_STMT");
+		
+		if($2.type != BOOL) {
+			yyerror("Expression must be of type boolean");
+		}
 	}
 ;
 
-N_WHILE : T_WHILE N_EXPR T_DO N_STMT
+N_WHILE : T_WHILE N_EXPR 
+	{
+		if($2.type != BOOL) {
+			yyerror("Expression must be of type boolean");
+		}
+	}
+		T_DO N_STMT
 	{
 		printRule("N_WHILE", "T_WHILE N_EXPR T_DO N_STMT");
 	}
@@ -387,67 +433,126 @@ N_WHILE : T_WHILE N_EXPR T_DO N_STMT
 
 N_EXPR : N_SIMPLEEXPR
 	{
+		$$ = $1;
 		printRule("N_EXPR", "N_SIMPLEEXPR");
 	}
 | N_SIMPLEEXPR N_RELOP N_SIMPLEEXPR
 	{
 		printRule("N_EXPR", "N_SIMPLEEXPR N_RELOP N_SIMPLEEXPR");
+		
+		if(($1.type != CHAR && $1.type != BOOL && $1.type != INT) || $1.type != $3.type) {
+			yyerror("Expressions must both be int, or both char, or both boolean");
+		}
+		$$ = $2;
 	}
 ;
 
 N_SIMPLEEXPR : N_TERM N_ADDOPLST
 	{
 		printRule("N_SIMPLEEXPR", "N_TERM N_ADDOPLST");
+		
+		if($2.type != UNDEFINED && $1.type != $2.type) {
+			switch($2.type) {
+				case BOOL:
+					yyerror("Expression must be of type boolean");
+				case INT:
+					yyerror("Expression must be of type integer");
+			}
+		}
+		$$ = $1;	
 	}
 ;
 
 N_ADDOPLST : /* epsilon */
 	{
+		$$.type = UNDEFINED;
 		printRule("N_ADDOPLST", "epsilon");
 	}
 | N_ADDOP N_TERM N_ADDOPLST
 	{
 		printRule("N_ADDOPLST", "N_ADDOP N_TERM N_ADDOPLST");
+		
+		if(($1.type != $2.type) || ($3.type != UNDEFINED && $3.type != $1.type)) {
+			switch($1.type) {
+				case BOOL:
+					yyerror("Expression must be of type boolean");
+				case INT:
+					yyerror("Expression must be of type integer");
+			}
+		}
 	}
 ;
 
 N_TERM : N_FACTOR N_MULTOPLST
 	{
 		printRule("N_TERM", "N_FACTOR N_MULTOPLST");
+		
+		if($2.type != UNDEFINED && $1.type != $2.type) {
+			switch($2.type) {
+				case BOOL:
+					yyerror("Expression must be of type boolean");
+				case INT:
+					yyerror("Expression must be of type integer");
+			}
+		}
+		$$ = $1;
 	}
 ;
 
 N_MULTOPLST : /* epsilon */
 	{
+		$$.type = UNDEFINED;
 		printRule("N_MULTOPLST", "epsilon");
 	}
 | N_MULTOP N_FACTOR N_MULTOPLST
 	{
 		printRule("N_MULTOPLST", "N_MULTOP N_FACTOR N_MULTOPLST");
+		
+		if(($1.type != $2.type) || ($3.type != UNDEFINED && $3.type != $1.type)) {
+			switch($1.type) {
+				case BOOL:
+					yyerror("Expression must be of type boolean");
+				case INT:
+					yyerror("Expression must be of type integer");
+			}
+		}
+		$$ = $1;
 	}
 ;
 
 N_FACTOR : N_SIGN N_VARIABLE 
 	{
 		printRule("N_FACTOR", "N_SIGN N_VARIABLE");
+		
+		if($1 != 0 && $2.type.type != INT) {
+			yyerror("Expression must be of type integer");
+		}
+		$$ = $2.type;
 	}
 | N_CONST
 	{
+		$$ = $1;
 		printRule("N_FACTOR", "N_CONST");
 	}
 | T_LPAREN N_EXPR T_RPAREN
 	{
+		$$ = $2;
 		printRule("N_FACTOR", "T_LPAREN N_EXPR T_RPAREN");
 	}
 | T_NOT N_FACTOR
 	{
 		printRule("N_FACTOR", "T_NOT N_FACTOR");
+
+		if($2.type != BOOL) {
+			yyerror("Expression must be of type boolean");
+		}
+		$$ = $2;
 	}
 ;
 
 N_SIGN : /* epsilon */
 	{
-		$$ = 1;
+		$$ = 0;
 		printRule("N_SIGN", "epsilon");
 	}
 | T_PLUS
@@ -464,64 +569,78 @@ N_SIGN : /* epsilon */
 
 N_ADDOP : T_PLUS
 	{
+		$$.type = INT;
 		printRule("N_ADDOP", "T_PLUS");
 	}
 | T_MINUS
 	{
+		$$.type = INT;
 		printRule("N_ADDOP", "T_MINUS");
 	}
 | T_OR
 	{
+		$$.type = BOOL;
 		printRule("N_ADDOP", "T_OR");
 	}
 ;
 
 N_MULTOP : T_MULT
 	{
+		$$.type = INT;
 		printRule("N_MULTOP", "T_MULT");
 	}
 | T_DIV
 	{
+		$$.type = INT;
 		printRule("N_MULTOP", "T_DIV");
 	}
 | T_AND
 	{
+		$$.type = BOOL;
 		printRule("N_MULTOP", "T_AND");
 	}
 ;
 
 N_RELOP : T_LT
 	{
+		$$.type = BOOL;
 		printRule("N_RELOP", "T_LT");
 	}
 | T_LE
 	{
+		$$.type = BOOL;
 		printRule("N_RELOP", "T_LE");
 	}
 | T_NE
 	{
+		$$.type = BOOL;
 		printRule("N_RELOP", "T_NE");
 	}
 | T_EQ
 	{
+		$$.type = BOOL;
 		printRule("N_RELOP", "T_EQ");
 	}
 | T_GT
 	{
+		$$.type = BOOL;
 		printRule("N_RELOP", "T_GT");
 	}
 | T_GE
 	{
+		$$.type = BOOL;
 		printRule("N_RELOP", "T_GE");
 	}
 ;
 
 N_VARIABLE : N_ENTIREVAR
 	{
+		$$ = $1;
 		printRule("N_VARIABLE", "N_ENTIREVAR");
 	}
 | N_IDXVAR
 	{
+		$$ = $1;
 		printRule("N_VARIABLE", "N_IDXVAR");
 	}
 ;
@@ -529,17 +648,28 @@ N_VARIABLE : N_ENTIREVAR
 N_IDXVAR : N_ARRAYVAR T_LBRACK N_EXPR T_RBRACK
 	{
 		printRule("N_IDXVAR", "N_ARRAYVAR T_LBRACK N_EXPR T_RBRACK");
+		
+		if($3.type !=	INT) {
+			yyerror("Index expression must be of type integer");
+		}
+		$$.type.type = $1.type.extended;
 	}
 ;
 
 N_ARRAYVAR : N_ENTIREVAR
 	{
 		printRule("N_ARRAYVAR", "N_ENTIREVAR");
+		
+		if($1.type.type != ARRAY) {
+			yyerror("Indexed variable must be of array type");
+		}
+		$$ = $1;
 	}
 ;
 
 N_ENTIREVAR : N_VARIDENT
 	{
+		$$ = $1;
 		printRule("N_ENTIREVAR", "N_VARIDENT");
 	}
 ;
@@ -552,26 +682,37 @@ N_VARIDENT : T_IDENT
 		if($$.type.type == UNDEFINED) {
 			yyerror("Undefined identifier");
 		}
+		if($$.type.type == PROCEDURE) {
+			yyerror("Procedure/variable mismatch");
+		}
 	}
 ;
 
 N_CONST : N_INTCONST
 	{
+		$$.type = INT;
 		printRule("N_CONST", "N_INTCONST");
 	}
 | T_CHARCONST
 	{
+		$$.type = CHAR;
 		printRule("N_CONST", "T_CHARCONST");
 	}
 | N_BOOLCONST
 	{
+		$$.type = BOOL;
 		printRule("N_CONST", "N_BOOLCONST");
 	}
 ;
 
 N_INTCONST : N_SIGN T_INTCONST
 	{
-		$$ = $1 * $2;
+		if($1 != 0) {
+			$$ = $1 * $2;
+		}
+		else {
+			$$ = $2;
+		}
 		printRule("N_INTCONST", "N_SIGN T_INTCONST");
 	}
 ;
@@ -592,7 +733,9 @@ N_BOOLCONST : T_TRUE
 extern FILE* yyin;
 
 void printToken(const char* token, const char* lexeme) {
+#ifdef PRINT_RULES
 	printf("TOKEN: %s\tLEXEME: %s\n", token, lexeme);
+#endif
 }
 
 void printRule(const char* lhs, const char* rhs) {
