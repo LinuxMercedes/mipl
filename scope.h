@@ -6,7 +6,7 @@
 #include <list>
 #include <stdio.h>
 
-#define SCOPE_PRINTING
+#undef SCOPE_PRINTING
 
 typedef std::map<std::string, VarInfo> SymbolTable;
 
