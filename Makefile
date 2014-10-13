@@ -18,21 +18,13 @@ lex.yy.c: mipl.l
 mipl.tab.c: lex.yy.c mipl.y
 	bison mipl.y
 
-varinfo.o: varinfo.cpp varinfo.h
-	${CC} ${CFLAGS} -c varinfo.cpp
-
-scope.o: scope.cpp scope.h
-	${CC} ${CFLAGS} -c scope.cpp
-
-parser: mipl.tab.c scope.o varinfo.o
-	${CC} ${CFLAGS} mipl.tab.c varinfo.o scope.o -o parser
+parser: mipl.tab.c
+	${CC} ${CFLAGS} mipl.tab.c -o parser
 
 clean: cleantest
 	-rm mipl.tab.c
 	-rm lex.yy.c
 	-rm parser
-	-rm scope.o
-	-rm varinfo.o
 
 test: cleantest parser $(OUTFILES) 
 	@echo "[+] All tests passed!"
