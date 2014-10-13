@@ -8,7 +8,7 @@ CC=g++
 
 CFLAGS=-g
 
-.PHONY: all parser clean test cleantest 
+.PHONY: all parser clean test cleantest submit
 
 all: parser
 
@@ -43,4 +43,8 @@ test: cleantest parser $(OUTFILES)
 
 cleantest:
 	-rm $(TESTDIR)/*.result
+
+submit:
+	cp mipl.l jarusn.l
+	cp mipl.y jarusn.y
 
