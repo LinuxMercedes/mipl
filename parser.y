@@ -38,7 +38,7 @@ void addEntryToSymbolTable(char id, SUBSCRIPT_INFO subscriptInfo);
 SUBSCRIPT_INFO findEntryInSymbolTable(char id);
 void outputSubscriptInfo(SUBSCRIPT_INFO v);
 
-void prRule(char*, char*);
+void prRule(const char*, const char*);
 
 int yyerror(const char* s) {
   printf("Line %d: %s\n", lineNum, s);
@@ -248,7 +248,7 @@ R	: GT
 #include "lex.yy.c"
 extern FILE *yyin;
 
-void prRule(char* lhs, char* rhs) {
+void prRule(const char* lhs, const char* rhs) {
   if (DEBUG) printf("%s -> %s\n", lhs, rhs);
     return;
 }
