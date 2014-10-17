@@ -1,0 +1,7 @@
+L1:
+t1 = x > 10
+if t1 == false goto L2
+t2 = x + 1
+x = t2  
+goto L1
+L2:

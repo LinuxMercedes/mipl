@@ -1,0 +1,8 @@
+t1 = x <= 10
+if t1 == false goto L1
+t2 = x + 1
+x = t2  
+goto L2
+L1:
+x = 7  
+L2:

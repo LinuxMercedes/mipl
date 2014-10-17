@@ -1,0 +1,5 @@
+var x;
+{
+if (x <= 10) then x = x + 1 else x = 7;
+}
+
