@@ -12,17 +12,17 @@ CFLAGS=-g
 
 all: parser
 
-lex.yy.c: mipl.l
-	flex mipl.l
+lex.yy.c: parser.l
+	flex parser.l
 
-mipl.tab.c: lex.yy.c mipl.y
-	bison mipl.y
+parser.tab.c: lex.yy.c parser.y
+	bison parser.y
 
-parser: mipl.tab.c
-	${CC} ${CFLAGS} mipl.tab.c -o parser
+parser: parser.tab.c
+	${CC} ${CFLAGS} parser.tab.c -o parser
 
 clean: cleantest
-	-rm mipl.tab.c
+	-rm parser.tab.c
 	-rm lex.yy.c
 	-rm parser
 
@@ -37,6 +37,6 @@ cleantest:
 	-rm $(TESTDIR)/*.result
 
 submit:
-	cp mipl.l jarusn.l
-	cp mipl.y jarusn.y
+	cp parser.l jarusn.l
+	cp parser.y jarusn.y
 
