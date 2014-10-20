@@ -62,7 +62,8 @@ enum operator {
 enum type {
 	VAR,
 	TEMP,
-	LABEL
+	LABEL,
+	VALUE
 };
 
 struct operand {
@@ -71,6 +72,7 @@ struct operand {
 		char var;
 		unsigned int temp;
 		unsigned int label;
+		int val;
 	};
 };
 
@@ -82,6 +84,10 @@ struct triple {
 };	
 
 list<triple> code;
+list<unsigned int> labels;
+
+unsigned int temp = 1;
+unsigned int label = 1;
 
 void printOp(const operand& o) {
 	switch(o.t) {
@@ -93,6 +99,9 @@ void printOp(const operand& o) {
 			break;
 		case LABEL:
 			printf("L%d", o.o.label);
+			break;
+		case VALUE:
+			printf("%d", o.o.val);	
 			break;
 	}
 }
@@ -218,6 +227,7 @@ extern "C" {
 %union {
   char ch;
   int num;
+	operand op;
 };
 
 /*
@@ -232,6 +242,7 @@ extern "C" {
 
 %type <num> INTCONST 
 %type	<ch> IDENT 
+%type <op> A E
 
 /*
  *	Starting point.
@@ -285,14 +296,17 @@ C	: S SEMICOL C
 S	: A
 	{
 	prRule("S", "A ;");
+	$$ = $1;
 	}
 	| F
 	{
 	prRule("S", "F");
+	$$ = $1;
 	}
 	| W
 	{
 	prRule("S", "W");
+	$$ = $1;
 	}
 	;  
 A	: IDENT ASSIGN E
@@ -316,7 +330,9 @@ A	: IDENT ASSIGN E
 	t.op = ASSIGN;
 	t.result = id;
 	t.op1 = $3;
-	code.append(t);
+	code.push_back(t);
+
+	printTriple(t);
 	
 	$$ = id;
 	}
@@ -325,19 +341,94 @@ A	: IDENT ASSIGN E
 	prRule("A", "L = E");
 	}
 	;
-F	: IF LPAREN B RPAREN THEN S ELSE S
+F	: IF LPAREN B RPAREN THEN 
+	{
+
+	operand lbl;
+	lbl.type = LABEL;
+	lbl.o.label = label;
+
+	labels.push_back(label++);
+
+	triple t;
+	t.op = IFF;
+	t.op1 = $3;
+	t.op2 = lbl;
+	code.push_back(t);
+	printTriple(t);
+
+	}
+		S ELSE 
+	{
+		printLbl(labels.pop_back());
+	}
+		S
 	{
 	prRule("F", "if ( B ) then S else S");
 	}
 	; 
-W	: WHILE LPAREN B RPAREN S
+W	: WHILE LPAREN 
+	{
+		printLbl(label);
+		labels.push_back(label++);
+	}
+		B RPAREN 
+	{
+	
+	operand after;
+	after.type = LABEL;
+	after.o.label = label;
+	labels.push_back(label++);
+
+	triple t;
+	t.op = IFF;
+	t.op1 = $4;
+	t.op2 = after;
+	code.push_back(t);
+	printTriple(t);
+	}
+		S
 	{
 	prRule("S", "while ( B ) S");
+
+	unsigned int after = labels.pop_back();
+
+	operand lbl;
+	lbl.type = LABEL;
+	lbl.o.label = labels.pop_back();
+
+	triple t;
+	t.op = GOTO;
+	t.op1 = lbl;
+	code.push_back(t);
+	printTriple(t);
+
+	printLbl(after);
+
 	}
 	;
 E	: E ADD INTCONST
 	{
 	prRule("E", "E + INTCONST");
+
+	operand result;
+	result.t = TEMP;
+	result.o.temp = temp++;
+
+	operand intval;
+	intval.t = VALUE;
+	intval.o.val = $3;
+
+	triple t;
+	t.op = ADD;
+	t.result = result;
+	t.op1 = $1;
+	t.op2 = intval;
+	code.push_back(t);
+	printTriple(t);
+
+	$$ = result;
+	
 	}
 	| IDENT
 	{
@@ -351,14 +442,25 @@ E	: E ADD INTCONST
         }
 	  printf("\n");
       }
+
+	operand o;
+	o.t = VAR;
+	o.o.var = $1;
+
+	$$ = o;
 	}
 	| L
 	{
 	prRule("E", "L");
+	$$ = $1;
 	}
 	| INTCONST
 	{
 	prRule("E", "INTCONST");
+	operand intval;
+	intval.t = VALUE;
+	intval.o.val = $1;
+	$$ = intval;
 	}
 	;
 L	: IDENT LBRACK E RBRACK
