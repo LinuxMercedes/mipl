@@ -81,7 +81,7 @@ struct triple {
 	operand op2;
 };	
 
-list<triple> intermediates;
+list<triple> code;
 
 void printOp(const operand& o) {
 	switch(o.t) {
@@ -307,6 +307,18 @@ A	: IDENT ASSIGN E
         }
         printf("\n");
       }
+
+	operand id;
+	id.type = VAR;
+	id.o.var = $1;
+
+	triple t; 
+	t.op = ASSIGN;
+	t.result = id;
+	t.op1 = $3;
+	code.append(t);
+	
+	$$ = id;
 	}
 	| L ASSIGN E
 	{
