@@ -44,6 +44,8 @@ void prRule(const char*, const char*);
 
 enum operator {
 	ASSIGNMENT,
+	ARRRAY_ACC,
+	ARRAY_ASS,
 	ADD,
 	MULTIPLY,
 	GT,
@@ -107,6 +109,22 @@ void printTriple(const triple& t) {
 			printf(" = ");
 			printOp(t.op1);
 			break;
+case ARRAY_ACC:
+	printOp(t.result);
+printf("[");
+printOp(t.op1);
+printf("]");
+printf*(" = ");
+printOp(t.op2);
+break;
+case ARRAY_ASS:
+	printOp(t.result);
+printf*(" = ");
+printOp(t.op1);
+printf("[");
+printOp(t.op2);
+printf("]");
+break;
 		case ADD:
 			printOp(t.result);
 printf(" = ");
