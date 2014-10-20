@@ -24,6 +24,8 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include<list>
+
 using namespace std;
 
 int lineNum = 1; 
@@ -40,6 +42,148 @@ void outputSubscriptInfo(SUBSCRIPT_INFO v);
 
 void prRule(const char*, const char*);
 
+enum operator {
+	ASSIGNMENT,
+	ADD,
+	MULTIPLY,
+	GT,
+	GE,
+	EQ,
+	LE,
+	LT,
+	NE,
+	IFT,
+	IFF,
+	GOTO
+};
+
+enum type {
+	VAR,
+	TEMP,
+	LABEL
+};
+
+struct operand {
+	type t;
+	union o {
+		char var;
+		unsigned int temp;
+		unsigned int label;
+	};
+};
+
+struct triple {
+	operator op;
+	operand result;
+	operand op1;
+	operand op2;
+};	
+
+list<triple> intermediates;
+
+void printOp(const operand& o) {
+	switch(o.t) {
+		case VAR:
+			printf("%c", o.o.var);
+			break;
+		case TEMP:
+			printf("T%d", o.o.temp);
+			break;
+		case LABEL:
+			printf("L%d", o.o.label);
+			break;
+	}
+}
+
+void printLbl(unsigned int l) {
+	printf("L%d:\n", l);
+}
+
+/* ugh */
+void printTriple(const triple& t) {
+	switch(t.op) {
+		case ASSIGNMENT:
+			printOp(t.result);
+			printf(" = ");
+			printOp(t.op1);
+			break;
+		case ADD:
+			printOp(t.result);
+printf(" = ");
+printOp(t.op1);
+printf(" + ");
+printOp(t.op2);
+break;
+case MULTIPLY:
+			printOp(t.result);
+printf(" = ");
+printOp(t.op1);
+printf(" * ");
+printOp(t.op2);
+break;
+case GT:
+			printOp(t.result);
+printf(" = ");
+printOp(t.op1);
+printf(" > ");
+printOp(t.op2);
+break;
+case GE:
+			printOp(t.result);
+printf(" = ");
+printOp(t.op1);
+printf(" >= ");
+printOp(t.op2);
+break;
+case EQ:
+			printOp(t.result);
+printf(" = ");
+printOp(t.op1);
+printf(" == ");
+printOp(t.op2);
+break;
+	case LE:
+			printOp(t.result);
+printf(" = ");
+printOp(t.op1);
+printf(" <= ");
+printOp(t.op2);
+break;
+	case LT:
+			printOp(t.result);
+printf(" = ");
+printOp(t.op1);
+printf(" < ");
+printOp(t.op2);
+break;
+	case NE:
+			printOp(t.result);
+printf(" = ");
+printOp(t.op1);
+printf(" != ");
+printOp(t.op2);
+break;
+	case IFT:
+printf("If ");
+printOp(t.op1);
+printf(" == true goto ");
+printOp(t.op2);
+break;
+	case IFF:
+printf("If ");
+printOp(t.op1);
+printf(" == false goto ");
+printOp(t.op2);
+break;
+	case GOTO:
+printf("goto ");
+printOp(t.op1);
+break;
+}
+
+printf("\n");
+}
+	
 int yyerror(const char* s) {
   printf("Line %d: %s\n", lineNum, s);
   return(1);
