@@ -96,7 +96,7 @@ void printOp(const operand& o) {
 			printf("%c", o.o.var);
 			break;
 		case TEMP:
-			printf("T%d", o.o.temp);
+			printf("t%d", o.o.temp);
 			break;
 		case LABEL:
 			printf("L%d", o.o.label);
