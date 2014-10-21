@@ -42,9 +42,9 @@ void outputSubscriptInfo(SUBSCRIPT_INFO v);
 
 void prRule(const char*, const char*);
 
-enum operator {
+enum oper {
 	ASSIGNMENT,
-	ARRRAY_ACC,
+	ARRAY_ACC,
 	ARRAY_ASS,
 	ADD,
 	MULTIPLY,
@@ -68,16 +68,16 @@ enum type {
 
 struct operand {
 	type t;
-	union o {
+	union {
 		char var;
 		unsigned int temp;
 		unsigned int label;
 		int val;
-	};
+	} o;
 };
 
 struct triple {
-	operator op;
+	oper op;
 	operand result;
 	operand op1;
 	operand op2;
@@ -124,12 +124,12 @@ case ARRAY_ACC: /* This is broken but who cares */
 printf("[");
 printOp(t.op2);
 printf("]");
-printf*(" = ");
+printf(" = ");
 printOp(t.result);
 break;
 case ARRAY_ASS:
 	printOp(t.result);
-printf*(" = ");
+printf(" = ");
 printOp(t.op1);
 printf("[");
 printOp(t.op2);
@@ -326,11 +326,11 @@ A	: IDENT ASSIGN E
       }
 
 	operand id;
-	id.type = VAR;
+	id.t = VAR;
 	id.o.var = $1;
 
 	triple t; 
-	t.op = ASSIGN;
+	t.op = ASSIGNMENT;
 	t.result = id;
 	t.op1 = $3;
 	code.push_back(t);
@@ -353,7 +353,7 @@ F	: IF LPAREN B RPAREN THEN
 	{
 
 	operand lbl;
-	lbl.type = LABEL;
+	lbl.t = LABEL;
 	lbl.o.label = label;
 
 	labels.push_back(label++);
@@ -368,7 +368,8 @@ F	: IF LPAREN B RPAREN THEN
 	}
 		S ELSE 
 	{
-		printLbl(labels.pop_back());
+		printLbl(labels.back());
+		labels.pop_back();
 	}
 		S
 	{
@@ -384,7 +385,7 @@ W	: WHILE LPAREN
 	{
 	
 	operand after;
-	after.type = LABEL;
+	after.t = LABEL;
 	after.o.label = label;
 	labels.push_back(label++);
 
@@ -399,11 +400,13 @@ W	: WHILE LPAREN
 	{
 	prRule("S", "while ( B ) S");
 
-	unsigned int after = labels.pop_back();
+	unsigned int after = labels.back();
+	labels.pop_back();
 
 	operand lbl;
-	lbl.type = LABEL;
-	lbl.o.label = labels.pop_back();
+	lbl.t = LABEL;
+	lbl.o.label = labels.back();
+	labels.pop_back();
 
 	triple t;
 	t.op = GOTO;
@@ -493,7 +496,8 @@ L	: IDENT LBRACK E RBRACK
 	subscripts.push_front($3);
 	
 	list<operand> intermediates;
-	for(list<operand>::iterator it = subscripts.begin(), unsigned int i = 0; it != subscripts.end(); it++, i++) {
+	unsigned int i = 0;
+	for(list<operand>::iterator it = subscripts.begin(); it != subscripts.end(); it++) {
 		unsigned int sz = 4;
 		for(unsigned int j = i; j < s.size(); j++) {
 			sz *= s[j];
@@ -514,19 +518,25 @@ L	: IDENT LBRACK E RBRACK
 		
 		if(intermediates.size() == 2) {
 			triple t; 
-			t.op1 = intermediates.pop_front();
-			t.op2 = intermediates.pop_front();
+			t.op1 = intermediates.front();
+			intermediates.pop_front();
+			t.op2 = intermediates.front();
+			intermediates.pop_front();
 			t.result.t = TEMP;
 			t.result.o.temp = temp++;
 			intermediates.push_back(t.result);
 		}
+		i++;
 	}
 
 	/* This is the C++ equivalent of smallpox blankets */
 	triple t;
 	t.op1.t = VAR;
 	t.op1.o.var = $1;
-	t.op2 = intermediates.pop_front();
+	t.op2 = intermediates.front();
+	intermediates.pop_front();
+
+	subscripts.clear();
 
 	$$ = t;
 	}
@@ -546,7 +556,7 @@ B	: E R E
 	t.result.o.temp = temp++;
 	$$ = t.result;
 	code.push_back(t);
-	printTuple(t);
+	printTriple(t);
 	}
 	| TRUE
       {
