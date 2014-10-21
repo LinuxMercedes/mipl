@@ -85,10 +85,12 @@ struct triple {
 
 list<triple> code;
 list<unsigned int> labels;
-list<operand> subscripts;
 
 unsigned int temp = 1;
 unsigned int label = 1;
+
+unsigned int subscript = 0;
+SUBSCRIPT_INFO subscripts; 
 
 void printOp(const operand& o) {
 	switch(o.t) {
@@ -119,7 +121,7 @@ void printTriple(const triple& t) {
 			printf(" = ");
 			printOp(t.op1);
 			break;
-case ARRAY_ACC: /* This is broken but who cares */
+case ARRAY_ASS: /* This is broken but who cares */
 	printOp(t.op1);
 printf("[");
 printOp(t.op2);
@@ -127,7 +129,7 @@ printf("]");
 printf(" = ");
 printOp(t.result);
 break;
-case ARRAY_ASS:
+case ARRAY_ACC:
 	printOp(t.result);
 printf(" = ");
 printOp(t.op1);
@@ -493,58 +495,67 @@ L	: IDENT LBRACK E RBRACK
 	  printf("\n");
       }
 
-	subscripts.push_front($3);
-	
-	list<operand> intermediates;
-	unsigned int i = 0;
-	for(list<operand>::iterator it = subscripts.begin(); it != subscripts.end(); it++) {
-		unsigned int sz = 4;
-		for(unsigned int j = i; j < s.size(); j++) {
-			sz *= s[j];
-		}
+	subscript = 0;
+	subscripts = s;
 
-		triple t;
-		t.op = MULTIPLICATION;
-		t.op1 = *it;
-		t.op2.t = VALUE;
-		t.op2.o.val = sz;
-		t.result.t = TEMP;
-		t.result.o.temp = temp++;
-
-		code.push_back(t);
-		printTriple(t);
-
-		intermediates.push_back(t.result);
-		
-		if(intermediates.size() == 2) {
-			triple t; 
-			t.op = ADDITION;
-			t.op1 = intermediates.front();
-			intermediates.pop_front();
-			t.op2 = intermediates.front();
-			intermediates.pop_front();
-			t.result.t = TEMP;
-			t.result.o.temp = temp++;
-			intermediates.push_back(t.result);
-		}
-		i++;
+	unsigned int sz = 4;
+	for(unsigned int j = subscript + 1; j < s.size(); j++) {
+		sz *= s[j];
 	}
 
-	/* This is the C++ equivalent of smallpox blankets */
 	triple t;
-	t.op1.t = VARIABLE;
-	t.op1.o.var = $1;
-	t.op2 = intermediates.front();
-	intermediates.pop_front();
+	t.op = MULTIPLICATION;
+	t.op1 = $3;
+	t.op2.t = VALUE;
+	t.op2.o.val = sz;
+	t.result.t = TEMP;
+	t.result.o.temp = temp++;
 
-	subscripts.clear();
+	code.push_back(t);
+	printTriple(t);
 
-	$$ = t;
+	$$.op1.t = VARIABLE;
+	$$.op1.o.var = $1;
+	$$.op2 = t.result;
+
 	}
 	| L LBRACK E RBRACK
 	{
 	prRule("L", "L [ E ]");
-	subscripts.push_front($3);
+	
+	subscript++;
+
+	unsigned int sz = 4;
+	for(unsigned int j = subscript + 1; j < subscripts.size(); j++) {
+		sz *= subscripts[j];
+	}
+
+	/* Calculate size */
+	triple t;
+	t.op = MULTIPLICATION;
+	t.op1 = $3;
+	t.op2.t = VALUE;
+	t.op2.o.val = sz;
+	t.result.t = TEMP;
+	t.result.o.temp = temp++;
+
+	code.push_back(t);
+	printTriple(t);
+
+	/* Add to previously calculated size */
+	triple t2;
+	t2.op = ADDITION;
+	t2.op1 = $1.op2;
+	t2.op2 = t.result;
+	t2.result.t = TEMP;
+	t2.result.o.temp = temp++;
+
+	code.push_back(t2);
+	printTriple(t2);
+
+	/* This is the C++ equivalent of smallpox blankets */
+	$$.op1 = $1.op1;
+	$$.op2 = t2.result;
 	}
 	;
 B	: E R E
