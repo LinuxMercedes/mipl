@@ -24,7 +24,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
-#include<list>
+#include <list>
 
 using namespace std;
 
@@ -85,6 +85,7 @@ struct triple {
 
 list<triple> code;
 list<unsigned int> labels;
+list<operand> subscripts;
 
 unsigned int temp = 1;
 unsigned int label = 1;
@@ -118,13 +119,13 @@ void printTriple(const triple& t) {
 			printf(" = ");
 			printOp(t.op1);
 			break;
-case ARRAY_ACC:
-	printOp(t.result);
+case ARRAY_ACC: /* This is broken but who cares */
+	printOp(t.op1);
 printf("[");
-printOp(t.op1);
+printOp(t.op2);
 printf("]");
 printf*(" = ");
-printOp(t.op2);
+printOp(t.result);
 break;
 case ARRAY_ASS:
 	printOp(t.result);
@@ -228,6 +229,7 @@ extern "C" {
   char ch;
   int num;
 	operand op;
+	triple t;
 };
 
 /*
@@ -242,7 +244,8 @@ extern "C" {
 
 %type <num> INTCONST 
 %type	<ch> IDENT 
-%type <op> A E
+%type <op> A E S B W F
+%type <t> L R
 
 /*
  *	Starting point.
@@ -334,11 +337,16 @@ A	: IDENT ASSIGN E
 
 	printTriple(t);
 	
-	$$ = id;
+	$$ = t.result;
 	}
 	| L ASSIGN E
 	{
 	prRule("A", "L = E");
+	$1.op = ARRAY_ASS;
+	$1.result = $3;
+	code.push_back($1);
+	printTriple($1);
+	$$ = $1.result;	
 	}
 	;
 F	: IF LPAREN B RPAREN THEN 
@@ -452,7 +460,13 @@ E	: E ADD INTCONST
 	| L
 	{
 	prRule("E", "L");
-	$$ = $1;
+	$1.op = ARRAY_ACC;
+	$1.result.t = TEMP;
+	$1.result.o.temp = temp++;
+	code.push_back($1);
+	printTriple($1);
+
+	$$ = $1.result;
 	}
 	| INTCONST
 	{
@@ -475,48 +489,129 @@ L	: IDENT LBRACK E RBRACK
         }
 	  printf("\n");
       }
+
+	subscripts.push_front($3);
+	
+	list<operand> intermediates;
+	for(list<operand>::iterator it = subscripts.begin(), unsigned int i = 0; it != subscripts.end(); it++, i++) {
+		unsigned int sz = 4;
+		for(unsigned int j = i; j < s.size(); j++) {
+			sz *= s[j];
+		}
+
+		triple t;
+		t.op = MULTIPLY;
+		t.op1 = *it;
+		t.op2.t = VALUE;
+		t.op2.o.val = sz;
+		t.result.t = TEMP;
+		t.result.o.temp = temp++;
+
+		code.push_back(t);
+		printTriple(t);
+
+		intermediates.push_back(t.result);
+		
+		if(intermediates.size() == 2) {
+			triple t; 
+			t.op1 = intermediates.pop_front();
+			t.op2 = intermediates.pop_front();
+			t.result.t = TEMP;
+			t.result.o.temp = temp++;
+			intermediates.push_back(t.result);
+		}
+	}
+
+	/* This is the C++ equivalent of smallpox blankets */
+	triple t;
+	t.op1.t = VAR;
+	t.op1.o.var = $1;
+	t.op2 = intermediates.pop_front();
+
+	$$ = t;
 	}
 	| L LBRACK E RBRACK
 	{
 	prRule("L", "L [ E ]");
+	subscripts.push_front($3);
 	}
 	;
 B	: E R E
       {
 	prRule("B", "E R E");
+	triple t = $2;
+	t.op1 = $1;
+	t.op2 = $3;
+	t.result.t = TEMP;
+	t.result.o.temp = temp++;
+	$$ = t.result;
+	code.push_back(t);
+	printTuple(t);
 	}
 	| TRUE
       {
 	prRule("B", "true");
+	operand o;
+	o.t = VALUE;
+	o.o.val = 1;
+	$$ = o;
 	}
 	| FALSE
       {
 	prRule("B", "false");
+	operand o;
+	o.t = VALUE;
+	o.o.val = 0;
+	$$ = o;
 	}
 	;                              
 R	: GT
 	{
 	prRule("R", ">");
+
+	triple t;
+	t.op = GT;
+	$$ = t;
 	}
       | LT
 	{
 	prRule("R", "<");
+
+	triple t;
+	t.op = LT;
+	$$ = t;
 	}
       | NE
 	{
 	prRule("R", "!=");
+
+	triple t;
+	t.op = NE;
+	$$ = t;
 	}
 	| GE
 	{
 	prRule("R", ">=");
+
+	triple t;
+	t.op = GE;
+	$$ = t;
 	}
       | LE
 	{
 	prRule("R", "<=");
+
+	triple t;
+	t.op = LE;
+	$$ = t;
 	}
       | EQ
 	{
 	prRule("R", "==");
+
+	triple t;
+	t.op = EQ;
+	$$ = t;
 	}
 	;
 %%
