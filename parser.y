@@ -194,13 +194,13 @@ printf(" != ");
 printOp(t.op2);
 break;
 	case IFT:
-printf("If ");
+printf("if ");
 printOp(t.op1);
 printf(" == true goto ");
 printOp(t.op2);
 break;
 	case IFF:
-printf("If ");
+printf("if ");
 printOp(t.op1);
 printf(" == false goto ");
 printOp(t.op2);
@@ -370,12 +370,23 @@ F	: IF LPAREN B RPAREN THEN
 	}
 		S ELSE 
 	{
+		triple t;
+		t.op = GOTO;
+		t.op1.t = LABEL;
+		t.op1.o.label = label;
+		code.push_back(t);
+		printTriple(t);
+
 		printLbl(labels.back());
 		labels.pop_back();
+	
+		labels.push_back(label++);
 	}
 		S
 	{
 	prRule("F", "if ( B ) then S else S");
+	printLbl(labels.back());
+	labels.pop_back();
 	}
 	; 
 W	: WHILE LPAREN 
