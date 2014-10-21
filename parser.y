@@ -46,21 +46,21 @@ enum oper {
 	ASSIGNMENT,
 	ARRAY_ACC,
 	ARRAY_ASS,
-	ADD,
-	MULTIPLY,
-	GT,
-	GE,
-	EQ,
-	LE,
-	LT,
-	NE,
+	ADDITION,
+	MULTIPLICATION,
+	GREATER_THAN,
+	GREATER_EQUAL,
+	EQUAL,
+	LESS_EQUAL,
+	LESS_THAN,
+	NOT_EQUAL,
 	IFT,
 	IFF,
 	GOTO
 };
 
 enum type {
-	VAR,
+	VARIABLE,
 	TEMP,
 	LABEL,
 	VALUE
@@ -92,7 +92,7 @@ unsigned int label = 1;
 
 void printOp(const operand& o) {
 	switch(o.t) {
-		case VAR:
+		case VARIABLE:
 			printf("%c", o.o.var);
 			break;
 		case TEMP:
@@ -135,56 +135,56 @@ printf("[");
 printOp(t.op2);
 printf("]");
 break;
-		case ADD:
+		case ADDITION:
 			printOp(t.result);
 printf(" = ");
 printOp(t.op1);
 printf(" + ");
 printOp(t.op2);
 break;
-case MULTIPLY:
+case MULTIPLICATION:
 			printOp(t.result);
 printf(" = ");
 printOp(t.op1);
 printf(" * ");
 printOp(t.op2);
 break;
-case GT:
+case GREATER_THAN:
 			printOp(t.result);
 printf(" = ");
 printOp(t.op1);
 printf(" > ");
 printOp(t.op2);
 break;
-case GE:
+case GREATER_EQUAL:
 			printOp(t.result);
 printf(" = ");
 printOp(t.op1);
 printf(" >= ");
 printOp(t.op2);
 break;
-case EQ:
+case EQUAL:
 			printOp(t.result);
 printf(" = ");
 printOp(t.op1);
 printf(" == ");
 printOp(t.op2);
 break;
-	case LE:
+	case LESS_EQUAL:
 			printOp(t.result);
 printf(" = ");
 printOp(t.op1);
 printf(" <= ");
 printOp(t.op2);
 break;
-	case LT:
+	case LESS_THAN:
 			printOp(t.result);
 printf(" = ");
 printOp(t.op1);
 printf(" < ");
 printOp(t.op2);
 break;
-	case NE:
+	case NOT_EQUAL:
 			printOp(t.result);
 printf(" = ");
 printOp(t.op1);
@@ -326,7 +326,7 @@ A	: IDENT ASSIGN E
       }
 
 	operand id;
-	id.t = VAR;
+	id.t = VARIABLE;
 	id.o.var = $1;
 
 	triple t; 
@@ -431,7 +431,7 @@ E	: E ADD INTCONST
 	intval.o.val = $3;
 
 	triple t;
-	t.op = ADD;
+	t.op = ADDITION;
 	t.result = result;
 	t.op1 = $1;
 	t.op2 = intval;
@@ -455,7 +455,7 @@ E	: E ADD INTCONST
       }
 
 	operand o;
-	o.t = VAR;
+	o.t = VARIABLE;
 	o.o.var = $1;
 
 	$$ = o;
@@ -504,7 +504,7 @@ L	: IDENT LBRACK E RBRACK
 		}
 
 		triple t;
-		t.op = MULTIPLY;
+		t.op = MULTIPLICATION;
 		t.op1 = *it;
 		t.op2.t = VALUE;
 		t.op2.o.val = sz;
@@ -518,6 +518,7 @@ L	: IDENT LBRACK E RBRACK
 		
 		if(intermediates.size() == 2) {
 			triple t; 
+			t.op = ADDITION;
 			t.op1 = intermediates.front();
 			intermediates.pop_front();
 			t.op2 = intermediates.front();
@@ -531,7 +532,7 @@ L	: IDENT LBRACK E RBRACK
 
 	/* This is the C++ equivalent of smallpox blankets */
 	triple t;
-	t.op1.t = VAR;
+	t.op1.t = VARIABLE;
 	t.op1.o.var = $1;
 	t.op2 = intermediates.front();
 	intermediates.pop_front();
@@ -580,7 +581,7 @@ R	: GT
 	prRule("R", ">");
 
 	triple t;
-	t.op = GT;
+	t.op = GREATER_THAN;
 	$$ = t;
 	}
       | LT
@@ -588,7 +589,7 @@ R	: GT
 	prRule("R", "<");
 
 	triple t;
-	t.op = LT;
+	t.op = LESS_THAN;
 	$$ = t;
 	}
       | NE
@@ -596,7 +597,7 @@ R	: GT
 	prRule("R", "!=");
 
 	triple t;
-	t.op = NE;
+	t.op = NOT_EQUAL;
 	$$ = t;
 	}
 	| GE
@@ -604,7 +605,7 @@ R	: GT
 	prRule("R", ">=");
 
 	triple t;
-	t.op = GE;
+	t.op = GREATER_EQUAL;
 	$$ = t;
 	}
       | LE
@@ -612,7 +613,7 @@ R	: GT
 	prRule("R", "<=");
 
 	triple t;
-	t.op = LE;
+	t.op = LESS_EQUAL;
 	$$ = t;
 	}
       | EQ
@@ -620,7 +621,7 @@ R	: GT
 	prRule("R", "==");
 
 	triple t;
-	t.op = EQ;
+	t.op = EQUAL;
 	$$ = t;
 	}
 	;
