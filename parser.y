@@ -56,7 +56,8 @@ enum oper {
 	NOT_EQUAL,
 	IFT,
 	IFF,
-	GOTO
+	GOTO,
+	L
 };
 
 enum type {
@@ -83,7 +84,7 @@ struct triple {
 	operand op2;
 };	
 
-list<triple> code;
+vector<triple> code;
 list<unsigned int> labels;
 
 unsigned int temp = 1;
@@ -91,6 +92,14 @@ unsigned int label = 1;
 
 unsigned int subscript = 0;
 SUBSCRIPT_INFO subscripts; 
+
+void addLbl(const unsigned int l) {
+	triple t;
+	t.op = L;
+	t.op1.t = LABEL;
+	t.op1.o.label = l;
+	code.push_back(t);
+}
 
 void printOp(const operand& o) {
 	switch(o.t) {
@@ -209,11 +218,14 @@ break;
 printf("goto ");
 printOp(t.op1);
 break;
+case L:
+printf("L%d:", t.op1.o.label);
+break;
 }
 
 printf("\n");
 }
-	
+
 int yyerror(const char* s) {
   printf("Line %d: %s\n", lineNum, s);
   return(1);
@@ -337,8 +349,6 @@ A	: IDENT ASSIGN E
 	t.op1 = $3;
 	code.push_back(t);
 
-	printTriple(t);
-	
 	$$ = t.result;
 	}
 	| L ASSIGN E
@@ -347,7 +357,6 @@ A	: IDENT ASSIGN E
 	$1.op = ARRAY_ASS;
 	$1.result = $3;
 	code.push_back($1);
-	printTriple($1);
 	$$ = $1.result;	
 	}
 	;
@@ -359,13 +368,12 @@ F	: IF LPAREN B RPAREN THEN
 	lbl.o.label = label;
 
 	labels.push_back(label++);
-
+	
 	triple t;
 	t.op = IFF;
 	t.op1 = $3;
 	t.op2 = lbl;
 	code.push_back(t);
-	printTriple(t);
 
 	}
 		S ELSE 
@@ -375,9 +383,8 @@ F	: IF LPAREN B RPAREN THEN
 		t.op1.t = LABEL;
 		t.op1.o.label = label;
 		code.push_back(t);
-		printTriple(t);
 
-		printLbl(labels.back());
+		addLbl(labels.back());
 		labels.pop_back();
 	
 		labels.push_back(label++);
@@ -385,13 +392,13 @@ F	: IF LPAREN B RPAREN THEN
 		S
 	{
 	prRule("F", "if ( B ) then S else S");
-	printLbl(labels.back());
+	addLbl(labels.back());
 	labels.pop_back();
 	}
 	; 
 W	: WHILE LPAREN 
 	{
-		printLbl(label);
+		addLbl(label);
 		labels.push_back(label++);
 	}
 		B RPAREN 
@@ -407,7 +414,6 @@ W	: WHILE LPAREN
 	t.op1 = $4;
 	t.op2 = after;
 	code.push_back(t);
-	printTriple(t);
 	}
 		S
 	{
@@ -425,9 +431,8 @@ W	: WHILE LPAREN
 	t.op = GOTO;
 	t.op1 = lbl;
 	code.push_back(t);
-	printTriple(t);
 
-	printLbl(after);
+	addLbl(after);
 
 	}
 	;
@@ -449,7 +454,6 @@ E	: E ADD INTCONST
 	t.op1 = $1;
 	t.op2 = intval;
 	code.push_back(t);
-	printTriple(t);
 
 	$$ = result;
 	
@@ -480,7 +484,6 @@ E	: E ADD INTCONST
 	$1.result.t = TEMP;
 	$1.result.o.temp = temp++;
 	code.push_back($1);
-	printTriple($1);
 
 	$$ = $1.result;
 	}
@@ -523,7 +526,6 @@ L	: IDENT LBRACK E RBRACK
 	t.result.o.temp = temp++;
 
 	code.push_back(t);
-	printTriple(t);
 
 	$$.op1.t = VARIABLE;
 	$$.op1.o.var = $1;
@@ -551,7 +553,6 @@ L	: IDENT LBRACK E RBRACK
 	t.result.o.temp = temp++;
 
 	code.push_back(t);
-	printTriple(t);
 
 	/* Add to previously calculated size */
 	triple t2;
@@ -562,7 +563,6 @@ L	: IDENT LBRACK E RBRACK
 	t2.result.o.temp = temp++;
 
 	code.push_back(t2);
-	printTriple(t2);
 
 	/* This is the C++ equivalent of smallpox blankets */
 	$$.op1 = $1.op1;
@@ -579,7 +579,6 @@ B	: E R E
 	t.result.o.temp = temp++;
 	$$ = t.result;
 	code.push_back(t);
-	printTriple(t);
 	}
 	| TRUE
       {
@@ -703,6 +702,10 @@ int main(int argc, char** argv) {
   do {
 	yyparse();
   } while (!feof(yyin));
+
+	for(unsigned int i = 0; i < code.size(); i++) {
+		printTriple(code[i]);
+	}
 
   return 0;
 }
