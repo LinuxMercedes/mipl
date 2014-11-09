@@ -260,6 +260,8 @@ struct DAG {
 	vector<vector<edge> > op;
 	vector<triple> labels;
 	unsigned int go;
+	unsigned int start;
+	unsigned int end;
 };
 
 vector<unsigned int> get_parent_idxs(unsigned int node, DAG& d) {
@@ -326,20 +328,21 @@ vector<DAG> makeDAGs() {
 	vector<DAG> dags;
 
 	list<unsigned int> leaders;
-	if(DEBUG) printf("Leader: %d\n", 0);
+	if(DEBUG) printf("\nBlock leaders are as follows:\n");
+	if(DEBUG) printf("(%d)\n", 0);
 	leaders.push_back(0);	
 
 	bool nextleader = false;
 	for(unsigned int i = 1; i < code.size(); i++) {
 		if(nextleader) {
-			if(DEBUG) printf("Leader: %d\n", i);
+			if(DEBUG) printf("(%d)\n", i);
 			leaders.push_back(i);
 			nextleader = false;
 		}
 
 		switch(code[i].op) {
 			case L:
-				if(DEBUG) printf("Leader: %d\n", i);
+				if(DEBUG) printf("(%d)\n", i);
 				leaders.push_back(i);
 				break;
 			case IFT:
@@ -350,26 +353,37 @@ vector<DAG> makeDAGs() {
 		}
 	}			
 
+	if(DEBUG) printf("\n\nBlocks are as follows:\n");
 	DAG d;
+	unsigned int blocknum = 0;
+	bool startset = false;
 	for(list<unsigned int>::iterator it = leaders.begin(); it != leaders.end();) {
 		unsigned int start = *it;
 		it++;
 		unsigned int end = it == leaders.end() ? code.size() - 1 : *it - 1;
 	
-		if(DEBUG) printf("%d %d\n", start, end);
+		if(DEBUG) printf("B%d: (%d) - (%d)\n", blocknum++, start, end);
 		/* Handle duplicate labels */
 		if(start == end && code[start].op == L) {
+			if(!startset) {	
+				d.start = start;
+				startset = true;
+			}
 			d.labels.push_back(code[start]);
 			continue;
 		}
 
+		if(!startset) {
+			d.start = start;
+		}
+		d.end = end;
 		d.nodes.clear();
 		d.op.resize(3);
 		d.go = 0;
+		startset = false;
 		map<operand, unsigned int> values;
 
 		for(unsigned int i = start; i <= end; i++) {
-			//printTriple(code[i]);
 			switch(code[i].op) {
 				case L: {
 					d.labels.push_back(code[i]);
@@ -621,8 +635,8 @@ void fold_consts(DAG& d) {
 
 		/* Remove constant operations */
 		if(parents.size() == 2 && d.nodes[parents[0].f].var.t == VALUE && d.nodes[parents[1].f].var.t == VALUE) {	
-			modified = true;
 
+			bool operating = true;
 			int v1 = d.nodes[parents[0].f].var.o.val;
 			int v2 = d.nodes[parents[1].f].var.o.val;
 			int res = 0;
@@ -651,17 +665,24 @@ void fold_consts(DAG& d) {
 				case NOT_EQUAL: 
 					res = v1 != v2;
 					break;
+				default:
+					operating = false;
+					break;
 			}
 
-			d.nodes[i].op = V;
-			d.nodes[i].var.t = VALUE;
-			d.nodes[i].var.o.val = res;
+			if(operating) {
+				d.nodes[i].op = V;
+				d.nodes[i].var.t = VALUE;
+				d.nodes[i].var.o.val = res;
 
-			d.op[0].erase(d.op[0].begin() + p_idxs[0]);
-			d.op[1].erase(d.op[1].begin() + p_idxs[1]);
+				d.op[0].erase(d.op[0].begin() + p_idxs[0]);
+				d.op[1].erase(d.op[1].begin() + p_idxs[1]);
+				modified = true;
+			}
 		}
 
 		/* Remove constant assignments to temp vars */
+		/*
 		if(d.nodes[i].op == ASSIGNMENT && d.nodes[i].var.t == TEMP && d.nodes[parents[0].f].var.t == VALUE) {
 			modified = true;
 
@@ -671,6 +692,7 @@ void fold_consts(DAG& d) {
 
 			d.op[0].erase(d.op[0].begin() + p_idxs[0]);
 		}
+		*/
 	}
 }
 
@@ -1161,27 +1183,39 @@ int main(int argc, char** argv) {
 		yyparse();
   } while (!feof(yyin));
 
-	if(DEBUG) {
-	printf("---Unoptimized code---\n");
+	printf("List of instructions:\n");
 	for(unsigned int i = 0; i < code.size(); i++) {
+		printf("(%d) ", i);
 		printTriple(code[i]);
 	}
-	}
+
 	vector<DAG> dags = makeDAGs();
 
-	do {
-		modified = false;
-		for(unsigned int i = 0; i < dags.size(); i++) {
+	for(unsigned int i = 0; i < dags.size(); i++) {
+		do {
+			modified = false;
+			printf("Executing constantFolding for (%d) - (%d)", dags[i].start, dags[i].end);
 //			fold_consts(dags[i]);
+			printf("Executing algebraicSimplification for (%d) - (%d)", dags[i].start, dags[i].end);
 //			alg_simp(dags[i]);
+			printf("Executing commonSubexprElimination for (%d) - (%d)", dags[i].start, dags[i].end);
 //			common_subexpr(dags[i]);
-		}
-		break; //TODO: Remove me!
-	} while(modified);
+
+			vector<triple> tac = makeTAC(dags);
+			for(unsigned int i = 0; i < tac.size(); i++) {
+				printTriple(tac[i]);
+			}
+	
+			break; //TODO: Remove me!
+		} while(modified);
+
+		printf("\nEliminating temp vars that have constant value\n");
+		//TODO: write me
+	}
 
 	vector<triple> tac = makeTAC(dags);
 
-	if(DEBUG) printf("---Optimized code---\n");
+	printf("\nNew list of optimized instructions:\n");
 	for(unsigned int i = 0; i < tac.size(); i++) {
 		printTriple(tac[i]);
 	}
