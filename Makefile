@@ -1,8 +1,8 @@
 
 TESTDIR=tests
 
-TESTFILES=$(wildcard $(TESTDIR)/*.txt)
-OUTFILES=$(TESTFILES:.txt=.result)
+TESTFILES=$(wildcard $(TESTDIR)/*.dat)
+OUTFILES=$(TESTFILES:.dat=.result)
 
 CC=g++
 
@@ -29,8 +29,8 @@ clean: cleantest
 test: cleantest parser $(OUTFILES) 
 	@echo "[+] All tests passed!"
 
-%.result : %.txt %.txt.out
-	-@./parser $< > $@
+%.result : %.dat %.out
+	-@./parser $< --debug > $@
 	diff -b $(word 2, $^) $@
 
 cleantest:

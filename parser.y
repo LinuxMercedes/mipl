@@ -284,7 +284,7 @@ vector<unsigned int> get_child_idxs(unsigned int node, DAG& d) {
 		for(unsigned int k = 0; k < d.op[j].size(); k++) {
 			if(d.op[j][k].f == node) {
 				if(DEBUG) printf("Child %d of %d: %d\n", j, node, d.op[j][k].t);
-				parents.push_back(k);
+				parents.push_back(d.op[j][k].t);
 			}
 		}
 	}
@@ -334,7 +334,7 @@ vector<DAG> makeDAGs() {
 
 	bool nextleader = false;
 	for(unsigned int i = 1; i < code.size(); i++) {
-		if(nextleader) {
+		if(nextleader && leaders.back() != i) {
 			if(DEBUG) printf("(%d)\n", i);
 			leaders.push_back(i);
 			nextleader = false;
@@ -342,8 +342,10 @@ vector<DAG> makeDAGs() {
 
 		switch(code[i].op) {
 			case L:
-				if(DEBUG) printf("(%d)\n", i);
-				leaders.push_back(i);
+				if(leaders.back() != i) {
+					if(DEBUG) printf("(%d)\n", i);
+					leaders.push_back(i);
+				}
 				break;
 			case IFT:
 			case IFF:
@@ -527,10 +529,9 @@ vector<triple> makeTAC(vector<DAG>& dags) {
 			vector<unsigned int> children = get_child_idxs(values[v], dags[i]);
 
 			for(unsigned int c = children.size(); c > 0; c--) {
-				unsigned int child = dags[i].op[c-1][children[c-1]].t;
-				if(dags[i].nodes[child].visited == false) {
-					if(DEBUG) printf("push1 %d\n", child);
-					unvisited.push(child);
+				if(dags[i].nodes[children[c-1]].visited == false) {
+					if(DEBUG) printf("push1 %d\n", children[c-1]);
+					unvisited.push(children[c-1]);
 				}
 			}
 
@@ -540,7 +541,7 @@ vector<triple> makeTAC(vector<DAG>& dags) {
 					unvisited.pop();
 				}
 				if(unvisited.size() == 0) break;
-				if(DEBUG) printf("LOOOOP\n");
+
 				vector<unsigned int> parents = get_parent_idxs(unvisited.top(), dags[i]);
 				bool can_eval = true;
 				for(unsigned int p = 0; p < parents.size(); p++) {
@@ -597,10 +598,9 @@ vector<triple> makeTAC(vector<DAG>& dags) {
 					vector<unsigned int> children = get_child_idxs(n, dags[i]);
 
 					for(unsigned int c = children.size(); c > 0; c--) {
-						unsigned int child = dags[i].op[c-1][children[c-1]].t;
-						if(dags[i].nodes[child].visited == false) {
-							if(DEBUG) printf("push3 %d\n", child);
-							unvisited.push(child);
+						if(dags[i].nodes[children[c-1]].visited == false) {
+							if(DEBUG) printf("push3 %d\n", children[c-1]);
+							unvisited.push(children[c-1]);
 						}
 					}
 				}
@@ -619,6 +619,12 @@ vector<triple> makeTAC(vector<DAG>& dags) {
 			g.op1.t = LABEL;
 			g.op1.o.label = dags[i].go;
 			tac.push_back(g);
+		}
+	}
+
+	for(unsigned int i = 0; i < dags.size(); i++) {
+		for(unsigned int j = 0; j < dags[i].nodes.size(); j++) {
+			dags[i].nodes[j].visited = false;
 		}
 	}
 
@@ -990,7 +996,7 @@ L	: IDENT LBRACK E RBRACK
 	subscript = 0;
 	subscripts = s;
 
-	unsigned int sz = 4;
+	unsigned int sz = 1;
 	for(unsigned int j = subscript + 1; j < s.size(); j++) {
 		sz *= s[j];
 	}
@@ -1016,7 +1022,7 @@ L	: IDENT LBRACK E RBRACK
 	
 	subscript++;
 
-	unsigned int sz = 4;
+	unsigned int sz = 1;
 	for(unsigned int j = subscript + 1; j < subscripts.size(); j++) {
 		sz *= subscripts[j];
 	}
@@ -1194,15 +1200,16 @@ int main(int argc, char** argv) {
 	for(unsigned int i = 0; i < dags.size(); i++) {
 		do {
 			modified = false;
-			printf("Executing constantFolding for (%d) - (%d)", dags[i].start, dags[i].end);
-//			fold_consts(dags[i]);
-			printf("Executing algebraicSimplification for (%d) - (%d)", dags[i].start, dags[i].end);
+			printf("Executing constantFolding for (%d) - (%d)\n", dags[i].start, dags[i].end);
+			fold_consts(dags[i]);
+			printf("Executing algebraicSimplification for (%d) - (%d)\n", dags[i].start, dags[i].end);
 //			alg_simp(dags[i]);
-			printf("Executing commonSubexprElimination for (%d) - (%d)", dags[i].start, dags[i].end);
+			printf("Executing commonSubexprElimination for (%d) - (%d)\n", dags[i].start, dags[i].end);
 //			common_subexpr(dags[i]);
 
 			vector<triple> tac = makeTAC(dags);
 			for(unsigned int i = 0; i < tac.size(); i++) {
+				printf("(%d) ", i);
 				printTriple(tac[i]);
 			}
 	
@@ -1217,6 +1224,7 @@ int main(int argc, char** argv) {
 
 	printf("\nNew list of optimized instructions:\n");
 	for(unsigned int i = 0; i < tac.size(); i++) {
+		printf("(%d) ", i);
 		printTriple(tac[i]);
 	}
 
