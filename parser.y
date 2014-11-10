@@ -687,27 +687,63 @@ void fold_consts(DAG& d) {
 			}
 		}
 
-		/* Remove constant assignments to temp vars */
-		/*
-		if(d.nodes[i].op == ASSIGNMENT && d.nodes[i].var.t == TEMP && d.nodes[parents[0].f].var.t == VALUE) {
-			modified = true;
+	}
+}
 
+bool is_value(DAG& d, unsigned int node, int value) {
+	return d.nodes[node].op == V && d.nodes[node].var.o.val == value;
+}
+
+void alg_simp(DAG& d) {
+	for(unsigned int i = 0; i < d.nodes.size(); i++) {
+		vector<unsigned int> p_idxs = get_parent_idxs(i, d);
+		vector<edge> parents = get_parents(p_idxs, d);
+		bool operating = true;
+		int value = 0;
+		switch(d.nodes[i].op) {
+			case ADDITION:
+				value = 0;
+				break;
+			case MULTIPLICATION:
+				value = 1;
+				break;
+			default:
+				operating = false;
+				break;
+		}
+		if(operating) {
+			modified = true;
+			if(is_value(d, parents[0].f, value)) {
+				d.nodes[i].op = ASSIGNMENT;
+				d.op[0].erase(d.op[0].begin() + p_idxs[0]);
+				d.op[0].push_back(d.op[1][p_idxs[1]]);
+				d.op[1].erase(d.op[1].begin() + p_idxs[1]);
+			}
+			else if(is_value(d, parents[1].f, value)) {
+				d.nodes[i].op = ASSIGNMENT;
+				d.op[1].erase(d.op[1].begin() + p_idxs[1]);
+			}
+		}
+	}
+}
+
+void common_subexpr(DAG& d) {
+
+}
+
+void remove_const_tempvars(DAG& d) {
+	/* Remove constant assignments to temp vars */
+	for(unsigned int i = 0; i < d.nodes.size(); i++) {
+		vector<unsigned int> p_idxs = get_parent_idxs(i, d);
+		vector<edge> parents = get_parents(p_idxs, d);
+		if(d.nodes[i].op == ASSIGNMENT && d.nodes[i].var.t == TEMP && d.nodes[parents[0].f].var.t == VALUE) {
 			d.nodes[i].op = V;
 			d.nodes[i].var.t = VALUE;
 			d.nodes[i].var.o.val = d.nodes[parents[0].f].var.o.val;
 
 			d.op[0].erase(d.op[0].begin() + p_idxs[0]);
 		}
-		*/
 	}
-}
-
-void alg_simp(DAG& d) {
-
-}
-
-void common_subexpr(DAG& d) {
-
 }
 
 int yyerror(const char* s) {
@@ -1203,9 +1239,9 @@ int main(int argc, char** argv) {
 			printf("Executing constantFolding for (%d) - (%d)\n", dags[i].start, dags[i].end);
 			fold_consts(dags[i]);
 			printf("Executing algebraicSimplification for (%d) - (%d)\n", dags[i].start, dags[i].end);
-//			alg_simp(dags[i]);
+			alg_simp(dags[i]);
 			printf("Executing commonSubexprElimination for (%d) - (%d)\n", dags[i].start, dags[i].end);
-//			common_subexpr(dags[i]);
+			common_subexpr(dags[i]);
 
 			vector<triple> tac = makeTAC(dags);
 			for(unsigned int i = 0; i < tac.size(); i++) {
@@ -1217,7 +1253,7 @@ int main(int argc, char** argv) {
 		} while(modified);
 
 		printf("\nEliminating temp vars that have constant value\n");
-		//TODO: write me
+		remove_const_tempvars(dags[i]);
 	}
 
 	vector<triple> tac = makeTAC(dags);
