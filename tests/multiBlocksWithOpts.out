@@ -1,0 +1,329 @@
+TOKEN: VAR     	LEXEME: var
+TOKEN: IDENT     LEXEME: x
+TOKEN: SEMICOL   LEXEME: ;
+N -> epsilon
+
+>>> Added x to symbol table
+TOKEN: IDENT     LEXEME: y
+TOKEN: SEMICOL   LEXEME: ;
+N -> epsilon
+
+>>> Added y to symbol table
+TOKEN: IDENT     LEXEME: z
+TOKEN: SEMICOL   LEXEME: ;
+N -> epsilon
+
+>>> Added z to symbol table
+TOKEN: IDENT     LEXEME: w
+TOKEN: SEMICOL   LEXEME: ;
+N -> epsilon
+
+>>> Added w to symbol table
+TOKEN: IDENT     LEXEME: q
+TOKEN: SEMICOL   LEXEME: ;
+N -> epsilon
+
+>>> Added q to symbol table
+TOKEN: LCURLY    LEXEME: {
+V -> epsilon
+V -> id N ; V
+V -> id N ; V
+V -> id N ; V
+V -> id N ; V
+V -> id N ; V
+TOKEN: IDENT     LEXEME: x
+TOKEN: ASSIGN    LEXEME: =
+TOKEN: INTCONST  LEXEME: 5
+E -> INTCONST
+TOKEN: SEMICOL   LEXEME: ;
+A -> id = E
+
+*** Found x in symbol table
+
+x = 5  
+S -> A ;
+TOKEN: IDENT     LEXEME: y
+TOKEN: ASSIGN    LEXEME: =
+TOKEN: IDENT     LEXEME: x
+TOKEN: ADD       LEXEME: +
+E -> id
+
+*** Found x in symbol table
+
+TOKEN: INTCONST  LEXEME: 7
+E -> E + INTCONST
+t1 = x + 7
+TOKEN: SEMICOL   LEXEME: ;
+A -> id = E
+
+*** Found y in symbol table
+
+y = t1  
+S -> A ;
+TOKEN: IDENT     LEXEME: z
+TOKEN: ASSIGN    LEXEME: =
+TOKEN: IDENT     LEXEME: x
+TOKEN: SEMICOL   LEXEME: ;
+E -> id
+
+*** Found x in symbol table
+
+A -> id = E
+
+*** Found z in symbol table
+
+z = x  
+S -> A ;
+TOKEN: IDENT     LEXEME: w
+TOKEN: ASSIGN    LEXEME: =
+TOKEN: IDENT     LEXEME: x
+TOKEN: ADD       LEXEME: +
+E -> id
+
+*** Found x in symbol table
+
+TOKEN: INTCONST  LEXEME: 7
+E -> E + INTCONST
+t2 = x + 7
+TOKEN: SEMICOL   LEXEME: ;
+A -> id = E
+
+*** Found w in symbol table
+
+w = t2  
+S -> A ;
+TOKEN: WHILE     LEXEME: while
+TOKEN: LPAREN    LEXEME: (
+L1:
+TOKEN: IDENT     LEXEME: x
+TOKEN: GT		LEXEME: >
+E -> id
+
+*** Found x in symbol table
+
+R -> >
+TOKEN: IDENT     LEXEME: y
+TOKEN: RPAREN    LEXEME: )
+E -> id
+
+*** Found y in symbol table
+
+B -> E R E
+t3 = x > y
+if t3 == false goto L2
+TOKEN: IDENT     LEXEME: z
+TOKEN: ASSIGN    LEXEME: =
+TOKEN: IDENT     LEXEME: x
+TOKEN: ADD       LEXEME: +
+E -> id
+
+*** Found x in symbol table
+
+TOKEN: INTCONST  LEXEME: 10
+E -> E + INTCONST
+t4 = x + 10
+TOKEN: SEMICOL   LEXEME: ;
+A -> id = E
+
+*** Found z in symbol table
+
+z = t4  
+S -> A ;
+S -> while ( B ) S
+goto L1
+L2:
+S -> W
+TOKEN: IDENT     LEXEME: q
+TOKEN: ASSIGN    LEXEME: =
+TOKEN: IDENT     LEXEME: x
+TOKEN: ADD       LEXEME: +
+E -> id
+
+*** Found x in symbol table
+
+TOKEN: INTCONST  LEXEME: 0
+E -> E + INTCONST
+t5 = x + 0
+TOKEN: SEMICOL   LEXEME: ;
+A -> id = E
+
+*** Found q in symbol table
+
+q = t5  
+S -> A ;
+TOKEN: RCURLY    LEXEME: }
+C -> epsilon
+C -> S ; C
+C -> S ; C
+C -> S ; C
+C -> S ; C
+C -> S ; C
+C -> S ; C
+P -> var V { C }
+
+---- Completed parsing ----
+
+
+List of instructions:
+(0) x = 5  
+(1) t1 = x + 7
+(2) y = t1  
+(3) z = x  
+(4) t2 = x + 7
+(5) w = t2  
+(6) L1:
+(7) t3 = x > y
+(8) if t3 == false goto L2
+(9) t4 = x + 10
+(10) z = t4  
+(11) goto L1
+(12) L2:
+(13) t5 = x + 0
+(14) q = t5  
+
+Block leaders are as follows:
+(0)
+(6)
+(9)
+(12)
+
+
+Blocks are as follows:
+B0: (0) - (5)
+B1: (6) - (8)
+B2: (9) - (11)
+B3: (12) - (14)
+
+Executing constantFolding for (0) - (5)
+Executing algebraicSimplification for (0) - (5)
+Executing commonSubexprElimination for (0) - (5)
+(0) x = 5  
+(1) t1 = 5 + 7
+(2) y = t1  
+(3) z = 5  
+(4) t2 = t1  
+(5) w = t2  
+(6) L1:
+(7) t3 = x > y
+(8) if t3 == false goto L2
+(9) t4 = x + 10
+(10) z = t4  
+(11) goto L1
+(12) L2:
+(13) t5 = x + 0
+(14) q = t5  
+Executing constantFolding for (0) - (5)
+Executing algebraicSimplification for (0) - (5)
+Executing commonSubexprElimination for (0) - (5)
+(0) x = 5  
+(1) t1 = 5 + 7
+(2) y = t1  
+(3) z = 5  
+(4) t2 = t1  
+(5) w = t2  
+(6) L1:
+(7) t3 = x > y
+(8) if t3 == false goto L2
+(9) t4 = x + 10
+(10) z = t4  
+(11) goto L1
+(12) L2:
+(13) t5 = x + 0
+(14) q = t5  
+
+Eliminating temp vars that have constant value
+Executing constantFolding for (6) - (8)
+Executing algebraicSimplification for (6) - (8)
+Executing commonSubexprElimination for (6) - (8)
+(0) x = 5  
+(1) t1 = 5 + 7
+(2) y = t1  
+(3) z = 5  
+(4) t2 = t1  
+(5) w = t2  
+(6) L1:
+(7) t3 = x > y
+(8) if t3 == false goto L2
+(9) t4 = x + 10
+(10) z = t4  
+(11) goto L1
+(12) L2:
+(13) t5 = x + 0
+(14) q = t5  
+
+Eliminating temp vars that have constant value
+Executing constantFolding for (9) - (11)
+Executing algebraicSimplification for (9) - (11)
+Executing commonSubexprElimination for (9) - (11)
+(0) x = 5  
+(1) t1 = 5 + 7
+(2) y = t1  
+(3) z = 5  
+(4) t2 = t1  
+(5) w = t2  
+(6) L1:
+(7) t3 = x > y
+(8) if t3 == false goto L2
+(9) t4 = x + 10
+(10) z = t4  
+(11) goto L1
+(12) L2:
+(13) t5 = x + 0
+(14) q = t5  
+
+Eliminating temp vars that have constant value
+Executing constantFolding for (12) - (14)
+Executing algebraicSimplification for (12) - (14)
+Executing commonSubexprElimination for (12) - (14)
+(0) x = 5  
+(1) t1 = 5 + 7
+(2) y = t1  
+(3) z = 5  
+(4) t2 = t1  
+(5) w = t2  
+(6) L1:
+(7) t3 = x > y
+(8) if t3 == false goto L2
+(9) t4 = x + 10
+(10) z = t4  
+(11) goto L1
+(12) L2:
+(13) t5 = x  
+(14) q = t5  
+Executing constantFolding for (12) - (14)
+Executing algebraicSimplification for (12) - (14)
+Executing commonSubexprElimination for (12) - (14)
+(0) x = 5  
+(1) t1 = 5 + 7
+(2) y = t1  
+(3) z = 5  
+(4) t2 = t1  
+(5) w = t2  
+(6) L1:
+(7) t3 = x > y
+(8) if t3 == false goto L2
+(9) t4 = x + 10
+(10) z = t4  
+(11) goto L1
+(12) L2:
+(13) t5 = x  
+(14) q = t5  
+
+Eliminating temp vars that have constant value
+
+New list of optimized instructions:
+(0) x = 5  
+(1) t1 = 5 + 7
+(2) y = t1  
+(3) z = 5  
+(4) t2 = t1  
+(5) w = t2  
+(6) L1:
+(7) t3 = x > y
+(8) if t3 == false goto L2
+(9) t4 = x + 10
+(10) z = t4  
+(11) goto L1
+(12) L2:
+(13) t5 = x  
+(14) q = t5  

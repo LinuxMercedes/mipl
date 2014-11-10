@@ -1,0 +1,30 @@
+TOKEN: VAR     	LEXEME: var
+TOKEN: IDENT     LEXEME: x
+TOKEN: SEMICOL   LEXEME: ;
+N -> epsilon
+
+>>> Added x to symbol table
+TOKEN: LCURLY    LEXEME: {
+V -> epsilon
+V -> id N ; V
+TOKEN: IDENT     LEXEME: x
+TOKEN: ASSIGN    LEXEME: =
+TOKEN: INTCONST  LEXEME: 5
+E -> INTCONST
+TOKEN: SEMICOL   LEXEME: ;
+A -> id = E
+
+*** Found x in symbol table
+
+x = 5  
+S -> A ;
+TOKEN: RCURLY    LEXEME: }
+C -> epsilon
+C -> S ; C
+P -> var V { C }
+
+---- Completed parsing ----
+
+
+List of instructions:
+(0) x = 5  

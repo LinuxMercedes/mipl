@@ -1,0 +1,160 @@
+TOKEN: VAR     	LEXEME: var
+TOKEN: IDENT     LEXEME: x
+TOKEN: SEMICOL   LEXEME: ;
+N -> epsilon
+
+>>> Added x to symbol table
+TOKEN: IDENT     LEXEME: y
+TOKEN: SEMICOL   LEXEME: ;
+N -> epsilon
+
+>>> Added y to symbol table
+TOKEN: IDENT     LEXEME: A
+TOKEN: LBRACK	LEXEME: [
+TOKEN: INTCONST  LEXEME: 10
+TOKEN: RBRACK	LEXEME: ]
+TOKEN: SEMICOL   LEXEME: ;
+N -> epsilon
+N -> [ INTCONST ] N
+
+>>> Added A to symbol table
+>>> with the following subscriptInfo:
+     s[0] = 10
+TOKEN: LCURLY    LEXEME: {
+V -> epsilon
+V -> id N ; V
+V -> id N ; V
+V -> id N ; V
+TOKEN: IDENT     LEXEME: x
+TOKEN: ASSIGN    LEXEME: =
+TOKEN: INTCONST  LEXEME: 5
+E -> INTCONST
+TOKEN: SEMICOL   LEXEME: ;
+A -> id = E
+
+*** Found x in symbol table
+
+x = 5  
+S -> A ;
+TOKEN: IDENT     LEXEME: A
+TOKEN: LBRACK	LEXEME: [
+TOKEN: IDENT     LEXEME: x
+TOKEN: RBRACK	LEXEME: ]
+E -> id
+
+*** Found x in symbol table
+
+L -> id [ E ]
+
+*** Found A in symbol table
+*** This array has the following subscriptInfo:
+     s[0] = 10
+
+t1 = x * 1
+TOKEN: ASSIGN    LEXEME: =
+TOKEN: IDENT     LEXEME: x
+TOKEN: SEMICOL   LEXEME: ;
+E -> id
+
+*** Found x in symbol table
+
+A -> L = E
+A[t1] = x
+S -> A ;
+TOKEN: IDENT     LEXEME: y
+TOKEN: ASSIGN    LEXEME: =
+TOKEN: IDENT     LEXEME: A
+TOKEN: LBRACK	LEXEME: [
+TOKEN: IDENT     LEXEME: x
+TOKEN: RBRACK	LEXEME: ]
+E -> id
+
+*** Found x in symbol table
+
+L -> id [ E ]
+
+*** Found A in symbol table
+*** This array has the following subscriptInfo:
+     s[0] = 10
+
+t2 = x * 1
+TOKEN: SEMICOL   LEXEME: ;
+E -> L
+t3 = A[t2]
+A -> id = E
+
+*** Found y in symbol table
+
+y = t3  
+S -> A ;
+TOKEN: RCURLY    LEXEME: }
+C -> epsilon
+C -> S ; C
+C -> S ; C
+C -> S ; C
+P -> var V { C }
+
+---- Completed parsing ----
+
+
+List of instructions:
+(0) x = 5  
+(1) t1 = x * 1
+(2) A[t1] = x
+(3) t2 = x * 1
+(4) t3 = A[t2]
+(5) y = t3  
+
+Block leaders are as follows:
+(0)
+
+
+Blocks are as follows:
+B0: (0) - (5)
+
+Executing constantFolding for (0) - (5)
+Executing algebraicSimplification for (0) - (5)
+Executing commonSubexprElimination for (0) - (5)
+(0) x = 5  
+(1) t1 = 5  
+(2) A[t1] = 5
+(3) t2 = 5  
+(4) t3 = A[t2]
+(5) y = t3  
+Executing constantFolding for (0) - (5)
+Executing algebraicSimplification for (0) - (5)
+Executing commonSubexprElimination for (0) - (5)
+(0) x = 5  
+(1) t1 = 5  
+(2) A[5] = 5
+(3) t2 = 5  
+(4) t3 = A[5]
+(5) y = t3  
+Executing constantFolding for (0) - (5)
+Executing algebraicSimplification for (0) - (5)
+Executing commonSubexprElimination for (0) - (5)
+(0) x = 5  
+(1) t1 = 5  
+(2) A[5] = 5
+(3) t2 = 5  
+(4) t3 = 5  
+(5) y = 5  
+Executing constantFolding for (0) - (5)
+Executing algebraicSimplification for (0) - (5)
+Executing commonSubexprElimination for (0) - (5)
+(0) x = 5  
+(1) t1 = 5  
+(2) A[5] = 5
+(3) t2 = 5  
+(4) t3 = 5  
+(5) y = 5  
+
+Eliminating temp vars that have constant value
+(1) can be deleted
+(3) can be deleted
+(4) can be deleted
+
+New list of optimized instructions:
+(0) x = 5  
+(1) A[5] = 5
+(2) y = 5  

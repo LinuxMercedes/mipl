@@ -1,0 +1,154 @@
+TOKEN: VAR     	LEXEME: var
+TOKEN: IDENT     LEXEME: a
+TOKEN: SEMICOL   LEXEME: ;
+N -> epsilon
+
+>>> Added a to symbol table
+TOKEN: IDENT     LEXEME: b
+TOKEN: SEMICOL   LEXEME: ;
+N -> epsilon
+
+>>> Added b to symbol table
+TOKEN: IDENT     LEXEME: c
+TOKEN: SEMICOL   LEXEME: ;
+N -> epsilon
+
+>>> Added c to symbol table
+TOKEN: IDENT     LEXEME: x
+TOKEN: SEMICOL   LEXEME: ;
+N -> epsilon
+
+>>> Added x to symbol table
+TOKEN: LCURLY    LEXEME: {
+V -> epsilon
+V -> id N ; V
+V -> id N ; V
+V -> id N ; V
+V -> id N ; V
+TOKEN: IDENT     LEXEME: a
+TOKEN: ASSIGN    LEXEME: =
+TOKEN: INTCONST  LEXEME: 0
+E -> INTCONST
+TOKEN: SEMICOL   LEXEME: ;
+A -> id = E
+
+*** Found a in symbol table
+
+a = 0  
+S -> A ;
+TOKEN: IDENT     LEXEME: b
+TOKEN: ASSIGN    LEXEME: =
+TOKEN: INTCONST  LEXEME: 1
+E -> INTCONST
+TOKEN: SEMICOL   LEXEME: ;
+A -> id = E
+
+*** Found b in symbol table
+
+b = 1  
+S -> A ;
+TOKEN: IDENT     LEXEME: c
+TOKEN: ASSIGN    LEXEME: =
+TOKEN: INTCONST  LEXEME: 5
+E -> INTCONST
+TOKEN: SEMICOL   LEXEME: ;
+A -> id = E
+
+*** Found c in symbol table
+
+c = 5  
+S -> A ;
+TOKEN: IDENT     LEXEME: x
+TOKEN: ASSIGN    LEXEME: =
+TOKEN: IDENT     LEXEME: a
+TOKEN: ADD       LEXEME: +
+E -> id
+
+*** Found a in symbol table
+
+TOKEN: INTCONST  LEXEME: 0
+E -> E + INTCONST
+t1 = a + 0
+TOKEN: ADD       LEXEME: +
+TOKEN: INTCONST  LEXEME: 1
+E -> E + INTCONST
+t2 = t1 + 1
+TOKEN: SEMICOL   LEXEME: ;
+A -> id = E
+
+*** Found x in symbol table
+
+x = t2  
+S -> A ;
+TOKEN: RCURLY    LEXEME: }
+C -> epsilon
+C -> S ; C
+C -> S ; C
+C -> S ; C
+C -> S ; C
+P -> var V { C }
+
+---- Completed parsing ----
+
+
+List of instructions:
+(0) a = 0  
+(1) b = 1  
+(2) c = 5  
+(3) t1 = a + 0
+(4) t2 = t1 + 1
+(5) x = t2  
+
+Block leaders are as follows:
+(0)
+
+
+Blocks are as follows:
+B0: (0) - (5)
+
+Executing constantFolding for (0) - (5)
+Executing algebraicSimplification for (0) - (5)
+Executing commonSubexprElimination for (0) - (5)
+(0) a = 0  
+(1) b = 1  
+(2) c = 5  
+(3) t1 = 0  
+(4) t2 = t1 + 1
+(5) x = t2  
+Executing constantFolding for (0) - (5)
+Executing algebraicSimplification for (0) - (5)
+Executing commonSubexprElimination for (0) - (5)
+(0) a = 0  
+(1) b = 1  
+(2) c = 5  
+(3) t1 = 0  
+(4) t2 = 1  
+(5) x = t2  
+Executing constantFolding for (0) - (5)
+Executing algebraicSimplification for (0) - (5)
+Executing commonSubexprElimination for (0) - (5)
+(0) a = 0  
+(1) b = 1  
+(2) c = 5  
+(3) t1 = 0  
+(4) t2 = 1  
+(5) x = 1  
+Executing constantFolding for (0) - (5)
+Executing algebraicSimplification for (0) - (5)
+Executing commonSubexprElimination for (0) - (5)
+(0) a = 0  
+(1) b = 1  
+(2) c = 5  
+(3) t1 = 0  
+(4) t2 = 1  
+(5) x = 1  
+
+Eliminating temp vars that have constant value
+(3) can be deleted
+(4) can be deleted
+
+New list of optimized instructions:
+(0) a = 0  
+(1) b = 1  
+(2) c = 5  
+(3) x = 1  

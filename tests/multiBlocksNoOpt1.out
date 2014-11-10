@@ -1,0 +1,120 @@
+TOKEN: VAR     	LEXEME: var
+TOKEN: IDENT     LEXEME: x
+TOKEN: SEMICOL   LEXEME: ;
+N -> epsilon
+
+>>> Added x to symbol table
+TOKEN: LCURLY    LEXEME: {
+V -> epsilon
+V -> id N ; V
+TOKEN: WHILE     LEXEME: while
+TOKEN: LPAREN    LEXEME: (
+L1:
+TOKEN: IDENT     LEXEME: x
+TOKEN: GT		LEXEME: >
+E -> id
+
+*** Found x in symbol table
+
+R -> >
+TOKEN: INTCONST  LEXEME: 10
+E -> INTCONST
+TOKEN: RPAREN    LEXEME: )
+B -> E R E
+t1 = x > 10
+if t1 == false goto L2
+TOKEN: IDENT     LEXEME: x
+TOKEN: ASSIGN    LEXEME: =
+TOKEN: IDENT     LEXEME: x
+TOKEN: ADD       LEXEME: +
+E -> id
+
+*** Found x in symbol table
+
+TOKEN: INTCONST  LEXEME: 1
+E -> E + INTCONST
+t2 = x + 1
+TOKEN: SEMICOL   LEXEME: ;
+A -> id = E
+
+*** Found x in symbol table
+
+x = t2  
+S -> A ;
+S -> while ( B ) S
+goto L1
+L2:
+S -> W
+TOKEN: RCURLY    LEXEME: }
+C -> epsilon
+C -> S ; C
+P -> var V { C }
+
+---- Completed parsing ----
+
+
+List of instructions:
+(0) L1:
+(1) t1 = x > 10
+(2) if t1 == false goto L2
+(3) t2 = x + 1
+(4) x = t2  
+(5) goto L1
+(6) L2:
+
+Block leaders are as follows:
+(0)
+(3)
+(6)
+
+
+Blocks are as follows:
+B0: (0) - (2)
+B1: (3) - (5)
+B2: (6) - (6)
+
+Executing constantFolding for (0) - (2)
+Executing algebraicSimplification for (0) - (2)
+Executing commonSubexprElimination for (0) - (2)
+(0) L1:
+(1) t1 = x > 10
+(2) if t1 == false goto L2
+(3) t2 = x + 1
+(4) x = t2  
+(5) goto L1
+(6) L2:
+
+Eliminating temp vars that have constant value
+Executing constantFolding for (3) - (5)
+Executing algebraicSimplification for (3) - (5)
+Executing commonSubexprElimination for (3) - (5)
+(0) L1:
+(1) t1 = x > 10
+(2) if t1 == false goto L2
+(3) t2 = x + 1
+(4) x = t2  
+(5) goto L1
+(6) L2:
+
+Eliminating temp vars that have constant value
+Executing constantFolding for (6) - (6)
+Executing algebraicSimplification for (6) - (6)
+Executing commonSubexprElimination for (6) - (6)
+(0) L1:
+(1) t1 = x > 10
+(2) if t1 == false goto L2
+(3) t2 = x + 1
+(4) x = t2  
+(5) goto L1
+(6) L2:
+
+Eliminating temp vars that have constant value
+
+New list of optimized instructions:
+(0) L1:
+(1) t1 = x > 10
+(2) if t1 == false goto L2
+(3) t2 = x + 1
+(4) x = t2  
+(5) goto L1
+(6) L2:

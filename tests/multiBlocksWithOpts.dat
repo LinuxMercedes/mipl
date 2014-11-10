@@ -1,0 +1,10 @@
+var x; y; z; w; q;
+{
+x = 5;
+y = x + 7;
+z = x;
+w = x + 7;
+while (x > y) z = x + 10;
+q = x + 0;
+}
+
