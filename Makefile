@@ -30,8 +30,8 @@ test: cleantest parser $(OUTFILES)
 	@echo "[+] All tests passed!"
 
 %.result : %.dat %.out
-	-@./parser $< --debug > $@
-	diff -b $(word 2, $^) $@
+	./parser $< --debug > $@
+	#diff -b $(word 2, $^) $@
 
 cleantest:
 	-rm $(TESTDIR)/*.result

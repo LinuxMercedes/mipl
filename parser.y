@@ -692,7 +692,7 @@ void fold_consts(DAG& d) {
 }
 
 bool is_value(DAG& d, unsigned int node, int value) {
-	return d.nodes[node].op == V && d.nodes[node].var.o.val == value;
+	return d.nodes[node].var.t == VALUE && d.nodes[node].var.o.val == value;
 }
 
 void alg_simp(DAG& d) {
@@ -731,7 +731,40 @@ void alg_simp(DAG& d) {
 }
 
 void common_subexpr(DAG& d) {
+	for(unsigned int i = 0; i < d.nodes.size(); i++) {
+		if(d.nodes[i].op == ADDITION || d.nodes[i].op == MULTIPLICATION) {
+			oper op = d.nodes[i].op;
+			vector<unsigned int> p_idxs = get_parent_idxs(i, d);
+			vector<edge> parents = get_parents(p_idxs, d);
 
+			for(unsigned int j = i + 1; j < d.nodes.size(); j++) {
+				if(d.nodes[j].op == op) {
+					vector<unsigned int> jp_idxs = get_parent_idxs(j, d);
+					vector<edge> jparents = get_parents(jp_idxs, d);
+					
+					if(jparents.size() == parents.size()) {
+						bool same = true;
+						for(unsigned int k = 0; k < parents.size(); k++) {
+							if(parents[k].f != jparents[k].f) {
+								same = false;
+								break;
+							}
+						}
+				
+						if(same) {
+							modified = true;
+						  printf("common_subexpr %d %d\n", i, j);
+						  d.nodes[j].op = ASSIGNMENT;
+							d.op[0].erase(d.op[0].begin() + jp_idxs[0]);
+							d.op[1].erase(d.op[1].begin() + jp_idxs[1]);
+							edge e = {i, j};
+							d.op[0].push_back(e);
+						}
+					}
+				}
+			}
+		}
+	}
 }
 
 void remove_const_tempvars(DAG& d) {
@@ -1235,6 +1268,7 @@ int main(int argc, char** argv) {
 	}
 
 	vector<DAG> dags = makeDAGs();
+	vector<triple> cat = makeTAC(dags);
 
 	for(unsigned int i = 0; i < dags.size(); i++) {
 		do {
