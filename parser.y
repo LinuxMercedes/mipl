@@ -684,6 +684,7 @@ void fold_consts(DAG& d) {
 				d.op[0].erase(d.op[0].begin() + p_idxs[0]);
 				d.op[1].erase(d.op[1].begin() + p_idxs[1]);
 				modified = true;
+				printf("const fold\n");
 			}
 		}
 
@@ -698,28 +699,30 @@ void alg_simp(DAG& d) {
 	for(unsigned int i = 0; i < d.nodes.size(); i++) {
 		vector<unsigned int> p_idxs = get_parent_idxs(i, d);
 		vector<edge> parents = get_parents(p_idxs, d);
-		bool operating = true;
+		bool operating = false;
 		int value = 0;
 		switch(d.nodes[i].op) {
 			case ADDITION:
 				value = 0;
+				operating = true;
 				break;
 			case MULTIPLICATION:
 				value = 1;
-				break;
-			default:
-				operating = false;
+				operating = true;
 				break;
 		}
 		if(operating) {
-			modified = true;
 			if(is_value(d, parents[0].f, value)) {
+				modified = true;
+				printf("alg_simp\n");
 				d.nodes[i].op = ASSIGNMENT;
 				d.op[0].erase(d.op[0].begin() + p_idxs[0]);
 				d.op[0].push_back(d.op[1][p_idxs[1]]);
 				d.op[1].erase(d.op[1].begin() + p_idxs[1]);
 			}
 			else if(is_value(d, parents[1].f, value)) {
+				modified = true;
+				printf("alg_simp\n");
 				d.nodes[i].op = ASSIGNMENT;
 				d.op[1].erase(d.op[1].begin() + p_idxs[1]);
 			}
@@ -1248,8 +1251,6 @@ int main(int argc, char** argv) {
 				printf("(%d) ", i);
 				printTriple(tac[i]);
 			}
-	
-			break; //TODO: Remove me!
 		} while(modified);
 
 		printf("\nEliminating temp vars that have constant value\n");
