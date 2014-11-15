@@ -1,0 +1,13 @@
+(* 
+   Input variable must be of type integer or char
+*)
+
+program p;
+
+var x : boolean;
+
+begin
+  read(x);
+  write('!')
+end.
+

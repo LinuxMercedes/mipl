@@ -1,0 +1,15 @@
+(* 
+  Expressions must both be int, or both char, or both boolean
+*)
+
+program p;
+
+var i : integer;
+    b : boolean;
+    c : char;
+
+begin
+  b := (i > 5) or (c = 65);
+  write('!')
+end.
+

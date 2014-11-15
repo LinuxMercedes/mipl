@@ -1,0 +1,108 @@
+(* 
+   MIPL program with all kinds of things
+   and no lexical, syntax, or semantic errors
+*)
+program DiddleDeDum;
+
+	var stuff : array [1..20] of integer;
+		data, max : integer;
+		i, loc : integer;
+
+procedure sort;
+	var i, n : integer;
+		flag : boolean;
+
+	procedure swap;
+	var n : integer;
+
+	begin (* swap *)
+		n := stuff[i];
+		stuff[i] := stuff[i+1];
+		stuff[i+1] := n;
+		flag := true
+	end (* swap *)
+
+;
+	begin (* sort *)
+		flag := true;
+		n := max;
+		while (n > 1) and flag do
+		begin
+			flag := false;
+			i := 1;
+			while i < n do
+			begin
+				if stuff[i] > stuff[i+1] then swap;
+				i := i + 1
+			end;
+
+			n := n - 1
+		end
+	end (* sort *)
+
+;
+procedure find;
+	var i, j, k : integer;
+		found : boolean;
+
+	begin (* find *)
+		i := 1;
+		j := max;
+		found := false;
+		while (i <= j) and not found do
+		begin
+			k := (i+j) div 2;
+			if stuff[k] > data then j := k - 1
+			else if stuff[k] < data then i := k + 1
+			else found := true
+		end;
+
+		if found then loc := k else loc := 0
+	end (* find *)
+;
+
+	begin (* DiddleDeDum *)
+		max := 0;
+
+		(* read integer input as long as it is positive *)
+		write('>',' ');
+		read(data);
+		while data >= 0 do
+		begin
+			max := max + 1;
+			stuff[max] := data;
+			write('>',' ');
+			read(data)
+		end;
+
+		(* show array *)
+		sort;
+		write('(', ' ');
+		i := 1;
+		while i <= max do
+		begin
+			write(stuff[i], ' ');
+			i := i + 1
+		end;
+		write(')', '\');
+
+		(* ask for search value *)
+		write('?',' ');
+		read(data);
+
+		(* find it as long as it is positive *)
+		while data >= 0 do
+		begin
+			find;
+			if loc = 0
+			then write('N', 'o', ' ', 'm', 'a', 't', 'c', 'h',
+				' ', 'f', 'o', 'r', ' ', data, '\')
+			else write('S', 't', 'u', 'f', 'f', '[', loc, ']',
+				' ', '=', ' ', data, '\');
+
+			write('?',' ');
+			read(data)
+		end;
+
+		write('e', 'n', 'd', '\')
+	end (*DiddleDeDum *) .

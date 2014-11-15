@@ -1,0 +1,18 @@
+(* 
+    Procedure/variable mismatch
+*)
+
+program p;
+
+var x : integer;
+
+procedure proc;
+begin
+  write('p','r','o','c')
+end;
+
+begin
+  x := proc;
+  write('!')
+end.
+

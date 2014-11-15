@@ -1,0 +1,12 @@
+(* 
+  Index expression must be of type integer
+*)
+
+program p;
+
+var A : array [5..10] of integer;
+
+begin
+  write(A['w'])
+end.
+

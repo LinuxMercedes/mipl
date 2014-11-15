@@ -1,0 +1,13 @@
+(* 
+   Output expression must be of type integer or char
+*)
+
+program p;
+
+var A : array [1..100] of boolean;
+
+begin
+  write(A[50]);
+  write('!')
+end.
+

@@ -1,0 +1,6 @@
+diffs/
+actual/
+
+parser
+*.tab.c
+*.output

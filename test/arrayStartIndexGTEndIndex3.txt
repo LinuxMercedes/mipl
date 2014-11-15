@@ -1,0 +1,12 @@
+(* 
+   Start index must be less than or equal to end index of array
+*)
+
+program p;
+
+var A : array [-5..-10] of integer;
+
+begin
+  A[-5] := 5
+end.
+
