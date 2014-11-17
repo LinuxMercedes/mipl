@@ -8,6 +8,8 @@
 
 %{
 #include <cstdio>
+#include <stack>
+#include <string>
 #include "varinfo.h"
 #include "scope.h"
 #undef PRINT_RULES
@@ -29,6 +31,9 @@
 
 	unsigned int label = 0;
 	unsigned int nest_level = 0;
+
+	std::stack<std::string> current_proc;
+	unsigned int word_count = 0;
 
 	const unsigned int display_size = 20;
 	const unsigned int stack_size = 500;
@@ -90,14 +95,22 @@ N_PROG : N_PROGLBL
 		if(!scope.add(pname, v)) {
 			yyerror("Multiply defined identifier");
 		}
+		current_proc.push(pname);
+		word_count = 0;
 	}
 		N_BLOCK T_DOT
 	{
+		current_proc.pop();
 		scope.pop();
 	}
 ;
 
-N_BLOCK : N_VARDECPART N_PROCDECPART N_STMTPART
+N_BLOCK : N_VARDECPART 
+	{
+		scope.set_word_count(current_proc.top(), word_count);
+		word_count = 0;
+	}
+		N_PROCDECPART N_STMTPART
 	{
 		printRule("N_BLOCK", "N_VARDECPART N_PROCDECPART N_STMTPART");
 	}
@@ -132,10 +145,23 @@ N_VARDEC : N_IDENT N_IDENTLST T_COLON N_TYPE
 		VarInfo v;
 		v.type = $4;
 
+		unsigned int type_sz = 0;
+		switch(v.type.type) {
+			case INT:
+			case BOOL:
+			case CHAR:
+				type_sz = 1;
+				break;
+			case ARRAY:
+				type_sz = v.type.array.end - v.type.array.start;
+				break;
+		}
+
 		if(!scope.add(std::string($1), v)) {
 			free($1);
 			yyerror("Multiply defined identifier");
 		}
+		word_count += type_sz;
 		free($1);
 
 		bool mult = false; /* Try to not leak memory */
@@ -143,6 +169,7 @@ N_VARDEC : N_IDENT N_IDENTLST T_COLON N_TYPE
 			if(!mult && !scope.add(std::string(it->ident), v)) {
 				mult = true;
 			}
+			word_count += type_sz;
 			free(it->ident);
 			del = it;
 			it = it->next;
@@ -249,7 +276,9 @@ N_PROCDECPART : /* epsilon */
 N_PROCDEC : N_PROCHDR N_BLOCK
 	{
 		printRule("N_PROCDEC", "N_PROCHDR N_BLOCK");
+		current_proc.pop();
 		scope.pop();
+		nest_level--;
 	}
 ;
 
@@ -258,10 +287,14 @@ N_PROCHDR : T_PROC T_IDENT T_SCOLON
 		printRule("N_PROCHDR", "T_PROC T_IDENT T_SCOLON");
 		VarInfo p;
 		p.type.type = PROCEDURE;
+		p.nest_level = nest_level++;
+		p.label = label++;
 		if(!scope.add(std::string($2), p)) {
 			free($2);
 			yyerror("Multiply defined identifier");
 		}
+		current_proc.push(std::string($2));
+		word_count = 0;
 		free($2);
 		scope.push();
 	}
