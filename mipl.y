@@ -109,9 +109,9 @@ N_PROG : N_PROGLBL
 		code_start_label = label++;
 		main_label = label++;
 
-		oal_program << "  init L.0, " << display_size 
+		oal_program << "  init L.0, " << display_size
 			<< ", L." << stacks_label
-			<< ", L." << code_start_label 
+			<< ", L." << code_start_label
 			<< ", L." << main_label << std::endl
 			<< "L.0:" << std::endl;
 	}
@@ -457,7 +457,11 @@ N_INPUTVAR : N_VARIABLE
 	}
 ;
 
-N_WRITE : T_WRITE T_LPAREN N_OUTPUT N_OUTPUTLST T_RPAREN
+N_WRITE : T_WRITE T_LPAREN N_OUTPUT
+	{
+		oal_program << "cwrite" << std::endl;
+	}
+	N_OUTPUTLST T_RPAREN
 	{
 		printRule("N_WRITE", "T_WRITE T_LPAREN N_OUTPUT N_OUTPUTLST T_RPAREN");
 	}
@@ -467,7 +471,11 @@ N_OUTPUTLST : /* epsilon */
 	{
 		printRule("N_OUTPUTLST", "epsilon");
 	}
-| T_COMMA N_OUTPUT N_OUTPUTLST
+| T_COMMA N_OUTPUT
+	{
+		oal_program << "cwrite" << std::endl;
+	}
+	N_OUTPUTLST
 	{
 		printRule("N_OUTPUTLST", "T_COMMA N_OUTPUT N_OUTPUTLST");
 	}
