@@ -103,7 +103,6 @@ N_PROG : N_PROGLBL
 		if(!scope.add(pname, v)) {
 			yyerror("Multiply defined identifier");
 		}
-		current_proc.push(pname);
 		word_count = 0;
 
 		stacks_label = label++;
@@ -113,21 +112,30 @@ N_PROG : N_PROGLBL
 			 Globals label
 		*/
 		oal_program << "  init L.0, " << display_size 
-			<< ", L." << stacks_label 
+			<< ", L." << stacks_label
 			<< ", L." << code_start_label 
 			<< ", L." << main_label << std::endl
-			<< "L.0:" << std::endl
+			<< "L.0:" << std::endl;
 	}
 		N_BLOCK T_DOT
 	{
-		current_proc.pop();
 		scope.pop();
+		oal_program << "halt" << std::endl
+			<< "L." << stacks_label << ":" << std::endl
+			<< "bss " << stack_size << std::endl
+			<< "end" << std::endl;
 	}
 ;
 
 N_BLOCK : N_VARDECPART 
 	{
-		scope.set_word_count(current_proc.top(), word_count);
+		if(nest_level == 0) {
+			oal_program << "bss " << display_size + word_count << std::endl
+				<< "L." << code_start_label << ":" << std::endl;
+		}
+		else {
+			scope.set_word_count(current_proc.top(), word_count);
+		}
 		word_count = 0;
 	}
 		N_PROCDECPART N_STMTPART
@@ -322,6 +330,13 @@ N_PROCHDR : T_PROC T_IDENT T_SCOLON
 
 N_STMTPART : N_COMPOUND
 	{
+		if(nest_level == 0) {
+			oal_program << "L." << main_label << ":" << std::endl;
+		}
+		else {
+			VarInfo v = scope.get(current_proc.top());
+			oal_program << "L." << v.label << ":" << std::endl;
+		}
 		printRule("N_STMTPART", "N_COMPOUND");
 	}
 ;
