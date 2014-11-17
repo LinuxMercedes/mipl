@@ -29,3 +29,7 @@ jarusn.*
 *.tab.c
 
 tests/
+parser
+oal/oal_interpreter
+oal_interpreter
+
