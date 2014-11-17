@@ -34,9 +34,11 @@ clean: cleantest
 test: cleantest parser $(OUTFILES)
 	@echo "[+] All tests passed!"
 
-%.result : %.txt %.oal
+%.result : %.txt %.oal FORCE
 	-@./parser $< > $@
 	diff -b --side-by-side $(word 2, $^) $@
+
+FORCE:
 
 cleantest:
 	-rm $(TESTDIR)/*.result
