@@ -14,11 +14,11 @@
 
 	void printRule(const char* lhs, const char* rhs);
 	void printToken(const char* token, const char* lexeme);
-	
+
 	int yyerror(const char* s);
 
 	const char* MAX_INT_STR = "2147483647";
-	
+
 	extern "C" {
 		int yyparse(void);
 		int yylex(void);
@@ -48,13 +48,13 @@
 	IdentList* ilist;
 };
 
-%token T_ASSIGN T_MULT T_PLUS T_MINUS T_DIV T_AND T_OR T_NOT T_LT T_GT T_LE T_GE T_EQ T_NE T_VAR T_ARRAY T_OF T_BOOL T_CHAR T_INT T_PROG T_PROC T_BEGIN T_END T_WHILE T_DO T_IF T_READ T_WRITE T_TRUE T_FALSE T_LBRACK T_RBRACK T_SCOLON T_COLON T_LPAREN T_RPAREN T_COMMA T_DOT T_DOTDOT T_INTCONST T_CHARCONST T_UNKNOWN T_IDENT 
-%nonassoc T_THEN 
+%token T_ASSIGN T_MULT T_PLUS T_MINUS T_DIV T_AND T_OR T_NOT T_LT T_GT T_LE T_GE T_EQ T_NE T_VAR T_ARRAY T_OF T_BOOL T_CHAR T_INT T_PROG T_PROC T_BEGIN T_END T_WHILE T_DO T_IF T_READ T_WRITE T_TRUE T_FALSE T_LBRACK T_RBRACK T_SCOLON T_COLON T_LPAREN T_RPAREN T_COMMA T_DOT T_DOTDOT T_INTCONST T_CHARCONST T_UNKNOWN T_IDENT
+%nonassoc T_THEN
 %nonassoc T_ELSE
 
 %start N_START
 
-%type<text> T_IDENT N_IDENT; 
+%type<text> T_IDENT N_IDENT;
 %type<typeinfo> N_TYPE N_ARRAY N_SIMPLE N_EXPR N_ADDOPLST N_MULTOPLST N_FACTOR N_ADDOP N_MULTOP N_RELOP N_CONST N_SIMPLEEXPR N_TERM;
 %type<varinfo> N_VARIDENT N_PROCIDENT N_VARIABLE N_IDXVAR N_ENTIREVAR N_ARRAYVAR;
 %type<arrayinfo> N_IDXRANGE;
@@ -62,7 +62,7 @@
 %type<ilist> N_IDENTLST;
 %%
 
-N_START : N_PROG 
+N_START : N_PROG
 	{
 		printRule("N_START", "N_PROG");
 		printf("\n---- Completed parsing ----\n\n");
@@ -76,7 +76,7 @@ N_PROGLBL : T_PROG
 	}
 ;
 
-N_PROG : N_PROGLBL 
+N_PROG : N_PROGLBL
 	{
 		scope.push();
 	}
@@ -108,7 +108,7 @@ N_VARDECPART : /* epsilon */
 		printRule("N_VARDECPART", "epsilon");
 	}
 | T_VAR N_VARDEC T_SCOLON N_VARDECLST
-	{ 
+	{
 		printRule("N_VARDECPART", "T_VAR N_VARDEC T_SCOLON N_VARDECLST");
 	}
 ;
@@ -165,7 +165,7 @@ N_IDENTLST : /* epsilon */
 	{
 		$$ = NULL;
 		printRule("N_IDENTLST", "epsilon");
-	} 
+	}
 | T_COMMA N_IDENT N_IDENTLST
 	{
 		IdentList* il = new IdentList;
@@ -199,7 +199,7 @@ N_ARRAY : T_ARRAY T_LBRACK N_IDXRANGE T_RBRACK T_OF N_SIMPLE
 	}
 ;
 
-N_IDX : N_INTCONST 
+N_IDX : N_INTCONST
 	{
 		$$ = $1;
 		printRule("N_IDX", "N_INTCONST");
@@ -209,7 +209,7 @@ N_IDX : N_INTCONST
 N_IDXRANGE : N_IDX T_DOTDOT N_IDX
 	{
 		printRule("N_IDXRANGE", "N_IDX T_DOTDOT N_IDX");
-	
+
 		if ($1 > $3) {
 			yyerror("Start index must be less than or equal to end index of array");
 		}
@@ -344,11 +344,11 @@ N_PROCIDENT : T_IDENT
 		printRule("N_PROCIDENT", "T_IDENT");
 		$$ = scope.get(std::string($1));
 		free($1);
-	
+
 		if($$.type.type == UNDEFINED) {
 			yyerror("Undefined identifier");
 		}
-		
+
 		if($$.type.type != PROCEDURE) {
 			yyerror("Procedure/variable mismatch");
 		}
@@ -364,7 +364,7 @@ N_READ : T_READ T_LPAREN N_INPUTVAR N_INPUTLST T_RPAREN
 N_INPUTLST : /* epsilon */
 	{
 		printRule("N_INPUTLST", "epsilon");
-	}						
+	}
 | T_COMMA N_INPUTVAR N_INPUTLST
 	{
 		printRule("N_INPUTLST", "T_COMMA N_INPUTVAR N_INPUTLST");
@@ -374,7 +374,7 @@ N_INPUTLST : /* epsilon */
 N_INPUTVAR : N_VARIABLE
 	{
 		printRule("N_INPUTVAR", "N_VARIABLE");
-		
+
 		if($1.type.type != INT && $1.type.type != CHAR) {
 			yyerror("Input variable must be of type integer or char");
 		}
@@ -390,7 +390,7 @@ N_WRITE : T_WRITE T_LPAREN N_OUTPUT N_OUTPUTLST T_RPAREN
 N_OUTPUTLST : /* epsilon */
 	{
 		printRule("N_OUTPUTLST", "epsilon");
-	}						
+	}
 | T_COMMA N_OUTPUT N_OUTPUTLST
 	{
 		printRule("N_OUTPUTLST", "T_COMMA N_OUTPUT N_OUTPUTLST");
@@ -410,7 +410,7 @@ N_OUTPUT : N_EXPR
 N_CONDITION : T_IF N_EXPR T_THEN N_STMT
 	{
 		printRule("N_CONDITION", "T_IF N_EXPR T_THEN N_STMT");
-		
+
 		if($2.type != BOOL) {
 			yyerror("Expression must be of type boolean");
 		}
@@ -418,14 +418,14 @@ N_CONDITION : T_IF N_EXPR T_THEN N_STMT
 | T_IF N_EXPR T_THEN N_STMT T_ELSE N_STMT
 	{
 		printRule("N_CONDITION", "T_IF N_EXPR T_THEN N_STMT T_ELSE N_STMT");
-		
+
 		if($2.type != BOOL) {
 			yyerror("Expression must be of type boolean");
 		}
 	}
 ;
 
-N_WHILE : T_WHILE N_EXPR 
+N_WHILE : T_WHILE N_EXPR
 	{
 		if($2.type != BOOL) {
 			yyerror("Expression must be of type boolean");
@@ -445,7 +445,7 @@ N_EXPR : N_SIMPLEEXPR
 | N_SIMPLEEXPR N_RELOP N_SIMPLEEXPR
 	{
 		printRule("N_EXPR", "N_SIMPLEEXPR N_RELOP N_SIMPLEEXPR");
-		
+
 		if(($1.type != CHAR && $1.type != BOOL && $1.type != INT) || $1.type != $3.type) {
 			yyerror("Expressions must both be int, or both char, or both boolean");
 		}
@@ -456,7 +456,7 @@ N_EXPR : N_SIMPLEEXPR
 N_SIMPLEEXPR : N_TERM N_ADDOPLST
 	{
 		printRule("N_SIMPLEEXPR", "N_TERM N_ADDOPLST");
-		
+
 		if($2.type != UNDEFINED && $1.type != $2.type) {
 			switch($2.type) {
 				case BOOL:
@@ -465,7 +465,7 @@ N_SIMPLEEXPR : N_TERM N_ADDOPLST
 					yyerror("Expression must be of type integer");
 			}
 		}
-		$$ = $1;	
+		$$ = $1;
 	}
 ;
 
@@ -477,7 +477,7 @@ N_ADDOPLST : /* epsilon */
 | N_ADDOP N_TERM N_ADDOPLST
 	{
 		printRule("N_ADDOPLST", "N_ADDOP N_TERM N_ADDOPLST");
-		
+
 		if(($1.type != $2.type) || ($3.type != UNDEFINED && $3.type != $1.type)) {
 			switch($1.type) {
 				case BOOL:
@@ -492,7 +492,7 @@ N_ADDOPLST : /* epsilon */
 N_TERM : N_FACTOR N_MULTOPLST
 	{
 		printRule("N_TERM", "N_FACTOR N_MULTOPLST");
-		
+
 		if($2.type != UNDEFINED && $1.type != $2.type) {
 			switch($2.type) {
 				case BOOL:
@@ -513,7 +513,7 @@ N_MULTOPLST : /* epsilon */
 | N_MULTOP N_FACTOR N_MULTOPLST
 	{
 		printRule("N_MULTOPLST", "N_MULTOP N_FACTOR N_MULTOPLST");
-		
+
 		if(($1.type != $2.type) || ($3.type != UNDEFINED && $3.type != $1.type)) {
 			switch($1.type) {
 				case BOOL:
@@ -526,10 +526,10 @@ N_MULTOPLST : /* epsilon */
 	}
 ;
 
-N_FACTOR : N_SIGN N_VARIABLE 
+N_FACTOR : N_SIGN N_VARIABLE
 	{
 		printRule("N_FACTOR", "N_SIGN N_VARIABLE");
-		
+
 		if($1 != 0 && $2.type.type != INT) {
 			yyerror("Expression must be of type integer");
 		}
@@ -654,7 +654,7 @@ N_VARIABLE : N_ENTIREVAR
 N_IDXVAR : N_ARRAYVAR T_LBRACK N_EXPR T_RBRACK
 	{
 		printRule("N_IDXVAR", "N_ARRAYVAR T_LBRACK N_EXPR T_RBRACK");
-		
+
 		if($3.type !=	INT) {
 			yyerror("Index expression must be of type integer");
 		}
@@ -665,7 +665,7 @@ N_IDXVAR : N_ARRAYVAR T_LBRACK N_EXPR T_RBRACK
 N_ARRAYVAR : N_ENTIREVAR
 	{
 		printRule("N_ARRAYVAR", "N_ENTIREVAR");
-		
+
 		if($1.type.type != ARRAY) {
 			yyerror("Indexed variable must be of array type");
 		}
