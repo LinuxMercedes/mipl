@@ -412,6 +412,9 @@ N_ASSIGN : N_VARIABLE T_ASSIGN N_EXPR
 N_PROCSTMT : N_PROCIDENT
 	{
 		printRule("N_PROCSTMT", "N_PROCIDENT");
+		for(unsigned int caller_level = $1.nest_level; caller_level <= nest_level; caller_level++) {
+			oal_program << "pop " << caller_level << ", 0" << std::endl;
+		}
 	}
 ;
 
@@ -428,6 +431,11 @@ N_PROCIDENT : T_IDENT
 		if($$.type.type != PROCEDURE) {
 			yyerror("Procedure/variable mismatch");
 		}
+
+		for(unsigned int caller_level = nest_level; caller_level >= $$.nest_level; caller_level--) {
+			oal_program << "push " << caller_level << ", 0" << std::endl;
+		}
+		oal_program << "js L." << $$.label << std::endl;
 	}
 ;
 
