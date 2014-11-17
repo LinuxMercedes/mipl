@@ -29,8 +29,12 @@
 
 	Scope scope;
 
-	unsigned int label = 0;
+	unsigned int label = 1;
 	unsigned int nest_level = 0;
+
+	unsigned int stacks_label;
+	unsigned int code_start_label;
+	unsigned int main_label;
 
 	std::stack<std::string> current_proc;
 	unsigned int word_count = 0;
@@ -97,6 +101,16 @@ N_PROG : N_PROGLBL
 		}
 		current_proc.push(pname);
 		word_count = 0;
+
+		stacks_label = label++;
+		code_start_label = label++;
+		main_label = label++;
+		/* init
+			 Globals label
+		*/
+		stacks_label = label++;
+		code_start_label = label++;
+		main_label = label++;
 	}
 		N_BLOCK T_DOT
 	{
