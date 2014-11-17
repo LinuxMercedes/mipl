@@ -326,14 +326,24 @@ N_PROCHDR : T_PROC T_IDENT T_SCOLON
 	}
 ;
 
-N_STMTPART : N_COMPOUND
+N_STMTPART : 
 	{
 		if(nest_level == 0) {
 			oal_program << "L." << main_label << ":" << std::endl;
 		}
 		else {
 			VarInfo v = scope.get(current_proc.top());
-			oal_program << "L." << v.label << ":" << std::endl;
+			oal_program << "L." << v.label << ":" << std::endl
+				<< "save " << v.nest_level << ", 0" << std::endl
+				<< "asp " << v.words << std::endl;
+		}
+	}
+		N_COMPOUND
+	{
+		if(nest_level != 0) {
+			VarInfo v = scope.get(current_proc.top());
+			oal_program << "asp -" << v.words << std::endl
+				<< "ji" << std::endl;
 		}
 		printRule("N_STMTPART", "N_COMPOUND");
 	}
