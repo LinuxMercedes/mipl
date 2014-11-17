@@ -36,7 +36,7 @@ test: cleantest parser $(OUTFILES)
 
 %.result : %.txt %.oal FORCE
 	-@./parser $< > $@
-	diff -b --side-by-side $(word 2, $^) $@
+	diff -b -w --side-by-side $(word 2, $^) $@
 
 FORCE:
 
