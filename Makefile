@@ -7,9 +7,9 @@ CC=g++
 
 CFLAGS=-g
 
-.PHONY: all parser clean test cleantest submit
+.PHONY: all parser clean test cleantest submit oal
 
-all: parser
+all: parser oal
 
 lex.yy.c: mipl.l
 	flex mipl.l
@@ -20,10 +20,16 @@ mipl.tab.c: lex.yy.c mipl.y
 parser: mipl.tab.c
 	${CC} ${CFLAGS} mipl.tab.c -o parser
 
+oal:
+	${MAKE} -C oal
+	cp oal/oal_interpreter .
+
 clean: cleantest
 	-rm mipl.tab.c
 	-rm lex.yy.c
 	-rm parser
+	-rm oal_interpreter
+	${MAKE} -C oal clean
 
 test: cleantest parser $(OUTFILES)
 	@echo "[+] All tests passed!"
