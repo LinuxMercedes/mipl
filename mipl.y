@@ -108,9 +108,7 @@ N_PROG : N_PROGLBL
 		stacks_label = label++;
 		code_start_label = label++;
 		main_label = label++;
-		/* init
-			 Globals label
-		*/
+
 		oal_program << "  init L.0, " << display_size 
 			<< ", L." << stacks_label
 			<< ", L." << code_start_label 
