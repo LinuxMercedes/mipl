@@ -1,0 +1,18 @@
+program p;
+
+procedure p1a;
+begin
+  write('a')
+end;
+
+procedure p1b;
+begin
+  p1a;
+  write('b')
+end;
+
+begin
+  p1b;
+  write('c')
+end.
+

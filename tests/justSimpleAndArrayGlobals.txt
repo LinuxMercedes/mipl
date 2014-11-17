@@ -1,0 +1,13 @@
+program p;
+
+var k,j : integer;
+    ch : char;
+    B : array[6..10] of boolean;
+    flag : boolean;
+    C,D : array[100..200] of integer;
+    w : integer;
+
+begin
+  write(5)
+end.
+

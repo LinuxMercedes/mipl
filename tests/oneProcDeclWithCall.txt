@@ -1,0 +1,12 @@
+program p;
+
+procedure p1;
+begin
+  write(1)
+end;
+
+begin
+  p1;
+  write(0)
+end.
+

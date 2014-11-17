@@ -1,0 +1,18 @@
+program p;
+var a : integer;
+
+  procedure p1;
+  var x,y : integer;
+      ch : char;
+  begin
+    x := 5; 
+    y := x + 1;
+    ch := '\';
+    write(x + y + a, ch)
+  end;
+
+begin
+  a := 100;
+  write(a)
+end.
+

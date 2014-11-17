@@ -1,0 +1,7 @@
+program p;
+begin
+  write(5);
+  write('!');
+  write(-42,'\')
+end.
+

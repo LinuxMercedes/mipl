@@ -1,0 +1,96 @@
+  init L.0, 20, L.1, L.2, L.3
+L.0:
+  bss 21
+L.2:
+L.4:
+  save 1, 0
+# Beginning of block's N_STMTPART
+  lc 33
+  cwrite
+  ji
+L.7:
+  save 3, 0
+  asp 1
+# Beginning of block's N_STMTPART
+  la 0, 3
+  la 0, 1
+  deref
+  la 0, 2
+  deref
+  add
+  st
+  la 0, 1
+  la 0, 3
+  deref
+  st
+  lc 102
+  cwrite
+  lc 61
+  cwrite
+  la 0, 3
+  deref
+  iwrite
+  lc 92
+  cwrite
+  la 0, 3
+  deref
+  lc 10
+  .lt.
+  jf L.8
+  push 3, 0
+  push 2, 0
+  js L.6
+  pop 2, 0
+  pop 3, 0
+  jp L.9
+L.8:
+  push 3, 0
+  push 2, 0
+  push 1, 0
+  js L.4
+  pop 1, 0
+  pop 2, 0
+  pop 3, 0
+L.9:
+  asp -1
+  ji
+L.6:
+  save 2, 0
+  asp 1
+# Beginning of block's N_STMTPART
+  la 0, 2
+  la 0, 1
+  deref
+  lc 1
+  add
+  st
+  js L.7
+  asp -1
+  ji
+L.5:
+  save 1, 0
+  asp 1
+# Beginning of block's N_STMTPART
+  la 0, 1
+  lc 1
+  st
+  js L.6
+  asp -1
+  ji
+L.3:
+# Beginning of block's N_STMTPART
+  js L.5
+  lc 92
+  cwrite
+  lc 100
+  cwrite
+  lc 111
+  cwrite
+  lc 110
+  cwrite
+  lc 101
+  cwrite
+  halt
+L.1:
+  bss 500
+  end

@@ -1,0 +1,19 @@
+program p;
+
+var k,j : integer;
+    ch : char;
+    B : array[6..10] of integer;
+    f : integer;
+    C,D : array[101..200] of integer;
+    w : integer;
+
+begin
+  B[7] := 99;
+  k := 5; w := 2;
+  f := B[k + w];
+  write(f,'\');
+  C[150] := 200;
+  D[C[150]] := -2;
+  write(D[C[150]])
+end.
+

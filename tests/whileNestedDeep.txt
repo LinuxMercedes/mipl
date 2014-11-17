@@ -1,0 +1,24 @@
+program p;
+var x,y,z : integer;
+
+begin
+  x := 1; 
+  while x < 5 do
+  begin
+    y := 4;
+    while y > 0 do
+    begin
+      y := y - 1;
+      z := 100;
+      while z <> 103 do
+      begin
+        write(z+y);
+        z := z + 1
+      end;
+      write('\')
+    end;
+    x := x + 1
+  end;
+  write(x,'\',y,'\',z)
+end.
+

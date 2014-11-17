@@ -1,0 +1,12 @@
+  init L.0, 20, L.1, L.2, L.3
+L.0:
+  bss 20
+L.2:
+L.3:
+# Beginning of block's N_STMTPART
+  lc 0
+  iwrite
+  halt
+L.1:
+  bss 500
+  end

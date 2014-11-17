@@ -1,0 +1,9 @@
+program p;
+var x : integer;
+
+begin
+  x := 99;
+  if x > 10 then write(x);
+  write('\')
+end.
+

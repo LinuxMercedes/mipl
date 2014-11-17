@@ -28,7 +28,7 @@ clean: cleantest
 test: cleantest parser $(OUTFILES)
 	@echo "[+] All tests passed!"
 
-%.result : %.txt %.txt.out
+%.result : %.txt %.oal
 	-@./parser $< > $@
 	diff -b $(word 2, $^) $@
 
