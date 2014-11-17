@@ -45,6 +45,8 @@
 	const unsigned int display_size = 20;
 	const unsigned int stack_size = 500;
 
+	std::stack<unsigned int> labels;
+
 	struct IdentList {
 		char* ident;
 		IdentList* next;
@@ -508,7 +510,12 @@ N_OUTPUT : N_EXPR
 	}
 ;
 
-N_CONDITION : T_IF N_EXPR T_THEN N_STMT N_ELSE
+N_CONDITION : T_IF N_EXPR 
+	{
+		oal_program << "jf L." << label << std::endl;
+		labels.push(label++);
+	}
+		T_THEN N_STMT N_ELSE
 	{
 		printRule("N_CONDITION", "T_IF N_EXPR T_THEN N_STMT N_ELSE");
 
@@ -520,10 +527,21 @@ N_CONDITION : T_IF N_EXPR T_THEN N_STMT N_ELSE
 
 N_ELSE : /* epsilon */
 	{
+		oal_program << "L." << labels.top() << ":" << std::endl;
+		labels.pop();
 		printRule("N_ELSE", "epsilon");
 	}
-| T_ELSE N_STMT
+| T_ELSE 
 	{
+		oal_program << "jp L." << label << std::endl;
+		oal_program << "L." << labels.top() << ":" << std::endl;
+		labels.pop();
+		labels.push(label++);
+	}
+	N_STMT
+	{
+		oal_program << "L." << labels.top() << ":" << std::endl;
+		labels.pop();
 		printRule("N_ELSE", "T_ELSE N_STMT");
 	}
 ;
