@@ -10,6 +10,8 @@
 #include <cstdio>
 #include <stack>
 #include <string>
+#include <iostream>
+#include <sstream>
 #include "varinfo.h"
 #include "scope.h"
 #undef PRINT_RULES
@@ -42,6 +44,8 @@
 		char* ident;
 		IdentList* next;
 	};
+
+	std::ostringstream oal_program;
 %}
 
 %union {
@@ -70,7 +74,14 @@
 N_START : N_PROG
 	{
 		printRule("N_START", "N_PROG");
-		printf("\n---- Completed parsing ----\n\n");
+
+		std::cout << "  init L.0, 20, L.1, L.2, L.3" << std::endl
+			<< "L.0:" << std::endl
+			<< "  bss: ??" << std::endl
+			<< "L.2:" << std::endl
+			<< "  ???" << std::endl
+			<< "L.3:" << std::endl
+			<< oal_program.str() << std::endl;
 		return 0;
 	}
 ;
@@ -586,6 +597,8 @@ N_FACTOR : N_SIGN N_VARIABLE
 			yyerror("Expression must be of type boolean");
 		}
 		$$ = $2;
+
+		oal_program << "not" << std::endl;
 	}
 ;
 
@@ -731,6 +744,8 @@ N_CONST : N_INTCONST
 	{
 		$$.type = INT;
 		printRule("N_CONST", "N_INTCONST");
+
+		oal_program << "lc " << $1 << std::endl;
 	}
 | T_CHARCONST
 	{
