@@ -179,7 +179,7 @@ N_VARDEC : N_IDENT N_IDENTLST T_COLON N_TYPE
 				type_sz = 1;
 				break;
 			case ARRAY:
-				type_sz = v.type.array.end - v.type.array.start;
+				type_sz = v.type.array.end - v.type.array.start + 1;
 				break;
 		}
 
