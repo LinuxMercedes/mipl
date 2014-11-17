@@ -313,7 +313,7 @@ N_PROCHDR : T_PROC T_IDENT T_SCOLON
 		printRule("N_PROCHDR", "T_PROC T_IDENT T_SCOLON");
 		VarInfo p;
 		p.type.type = PROCEDURE;
-		p.nest_level = nest_level++;
+		p.nest_level = ++nest_level;
 		p.label = label++;
 		if(!scope.add(std::string($2), p)) {
 			free($2);
