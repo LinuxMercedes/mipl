@@ -27,3 +27,4 @@ jarusn.*
 lex.yy.c
 mipl.tab.c
 
+tests/
