@@ -499,21 +499,23 @@ N_OUTPUT : N_EXPR
 	}
 ;
 
-N_CONDITION : T_IF N_EXPR T_THEN N_STMT
+N_CONDITION : T_IF N_EXPR T_THEN N_STMT N_ELSE
 	{
-		printRule("N_CONDITION", "T_IF N_EXPR T_THEN N_STMT");
+		printRule("N_CONDITION", "T_IF N_EXPR T_THEN N_STMT N_ELSE");
 
 		if($2.type != BOOL) {
 			yyerror("Expression must be of type boolean");
 		}
 	}
-| T_IF N_EXPR T_THEN N_STMT T_ELSE N_STMT
-	{
-		printRule("N_CONDITION", "T_IF N_EXPR T_THEN N_STMT T_ELSE N_STMT");
+;
 
-		if($2.type != BOOL) {
-			yyerror("Expression must be of type boolean");
-		}
+N_ELSE : /* epsilon */
+	{
+		printRule("N_ELSE", "epsilon");
+	}
+| T_ELSE N_STMT
+	{
+		printRule("N_ELSE", "T_ELSE N_STMT");
 	}
 ;
 
