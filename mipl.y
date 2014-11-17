@@ -78,14 +78,7 @@
 N_START : N_PROG
 	{
 		printRule("N_START", "N_PROG");
-
-		std::cout << "  init L.0, 20, L.1, L.2, L.3" << std::endl
-			<< "L.0:" << std::endl
-			<< "  bss: ??" << std::endl
-			<< "L.2:" << std::endl
-			<< "  ???" << std::endl
-			<< "L.3:" << std::endl
-			<< oal_program.str() << std::endl;
+		std::cout << oal_program.str() << std::endl;
 		return 0;
 	}
 ;
@@ -119,9 +112,11 @@ N_PROG : N_PROGLBL
 		/* init
 			 Globals label
 		*/
-		stacks_label = label++;
-		code_start_label = label++;
-		main_label = label++;
+		oal_program << "  init L.0, " << display_size 
+			<< ", L." << stacks_label 
+			<< ", L." << code_start_label 
+			<< ", L." << main_label << std::endl
+			<< "L.0:" << std::endl
 	}
 		N_BLOCK T_DOT
 	{
