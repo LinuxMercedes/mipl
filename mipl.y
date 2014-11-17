@@ -348,6 +348,7 @@ N_STMTPART :
 				<< "save " << v.nest_level << ", 0" << std::endl
 				<< "asp " << v.words << std::endl;
 		}
+		oal_program << "# Beginning of block's N_STMTPART" << std::endl;
 	}
 		N_COMPOUND
 	{
