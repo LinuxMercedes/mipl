@@ -70,8 +70,8 @@
 %start N_START
 
 %type<text> T_IDENT N_IDENT T_CHARCONST;
-%type<typeinfo> N_TYPE N_ARRAY N_SIMPLE N_EXPR N_ADDOPLST N_MULTOPLST N_FACTOR N_ADDOP N_MULTOP N_RELOP N_CONST N_SIMPLEEXPR N_TERM;
-%type<varinfo> N_VARIDENT N_PROCIDENT N_VARIABLE N_IDXVAR N_ENTIREVAR N_ARRAYVAR;
+%type<typeinfo> N_TYPE N_ARRAY N_SIMPLE N_EXPR N_ADDOPLST N_MULTOPLST N_FACTOR N_ADDOP N_MULTOP N_RELOP N_CONST N_SIMPLEEXPR N_TERM N_OUTPUT;
+%type<varinfo> N_VARIDENT N_PROCIDENT N_VARIABLE N_IDXVAR N_ENTIREVAR N_ARRAYVAR N_INPUTVAR;
 %type<arrayinfo> N_IDXRANGE;
 %type<integer> N_IDX N_INTCONST N_SIGN T_INTCONST;
 %type<ilist> N_IDENTLST;
@@ -451,7 +451,15 @@ N_PROCIDENT : T_IDENT
 	}
 ;
 
-N_READ : T_READ T_LPAREN N_INPUTVAR N_INPUTLST T_RPAREN
+N_READ : T_READ T_LPAREN N_INPUTVAR
+	{
+		if($3.type.type == INT) {
+			oal_program << "iread" << std::endl;
+		} else {
+			oal_program << "cread" << std::endl;
+		}
+	}
+	N_INPUTLST T_RPAREN
 	{
 		printRule("N_READ", "T_READ T_LPAREN N_INPUTVAR N_INPUTLST T_RPAREN");
 	}
@@ -461,7 +469,15 @@ N_INPUTLST : /* epsilon */
 	{
 		printRule("N_INPUTLST", "epsilon");
 	}
-| T_COMMA N_INPUTVAR N_INPUTLST
+| T_COMMA N_INPUTVAR
+	{
+		if($2.type.type == INT) {
+			oal_program << "iread" << std::endl;
+		} else {
+			oal_program << "cread" << std::endl;
+		}
+	}
+	N_INPUTLST
 	{
 		printRule("N_INPUTLST", "T_COMMA N_INPUTVAR N_INPUTLST");
 	}
@@ -474,12 +490,18 @@ N_INPUTVAR : N_VARIABLE
 		if($1.type.type != INT && $1.type.type != CHAR) {
 			yyerror("Input variable must be of type integer or char");
 		}
+
+		$$ = $1;
 	}
 ;
 
 N_WRITE : T_WRITE T_LPAREN N_OUTPUT
 	{
-		oal_program << "cwrite" << std::endl;
+		if($3.type == INT) {
+			oal_program << "iwrite" << std::endl;
+		} else {
+			oal_program << "cwrite" << std::endl;
+		}
 	}
 	N_OUTPUTLST T_RPAREN
 	{
@@ -493,7 +515,11 @@ N_OUTPUTLST : /* epsilon */
 	}
 | T_COMMA N_OUTPUT
 	{
-		oal_program << "cwrite" << std::endl;
+		if($2.type == INT) {
+			oal_program << "iwrite" << std::endl;
+		} else {
+			oal_program << "cwrite" << std::endl;
+		}
 	}
 	N_OUTPUTLST
 	{
@@ -508,6 +534,8 @@ N_OUTPUT : N_EXPR
 		if($1.type != INT && $1.type != CHAR) {
 			yyerror("Output expression must be of type integer or char");
 		}
+
+		$$ = $1;
 	}
 ;
 
