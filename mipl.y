@@ -755,11 +755,17 @@ int yyerror(const char* s) {
 	exit(0);
 }
 
-int main() {
+int main(int argc, char** argv) {
+	if (argc < 2) {
+		printf("You must specify a file in the command line!\n");
+		exit(1);
+	}
+
+	yyin = fopen(argv[1], "r");
+
 	do {
 		yyparse();
-	} while(!feof(yyin));
+	} while (!feof(yyin));
 
 	return 0;
 }
-
