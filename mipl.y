@@ -12,6 +12,7 @@
 #include <string>
 #include <iostream>
 #include <sstream>
+#include <vector>
 #include "varinfo.h"
 #include "scope.h"
 #undef PRINT_RULES
@@ -50,6 +51,7 @@
 	};
 
 	std::ostringstream oal_program;
+	std::vector<unsigned int> next_addr;
 %}
 
 %union {
@@ -73,7 +75,11 @@
 %type<ilist> N_IDENTLST;
 %%
 
-N_START : N_PROG
+N_START :
+	{
+		next_addr.push_back(0);
+	}
+	N_PROG
 	{
 		printRule("N_START", "N_PROG");
 		std::cout << oal_program.str() << std::endl;
@@ -181,13 +187,16 @@ N_VARDEC : N_IDENT N_IDENTLST T_COLON N_TYPE
 				break;
 		}
 
+		v.offset = next_addr.back();
+		v.level = nest_level;
+		next_addr.back() += type_sz;
+
 		if(!scope.add(std::string($1), v)) {
 			free($1);
 			yyerror("Multiply defined identifier");
 		}
 		word_count += type_sz;
 		free($1);
-
 		bool mult = false; /* Try to not leak memory */
 		while(it != NULL) {
 			if(!mult && !scope.add(std::string(it->ident), v)) {
@@ -303,6 +312,7 @@ N_PROCDEC : N_PROCHDR N_BLOCK
 		current_proc.pop();
 		scope.pop();
 		nest_level--;
+		next_addr.pop_back();
 	}
 ;
 
@@ -321,10 +331,11 @@ N_PROCHDR : T_PROC T_IDENT T_SCOLON
 		word_count = 0;
 		free($2);
 		scope.push();
+		next_addr.push_back(0);
 	}
 ;
 
-N_STMTPART : 
+N_STMTPART :
 	{
 		if(nest_level == 0) {
 			oal_program << "L." << main_label << ":" << std::endl;
@@ -739,6 +750,7 @@ N_VARIABLE : N_ENTIREVAR
 	{
 		$$ = $1;
 		printRule("N_VARIABLE", "N_ENTIREVAR");
+		oal_program << "la " << $1.offset << ", " << $1.level << std::endl;
 	}
 | N_IDXVAR
 	{
