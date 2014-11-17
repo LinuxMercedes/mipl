@@ -67,7 +67,7 @@
 
 %start N_START
 
-%type<text> T_IDENT N_IDENT;
+%type<text> T_IDENT N_IDENT T_CHARCONST;
 %type<typeinfo> N_TYPE N_ARRAY N_SIMPLE N_EXPR N_ADDOPLST N_MULTOPLST N_FACTOR N_ADDOP N_MULTOP N_RELOP N_CONST N_SIMPLEEXPR N_TERM;
 %type<varinfo> N_VARIDENT N_PROCIDENT N_VARIABLE N_IDXVAR N_ENTIREVAR N_ARRAYVAR;
 %type<arrayinfo> N_IDXRANGE;
@@ -125,7 +125,7 @@ N_PROG : N_PROGLBL
 	}
 ;
 
-N_BLOCK : N_VARDECPART 
+N_BLOCK : N_VARDECPART
 	{
 		if(nest_level == 0) {
 			oal_program << "bss " << display_size + word_count << std::endl
@@ -645,11 +645,13 @@ N_ADDOP : T_PLUS
 	{
 		$$.type = INT;
 		printRule("N_ADDOP", "T_PLUS");
+		oal_program << "add" << std::endl;
 	}
 | T_MINUS
 	{
 		$$.type = INT;
 		printRule("N_ADDOP", "T_MINUS");
+		oal_program << "sub" << std::endl;
 	}
 | T_OR
 	{
@@ -766,13 +768,13 @@ N_CONST : N_INTCONST
 	{
 		$$.type = INT;
 		printRule("N_CONST", "N_INTCONST");
-
 		oal_program << "lc " << $1 << std::endl;
 	}
 | T_CHARCONST
 	{
 		$$.type = CHAR;
 		printRule("N_CONST", "T_CHARCONST");
+		oal_program << "lc " << int($1[1]) << std::endl;
 	}
 | N_BOOLCONST
 	{
