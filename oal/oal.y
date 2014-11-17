@@ -112,12 +112,12 @@ bool checkLabels();
 
 // Debugging, initialization, yacc support, etc. functions
 void dumpExecutionStack();
-void bail(char *s);
+void bail(const char *s);
 void initDisplay();
 void performEvaluation();
 
 void ignoreComment(void);
-void prRule(char *, char *);
+void prRule(const char *, const char *);
 
 int yyerror(const char *s) {
   printf("%d: %s\n", lineNum, s);
@@ -1017,7 +1017,7 @@ void dumpExecutionStack() {
 }
 
 // Output the specified message and terminate program execution.
-void bail(char* s) {
+void bail(const char* s) {
   printf("\n%s\n", s);
   exit(1);
 }
@@ -1111,7 +1111,7 @@ bool checkLabels( ) {
 }
 
 // Output the production being parsed (for debugging)
-void prRule(char* lhs, char* rhs) {
+void prRule(const char* lhs, const char* rhs) {
   if (DEBUG) printf("%s -> %s\n", lhs, rhs);
     return;
 }
