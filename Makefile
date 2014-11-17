@@ -30,7 +30,7 @@ test: cleantest parser $(OUTFILES)
 
 %.result : %.txt %.oal
 	-@./parser $< > $@
-	diff -b $(word 2, $^) $@
+	diff -b --side-by-side $(word 2, $^) $@
 
 cleantest:
 	-rm $(TESTDIR)/*.result
