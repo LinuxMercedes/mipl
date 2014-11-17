@@ -547,14 +547,26 @@ N_ELSE : /* epsilon */
 	}
 ;
 
-N_WHILE : T_WHILE N_EXPR
+N_WHILE : T_WHILE 
 	{
-		if($2.type != BOOL) {
+		oal_program << "L." << label << ":" << std::endl;
+		labels.push(label++);
+	}
+		N_EXPR
+	{
+		oal_program << "jf L." << label << std::endl;
+		labels.push(label++);
+		if($3.type != BOOL) {
 			yyerror("Expression must be of type boolean");
 		}
 	}
 		T_DO N_STMT
 	{
+		unsigned int out_label = labels.top();
+		labels.pop();
+		oal_program << "jp L." << labels.top() << std::endl
+			<< "L." << out_label << ":" << std::endl;
+		labels.pop();
 		printRule("N_WHILE", "T_WHILE N_EXPR T_DO N_STMT");
 	}
 ;
