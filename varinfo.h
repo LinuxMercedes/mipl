@@ -26,6 +26,8 @@ struct TypeInfo {
 
 struct VarInfo {
   TypeInfo type;
+  unsigned int nest_level;
+  unsigned int label;
 };
 
 std::string pretty_type(const Type& t) {

@@ -27,6 +27,12 @@
 
 	Scope scope;
 
+	unsigned int label = 0;
+	unsigned int nest_level = 0;
+
+	const unsigned int display_size = 20;
+	const unsigned int stack_size = 500;
+
 	struct IdentList {
 		char* ident;
 		IdentList* next;
