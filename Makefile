@@ -1,4 +1,3 @@
-
 TESTDIR=tests
 
 TESTFILES=$(wildcard $(TESTDIR)/*.txt)
@@ -26,11 +25,11 @@ clean: cleantest
 	-rm lex.yy.c
 	-rm parser
 
-test: cleantest parser $(OUTFILES) 
+test: cleantest parser $(OUTFILES)
 	@echo "[+] All tests passed!"
 
 %.result : %.txt %.txt.out
-	-@./parser < $< > $@
+	-@./parser $< > $@
 	diff -b $(word 2, $^) $@
 
 cleantest:
@@ -39,4 +38,3 @@ cleantest:
 submit:
 	cp mipl.l jarusn.l
 	cp mipl.y jarusn.y
-
