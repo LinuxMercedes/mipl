@@ -177,6 +177,8 @@ N_VARDEC : N_IDENT N_IDENTLST T_COLON N_TYPE
 
 		VarInfo v;
 		v.type = $4;
+		v.level = nest_level;
+		v.offset = next_addr.back();
 
 		unsigned int type_sz = 0;
 		switch(v.type.type) {
@@ -190,8 +192,6 @@ N_VARDEC : N_IDENT N_IDENTLST T_COLON N_TYPE
 				break;
 		}
 
-		v.offset = next_addr.back();
-		v.level = nest_level;
 		next_addr.back() += type_sz;
 
 		if(!scope.add(std::string($1), v)) {
@@ -202,6 +202,9 @@ N_VARDEC : N_IDENT N_IDENTLST T_COLON N_TYPE
 		free($1);
 		bool mult = false; /* Try to not leak memory */
 		while(it != NULL) {
+			v.offset = next_addr.back();
+			next_addr.back() += type_sz;
+
 			if(!mult && !scope.add(std::string(it->ident), v)) {
 				mult = true;
 			}
@@ -930,10 +933,12 @@ N_INTCONST : N_SIGN T_INTCONST
 N_BOOLCONST : T_TRUE
 	{
 		printRule("N_BOOLCONST", "T_TRUE");
+		oal_program << "lc 1" << std::endl;
 	}
 | T_FALSE
 	{
 		printRule("N_BOOLCONST", "T_FALSE");
+		oal_program << "lc 0" << std::endl;
 	}
 ;
 
