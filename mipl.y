@@ -419,6 +419,8 @@ N_ASSIGN : N_VARIABLE T_ASSIGN N_EXPR
 		if($1.type.type != $3.type) {
 			yyerror("Expression must be of same type as variable");
 		}
+
+		oal_program << "st" << std::endl;
 	}
 ;
 
@@ -853,7 +855,7 @@ N_IDXVAR : N_ARRAYVAR
 		}
 		$$.type.type = $1.type.extended;
 
-		oal_program << "deref" << std::endl;
+		oal_program << "add" << std::endl;
 	}
 ;
 
