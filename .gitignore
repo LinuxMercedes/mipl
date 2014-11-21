@@ -29,7 +29,7 @@ jarusn.*
 *.tab.c
 
 tests/
+diffs/
 parser
 oal/oal_interpreter
 oal_interpreter
-
