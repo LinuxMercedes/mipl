@@ -826,6 +826,9 @@ N_IDXVAR : N_ARRAYVAR T_LBRACK N_EXPR T_RBRACK
 			yyerror("Index expression must be of type integer");
 		}
 		$$.type.type = $1.type.extended;
+
+		oal_program << "la " << $1.offset << ", " << $1.level << std::endl;
+		oal_program << "deref" << std::endl;
 	}
 ;
 
