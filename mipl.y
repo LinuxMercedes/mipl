@@ -852,7 +852,7 @@ N_VARIABLE : N_ENTIREVAR
 
 N_IDXVAR : N_ARRAYVAR
 	{
-		oal_program << "la " << ($1.offset - $1.type.array.start) << ", " << $1.level << std::endl;
+		oal_program << "la " << ((int) $1.offset - $1.type.array.start) << ", " << $1.level << std::endl;
 	}
 	T_LBRACK N_EXPR T_RBRACK
 	{
