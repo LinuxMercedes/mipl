@@ -80,7 +80,7 @@
 
 N_START :
 	{
-		next_addr.push_back(0);
+		next_addr.push_back(display_size);
 	}
 	N_PROG
 	{
@@ -819,16 +819,19 @@ N_VARIABLE : N_ENTIREVAR
 	}
 ;
 
-N_IDXVAR : N_ARRAYVAR T_LBRACK N_EXPR T_RBRACK
+N_IDXVAR : N_ARRAYVAR
+	{
+		oal_program << "la " << ($1.offset - $1.type.array.start) << ", " << $1.level << std::endl;
+	}
+	T_LBRACK N_EXPR T_RBRACK
 	{
 		printRule("N_IDXVAR", "N_ARRAYVAR T_LBRACK N_EXPR T_RBRACK");
 
-		if($3.type !=	INT) {
+		if($4.type != INT) {
 			yyerror("Index expression must be of type integer");
 		}
 		$$.type.type = $1.type.extended;
 
-		oal_program << "la " << $1.offset << ", " << $1.level << std::endl;
 		oal_program << "deref" << std::endl;
 	}
 ;
