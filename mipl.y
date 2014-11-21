@@ -1,3 +1,4 @@
+/* -*- mode: bison; indent-tabs-mode: t; -*- */
 /*
 	mipl.y - a bison specification for the MIPL language
 
@@ -79,7 +80,7 @@
 
 N_START :
 	{
-		next_addr.push_back(0);
+		next_addr.push_back(display_size);
 	}
 	N_PROG
 	{
@@ -539,7 +540,7 @@ N_OUTPUT : N_EXPR
 	}
 ;
 
-N_CONDITION : T_IF N_EXPR 
+N_CONDITION : T_IF N_EXPR
 	{
 		oal_program << "jf L." << label << std::endl;
 		labels.push(label++);
@@ -560,7 +561,7 @@ N_ELSE : /* epsilon */
 		labels.pop();
 		printRule("N_ELSE", "epsilon");
 	}
-| T_ELSE 
+| T_ELSE
 	{
 		oal_program << "jp L." << label << std::endl;
 		oal_program << "L." << labels.top() << ":" << std::endl;
@@ -575,7 +576,7 @@ N_ELSE : /* epsilon */
 	}
 ;
 
-N_WHILE : T_WHILE 
+N_WHILE : T_WHILE
 	{
 		oal_program << "L." << label << ":" << std::endl;
 		labels.push(label++);
@@ -839,14 +840,20 @@ N_VARIABLE : N_ENTIREVAR
 	}
 ;
 
-N_IDXVAR : N_ARRAYVAR T_LBRACK N_EXPR T_RBRACK
+N_IDXVAR : N_ARRAYVAR
+	{
+		oal_program << "la " << ($1.offset - $1.type.array.start) << ", " << $1.level << std::endl;
+	}
+	T_LBRACK N_EXPR T_RBRACK
 	{
 		printRule("N_IDXVAR", "N_ARRAYVAR T_LBRACK N_EXPR T_RBRACK");
 
-		if($3.type !=	INT) {
+		if($4.type != INT) {
 			yyerror("Index expression must be of type integer");
 		}
 		$$.type.type = $1.type.extended;
+
+		oal_program << "deref" << std::endl;
 	}
 ;
 

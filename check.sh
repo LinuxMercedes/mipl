@@ -22,12 +22,12 @@ for actual_result in tests/*.result
 do
     file_name=`basename $actual_result`
     expected_result=tests/${file_name%.result}.oal
-    diff -i -b -w --side-by-side $actual_result $expected_result > diffs/${file_name%.result}.diff
+    diff -i -b -B -w --side-by-side $actual_result $expected_result > diffs/${file_name%.result}.diff
     if [ "$?" -ne "0" ]
     then
         echo -e "${red}Broken${NC}\tdiffs/$file_name$"
         failed=$((failed + 1))
-        diff -i -b -w $actual_result $expected_result | diffstat
+        diff -i -b -B -w $actual_result $expected_result | diffstat
     else
         echo -e "${green}OK${NC}\t$actual_result"
         passed=$((passed + 1))
