@@ -22,6 +22,7 @@ struct TypeInfo {
   Type type;
   Type extended;
   ArrayInfo array;
+  const char* op;
 };
 
 struct VarInfo {

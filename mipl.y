@@ -612,6 +612,7 @@ N_EXPR : N_SIMPLEEXPR
 			yyerror("Expressions must both be int, or both char, or both boolean");
 		}
 		$$ = $2;
+		oal_program << $2.op;
 	}
 ;
 
@@ -636,11 +637,14 @@ N_ADDOPLST : /* epsilon */
 		$$.type = UNDEFINED;
 		printRule("N_ADDOPLST", "epsilon");
 	}
-| N_ADDOP N_TERM N_ADDOPLST
+| N_ADDOP N_TERM {
+		oal_program << $1.op; 
+	}
+		N_ADDOPLST
 	{
 		printRule("N_ADDOPLST", "N_ADDOP N_TERM N_ADDOPLST");
 
-		if(($1.type != $2.type) || ($3.type != UNDEFINED && $3.type != $1.type)) {
+		if(($1.type != $2.type) || ($4.type != UNDEFINED && $4.type != $1.type)) {
 			switch($1.type) {
 				case BOOL:
 					yyerror("Expression must be of type boolean");
@@ -672,11 +676,15 @@ N_MULTOPLST : /* epsilon */
 		$$.type = UNDEFINED;
 		printRule("N_MULTOPLST", "epsilon");
 	}
-| N_MULTOP N_FACTOR N_MULTOPLST
+| N_MULTOP N_FACTOR 
+	{
+		oal_program << $1.op;	
+	}
+		N_MULTOPLST
 	{
 		printRule("N_MULTOPLST", "N_MULTOP N_FACTOR N_MULTOPLST");
 
-		if(($1.type != $2.type) || ($3.type != UNDEFINED && $3.type != $1.type)) {
+		if(($1.type != $2.type) || ($4.type != UNDEFINED && $4.type != $1.type)) {
 			switch($1.type) {
 				case BOOL:
 					yyerror("Expression must be of type boolean");
@@ -696,6 +704,9 @@ N_FACTOR : N_SIGN N_VARIABLE
 			yyerror("Expression must be of type integer");
 		}
 		$$ = $2.type;
+		if($1 == -1) {
+			oal_program << "neg" << std::endl;
+		}
 	}
 | N_CONST
 	{
@@ -739,69 +750,79 @@ N_SIGN : /* epsilon */
 
 N_ADDOP : T_PLUS
 	{
-		$$.type = INT;
 		printRule("N_ADDOP", "T_PLUS");
-		oal_program << "add" << std::endl;
+		$$.type = INT;
+		$$.op = "add\n";
 	}
 | T_MINUS
 	{
-		$$.type = INT;
 		printRule("N_ADDOP", "T_MINUS");
-		oal_program << "sub" << std::endl;
+		$$.type = INT;
+		$$.op = "sub\n";
 	}
 | T_OR
 	{
-		$$.type = BOOL;
 		printRule("N_ADDOP", "T_OR");
+		$$.type = BOOL;
+		$$.op = "or\n";
 	}
 ;
 
 N_MULTOP : T_MULT
 	{
-		$$.type = INT;
 		printRule("N_MULTOP", "T_MULT");
+		$$.type = INT;
+		$$.op = "mult\n";
 	}
 | T_DIV
 	{
-		$$.type = INT;
 		printRule("N_MULTOP", "T_DIV");
+		$$.type = INT;
+		$$.op = "div\n";
 	}
 | T_AND
 	{
-		$$.type = BOOL;
 		printRule("N_MULTOP", "T_AND");
+		$$.type = BOOL;
+		$$.op = "and\n";
 	}
 ;
 
 N_RELOP : T_LT
 	{
-		$$.type = BOOL;
 		printRule("N_RELOP", "T_LT");
+		$$.type = BOOL;
+		$$.op = ".lt.\n";
 	}
 | T_LE
 	{
-		$$.type = BOOL;
 		printRule("N_RELOP", "T_LE");
+		$$.type = BOOL;
+		$$.op = ".le.\n";
 	}
 | T_NE
 	{
-		$$.type = BOOL;
 		printRule("N_RELOP", "T_NE");
+		$$.type = BOOL;
+		$$.op = ".ne.\n";
 	}
 | T_EQ
 	{
-		$$.type = BOOL;
 		printRule("N_RELOP", "T_EQ");
+		$$.type = BOOL;
+		$$.op = ".eq.\n";
 	}
 | T_GT
 	{
-		$$.type = BOOL;
 		printRule("N_RELOP", "T_GT");
+		$$.type = BOOL;
+		$$.op = ".gt.\n";
 	}
 | T_GE
 	{
-		$$.type = BOOL;
 		printRule("N_RELOP", "T_GE");
+		$$.type = BOOL;
+		$$.op = ".ge.\n";
 	}
 ;
 
