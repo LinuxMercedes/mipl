@@ -742,13 +742,11 @@ N_ADDOP : T_PLUS
 	{
 		$$.type = INT;
 		printRule("N_ADDOP", "T_PLUS");
-		oal_program << "add" << std::endl;
 	}
 | T_MINUS
 	{
 		$$.type = INT;
 		printRule("N_ADDOP", "T_MINUS");
-		oal_program << "sub" << std::endl;
 	}
 | T_OR
 	{
