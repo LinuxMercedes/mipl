@@ -1,3 +1,4 @@
+/* -*- mode: bison; indent-tabs-mode: t; -*- */
 /*
 	mipl.y - a bison specification for the MIPL language
 
