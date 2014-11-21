@@ -711,6 +711,7 @@ N_FACTOR : N_SIGN N_VARIABLE
 			yyerror("Expression must be of type integer");
 		}
 		$$ = $2.type;
+		oal_program << "deref" << std::endl;
 		if($1 == -1) {
 			oal_program << "neg" << std::endl;
 		}
