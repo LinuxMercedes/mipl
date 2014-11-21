@@ -346,8 +346,10 @@ N_STMTPART :
 		else {
 			VarInfo v = scope.get(current_proc.top());
 			oal_program << "L." << v.label << ":" << std::endl
-				<< "save " << v.nest_level << ", 0" << std::endl
-				<< "asp " << v.words << std::endl;
+				<< "save " << v.nest_level << ", 0" << std::endl;
+			if(v.words > 0) {
+				oal_program << "asp " << v.words << std::endl;
+			}
 		}
 		oal_program << "# Beginning of block's N_STMTPART" << std::endl;
 	}
@@ -355,8 +357,10 @@ N_STMTPART :
 	{
 		if(nest_level != 0) {
 			VarInfo v = scope.get(current_proc.top());
-			oal_program << "asp -" << v.words << std::endl
-				<< "ji" << std::endl;
+			if(v.words > 0) {
+				oal_program << "asp -" << v.words << std::endl;
+			}
+			oal_program << "ji" << std::endl;
 		}
 		printRule("N_STMTPART", "N_COMPOUND");
 	}
