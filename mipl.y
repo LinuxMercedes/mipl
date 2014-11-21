@@ -468,6 +468,7 @@ N_READ : T_READ T_LPAREN N_INPUTVAR
 		} else {
 			oal_program << "cread" << std::endl;
 		}
+		oal_program << "st" << std::endl;
 	}
 	N_INPUTLST T_RPAREN
 	{
@@ -486,6 +487,7 @@ N_INPUTLST : /* epsilon */
 		} else {
 			oal_program << "cread" << std::endl;
 		}
+		oal_program << "st" << std::endl;
 	}
 	N_INPUTLST
 	{
