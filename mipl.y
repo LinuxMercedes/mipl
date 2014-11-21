@@ -929,10 +929,12 @@ N_INTCONST : N_SIGN T_INTCONST
 N_BOOLCONST : T_TRUE
 	{
 		printRule("N_BOOLCONST", "T_TRUE");
+		oal_program << "lc 1" << std::endl;
 	}
 | T_FALSE
 	{
 		printRule("N_BOOLCONST", "T_FALSE");
+		oal_program << "lc 0" << std::endl;
 	}
 ;
 
