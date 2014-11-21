@@ -84,7 +84,7 @@ N_START :
 	N_PROG
 	{
 		printRule("N_START", "N_PROG");
-		std::cout << oal_program.str() << std::endl;
+		std::cout << oal_program.str();
 		return 0;
 	}
 ;
