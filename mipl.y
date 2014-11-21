@@ -645,7 +645,7 @@ N_ADDOPLST : /* epsilon */
 		printRule("N_ADDOPLST", "epsilon");
 	}
 | N_ADDOP N_TERM {
-		oal_program << $1.op; 
+		oal_program << $1.op;
 	}
 		N_ADDOPLST
 	{
@@ -683,9 +683,9 @@ N_MULTOPLST : /* epsilon */
 		$$.type = UNDEFINED;
 		printRule("N_MULTOPLST", "epsilon");
 	}
-| N_MULTOP N_FACTOR 
+| N_MULTOP N_FACTOR
 	{
-		oal_program << $1.op;	
+		oal_program << $1.op;
 	}
 		N_MULTOPLST
 	{
