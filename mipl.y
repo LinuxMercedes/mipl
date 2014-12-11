@@ -43,7 +43,6 @@ using namespace llvm;
 	unsigned int nest_level = 0;
 
 	std::stack<std::string> current_proc;
-	unsigned int word_count = 0;
 
 	struct IdentList {
 		char* ident;
@@ -107,7 +106,6 @@ N_PROG : N_PROGLBL
 		if(!scope.add(pname, v)) {
 			yyerror("Multiply defined identifier");
 		}
-		word_count = 0;
 	}
 		N_BLOCK T_DOT
 	{
@@ -120,9 +118,7 @@ N_BLOCK : N_VARDECPART
 		if(nest_level == 0) {
 		}
 		else {
-			scope.set_word_count(current_proc.top(), word_count);
 		}
-		word_count = 0;
 	}
 		N_PROCDECPART N_STMTPART
 	{
@@ -178,7 +174,7 @@ N_VARDEC : N_IDENT N_IDENTLST T_COLON N_TYPE
 			free($1);
 			yyerror("Multiply defined identifier");
 		}
-		word_count += type_sz;
+
 		free($1);
 		bool mult = false; /* Try to not leak memory */
 		while(it != NULL) {
@@ -187,7 +183,7 @@ N_VARDEC : N_IDENT N_IDENTLST T_COLON N_TYPE
 			if(!mult && !scope.add(std::string(it->ident), v)) {
 				mult = true;
 			}
-			word_count += type_sz;
+
 			free(it->ident);
 			del = it;
 			it = it->next;
@@ -312,7 +308,6 @@ N_PROCHDR : T_PROC T_IDENT T_SCOLON
 			yyerror("Multiply defined identifier");
 		}
 		current_proc.push(std::string($2));
-		word_count = 0;
 		free($2);
 		scope.push();
 		next_addr.push_back(0);
