@@ -60,7 +60,6 @@ using namespace llvm;
 		IdentList* next;
 	};
 
-	std::ostringstream oal_program;
 	std::vector<unsigned int> next_addr;
 
 	Value *ErrorV(const char *Str) { yyerror(Str); return 0; }
@@ -127,28 +126,16 @@ N_PROG : N_PROGLBL
 		stacks_label = label++;
 		code_start_label = label++;
 		main_label = label++;
-
-		oal_program << "  init L.0, " << display_size
-			<< ", L." << stacks_label
-			<< ", L." << code_start_label
-			<< ", L." << main_label << std::endl
-			<< "L.0:" << std::endl;
 	}
 		N_BLOCK T_DOT
 	{
 		scope.pop();
-		oal_program << "halt" << std::endl
-			<< "L." << stacks_label << ":" << std::endl
-			<< "bss " << stack_size << std::endl
-			<< "end" << std::endl;
 	}
 ;
 
 N_BLOCK : N_VARDECPART
 	{
 		if(nest_level == 0) {
-			oal_program << "bss " << display_size + word_count << std::endl
-				<< "L." << code_start_label << ":" << std::endl;
 		}
 		else {
 			scope.set_word_count(current_proc.top(), word_count);
@@ -354,26 +341,19 @@ N_PROCHDR : T_PROC T_IDENT T_SCOLON
 N_STMTPART :
 	{
 		if(nest_level == 0) {
-			oal_program << "L." << main_label << ":" << std::endl;
 		}
 		else {
 			VarInfo v = scope.get(current_proc.top());
-			oal_program << "L." << v.label << ":" << std::endl
-				<< "save " << v.nest_level << ", 0" << std::endl;
 			if(v.words > 0) {
-				oal_program << "asp " << v.words << std::endl;
 			}
 		}
-		oal_program << "# Beginning of block's N_STMTPART" << std::endl;
 	}
 		N_COMPOUND
 	{
 		if(nest_level != 0) {
 			VarInfo v = scope.get(current_proc.top());
 			if(v.words > 0) {
-				oal_program << "asp -" << v.words << std::endl;
 			}
-			oal_program << "ji" << std::endl;
 		}
 		printRule("N_STMTPART", "N_COMPOUND");
 	}
@@ -436,8 +416,6 @@ N_ASSIGN : N_VARIABLE T_ASSIGN N_EXPR
 		if($1.type.type != $3.type) {
 			yyerror("Expression must be of same type as variable");
 		}
-
-		oal_program << "st" << std::endl;
 	}
 ;
 
@@ -445,7 +423,6 @@ N_PROCSTMT : N_PROCIDENT
 	{
 		printRule("N_PROCSTMT", "N_PROCIDENT");
 		for(unsigned int caller_level = $1.nest_level; caller_level <= nest_level; caller_level++) {
-			oal_program << "pop " << caller_level << ", 0" << std::endl;
 		}
 	}
 ;
@@ -465,20 +442,15 @@ N_PROCIDENT : T_IDENT
 		}
 
 		for(unsigned int caller_level = nest_level; caller_level >= $$.nest_level; caller_level--) {
-			oal_program << "push " << caller_level << ", 0" << std::endl;
 		}
-		oal_program << "js L." << $$.label << std::endl;
 	}
 ;
 
 N_READ : T_READ T_LPAREN N_INPUTVAR
 	{
 		if($3.type.type == INT) {
-			oal_program << "iread" << std::endl;
 		} else {
-			oal_program << "cread" << std::endl;
 		}
-		oal_program << "st" << std::endl;
 	}
 	N_INPUTLST T_RPAREN
 	{
@@ -493,11 +465,8 @@ N_INPUTLST : /* epsilon */
 | T_COMMA N_INPUTVAR
 	{
 		if($2.type.type == INT) {
-			oal_program << "iread" << std::endl;
 		} else {
-			oal_program << "cread" << std::endl;
 		}
-		oal_program << "st" << std::endl;
 	}
 	N_INPUTLST
 	{
@@ -520,9 +489,7 @@ N_INPUTVAR : N_VARIABLE
 N_WRITE : T_WRITE T_LPAREN N_OUTPUT
 	{
 		if($3.type == INT) {
-			oal_program << "iwrite" << std::endl;
 		} else {
-			oal_program << "cwrite" << std::endl;
 		}
 	}
 	N_OUTPUTLST T_RPAREN
@@ -538,9 +505,7 @@ N_OUTPUTLST : /* epsilon */
 | T_COMMA N_OUTPUT
 	{
 		if($2.type == INT) {
-			oal_program << "iwrite" << std::endl;
 		} else {
-			oal_program << "cwrite" << std::endl;
 		}
 	}
 	N_OUTPUTLST
@@ -563,7 +528,6 @@ N_OUTPUT : N_EXPR
 
 N_CONDITION : T_IF N_EXPR
 	{
-		oal_program << "jf L." << label << std::endl;
 		labels.push(label++);
 	}
 		T_THEN N_STMT N_ELSE
@@ -578,20 +542,16 @@ N_CONDITION : T_IF N_EXPR
 
 N_ELSE : /* epsilon */
 	{
-		oal_program << "L." << labels.top() << ":" << std::endl;
 		labels.pop();
 		printRule("N_ELSE", "epsilon");
 	}
 | T_ELSE
 	{
-		oal_program << "jp L." << label << std::endl;
-		oal_program << "L." << labels.top() << ":" << std::endl;
 		labels.pop();
 		labels.push(label++);
 	}
 	N_STMT
 	{
-		oal_program << "L." << labels.top() << ":" << std::endl;
 		labels.pop();
 		printRule("N_ELSE", "T_ELSE N_STMT");
 	}
@@ -599,12 +559,10 @@ N_ELSE : /* epsilon */
 
 N_WHILE : T_WHILE
 	{
-		oal_program << "L." << label << ":" << std::endl;
 		labels.push(label++);
 	}
 		N_EXPR
 	{
-		oal_program << "jf L." << label << std::endl;
 		labels.push(label++);
 		if($3.type != BOOL) {
 			yyerror("Expression must be of type boolean");
@@ -614,8 +572,6 @@ N_WHILE : T_WHILE
 	{
 		unsigned int out_label = labels.top();
 		labels.pop();
-		oal_program << "jp L." << labels.top() << std::endl
-			<< "L." << out_label << ":" << std::endl;
 		labels.pop();
 		printRule("N_WHILE", "T_WHILE N_EXPR T_DO N_STMT");
 	}
@@ -634,7 +590,6 @@ N_EXPR : N_SIMPLEEXPR
 			yyerror("Expressions must both be int, or both char, or both boolean");
 		}
 		$$ = $2;
-		oal_program << $2.op;
 	}
 ;
 
@@ -659,14 +614,11 @@ N_ADDOPLST : /* epsilon */
 		$$.type = UNDEFINED;
 		printRule("N_ADDOPLST", "epsilon");
 	}
-| N_ADDOP N_TERM {
-		oal_program << $1.op;
-	}
-		N_ADDOPLST
+| N_ADDOP N_TERM N_ADDOPLST
 	{
 		printRule("N_ADDOPLST", "N_ADDOP N_TERM N_ADDOPLST");
 
-		if(($1.type != $2.type) || ($4.type != UNDEFINED && $4.type != $1.type)) {
+		if(($1.type != $2.type) || ($3.type != UNDEFINED && $3.type != $1.type)) {
 			switch($1.type) {
 				case BOOL:
 					yyerror("Expression must be of type boolean");
@@ -698,15 +650,11 @@ N_MULTOPLST : /* epsilon */
 		$$.type = UNDEFINED;
 		printRule("N_MULTOPLST", "epsilon");
 	}
-| N_MULTOP N_FACTOR
-	{
-		oal_program << $1.op;
-	}
-		N_MULTOPLST
+| N_MULTOP N_FACTOR N_MULTOPLST
 	{
 		printRule("N_MULTOPLST", "N_MULTOP N_FACTOR N_MULTOPLST");
 
-		if(($1.type != $2.type) || ($4.type != UNDEFINED && $4.type != $1.type)) {
+		if(($1.type != $2.type) || ($3.type != UNDEFINED && $3.type != $1.type)) {
 			switch($1.type) {
 				case BOOL:
 					yyerror("Expression must be of type boolean");
@@ -726,9 +674,7 @@ N_FACTOR : N_SIGN N_VARIABLE
 			yyerror("Expression must be of type integer");
 		}
 		$$ = $2.type;
-		oal_program << "deref" << std::endl;
 		if($1 == -1) {
-			oal_program << "neg" << std::endl;
 		}
 	}
 | N_CONST
@@ -749,8 +695,6 @@ N_FACTOR : N_SIGN N_VARIABLE
 			yyerror("Expression must be of type boolean");
 		}
 		$$ = $2;
-
-		oal_program << "not" << std::endl;
 	}
 ;
 
@@ -869,8 +813,6 @@ N_IDXVAR : N_ARRAYVAR T_LBRACK N_EXPR T_RBRACK
 			yyerror("Index expression must be of type integer");
 		}
 		$$.type.type = $1.type.extended;
-
-		oal_program << "add" << std::endl;
 	}
 ;
 
