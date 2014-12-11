@@ -23,7 +23,6 @@ struct TypeInfo {
   Type type;
   Type extended;
   ArrayInfo array;
-  const char* op;
   llvm::Value* value;
 };
 
