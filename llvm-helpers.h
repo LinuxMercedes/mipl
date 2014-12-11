@@ -15,19 +15,15 @@ llvm::Type* GetType(VarInfo var) {
 
   switch(var.type.type) {
   case INT:
-    std::cout << "Int" << std::endl;
     type = llvm::Type::getInt32Ty(getGlobalContext());
     break;
   case CHAR:
-    std::cout << "Char" << std::endl;
     type = llvm::Type::getInt8Ty(getGlobalContext());
     break;
   case BOOL:
-    std::cout << "Bool" << std::endl;
     type = llvm::Type::getInt1Ty(getGlobalContext());
     break;
   case ARRAY:
-    std::cout << "Array" << std::endl;
     VarInfo v;
     v.type.type = var.type.extended;
     type = ArrayType::get(GetType(v), var.type.array.end - var.type.array.start + 1);
@@ -61,7 +57,6 @@ Value* CreateBoolConst(int value) {
 }
 
 AllocaInst* CreateEntryBlockAlloca(Function* TheFunction, const char* name, VarInfo var) {
-  std::cerr << "Creating " << name << std::endl;
   IRBuilder<> TmpB(&TheFunction->getEntryBlock(), TheFunction->getEntryBlock().begin());
 
   llvm::Type* type = GetType(var);
