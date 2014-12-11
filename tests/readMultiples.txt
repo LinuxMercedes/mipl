@@ -1,0 +1,12 @@
+(* 
+   sample output is for input: k 1 2 
+*)
+program p;
+var x,y : integer;
+    z : char;
+
+begin
+  read(z,x,y);
+  write(x,y,z)
+end.
+

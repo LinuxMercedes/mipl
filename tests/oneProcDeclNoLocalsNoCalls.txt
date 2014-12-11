@@ -1,0 +1,14 @@
+program p;
+
+var x : char;
+
+procedure p1;
+begin
+  write(1)
+end;
+
+begin
+  x := '\';
+  write(x, 5)
+end.
+

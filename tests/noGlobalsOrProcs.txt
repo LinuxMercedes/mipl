@@ -1,0 +1,6 @@
+program p;
+
+begin
+  write(0)
+end.
+

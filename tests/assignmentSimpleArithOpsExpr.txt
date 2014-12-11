@@ -1,0 +1,14 @@
+program p;
+var x,y : integer;
+    z : integer;
+
+begin
+  x := 10;
+  y := 5;
+  z := y * x;
+  y := z div x;
+  x := -1 + x;
+  z := 123 - 5;
+  write(x,'\',y,'\',z)
+end.
+

@@ -1,0 +1,12 @@
+program p;
+var x,y : integer;
+    b1, b2 : boolean;
+
+begin
+  x := 10;
+  y := 5;
+  b1 := y > x;
+  b2 := not b1 and true;
+  write(x,y)
+end.
+

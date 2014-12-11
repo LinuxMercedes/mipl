@@ -21,7 +21,7 @@ IDENT [a-zA-Z_][a-zA-Z0-9_]*
 WHITESPACE [ \t]+
 NEWLINE [\r\n]
 
-%x comment 
+%x comment
 %%
 
 "(*" { /* Comment handling */
@@ -163,7 +163,7 @@ NEWLINE [\r\n]
 	return T_WHILE;
 }
 
-"do" { 
+"do" {
 	printToken("T_DO", yytext);
 	return T_DO;
 }
@@ -284,6 +284,7 @@ NEWLINE [\r\n]
 
 {CHARCONST} {
 	printToken("T_CHARCONST", yytext);
+	yylval.text = strdup(yytext);
 	return T_CHARCONST;
 }
 
@@ -308,5 +309,3 @@ NEWLINE [\r\n]
 }
 
 %%
-
-

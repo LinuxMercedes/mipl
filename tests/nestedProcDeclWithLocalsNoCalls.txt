@@ -1,0 +1,37 @@
+program p;
+
+var x : integer;
+
+procedure p1;
+var a,b,c : char;
+    D : array[1..10] of boolean;
+
+  procedure p1a;
+  var w,z,q,r,s,t : integer;
+
+    procedure p1a_a;
+    var f : integer;
+    begin (* p1a_a *)
+      write(f)
+    end;
+
+  begin (* p1a *)
+    read(w, z)
+  end;
+
+begin (* p1 *)
+  write(1)
+end;
+
+procedure p2;
+var x : integer;
+    A : array[1..100] of integer;
+    b : boolean;
+begin
+  write(2)
+end;
+
+begin
+  write(12345678)
+end.
+

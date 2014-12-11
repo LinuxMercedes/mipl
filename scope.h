@@ -55,6 +55,16 @@ class Scope {
       return v;
     }
 
+    void set_word_count(const std::string& name, const unsigned int word_count) {
+      for(std::list<SymbolTable>::iterator it = scope.begin(); it != scope.end(); it++) {
+        if(it->find(name) != it->end()) {
+          VarInfo v = it->at(name);
+          v.words = word_count;
+          (*it)[name] = v;
+        }
+      }
+    }
+
   private:
     std::list<SymbolTable> scope;
 };

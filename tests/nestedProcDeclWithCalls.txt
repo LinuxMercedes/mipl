@@ -1,0 +1,41 @@
+program p;
+
+var x : integer;
+
+procedure p0;
+begin
+  write('!')
+end;
+
+procedure p1;
+var a : integer;
+
+  procedure p1a;
+  var b : integer;
+
+    procedure p1a_a;
+    var f : integer;
+    begin (* p1a_a *)
+      f := a + b;
+      a := f;
+      write('f','=',f,'\');
+      if f < 10
+         then p1a
+         else p0
+    end;
+
+  begin (* p1a *)
+    b := a + 1;
+    p1a_a
+  end;
+
+begin (* p1 *)
+  a := 1;
+  p1a
+end;
+
+begin
+  p1;
+  write('\','d','o','n','e')
+end.
+

@@ -1,0 +1,382 @@
+  init L.0, 20, L.1, L.2, L.3
+L.0:
+  bss 44
+L.2:
+L.5:
+  save 2, 0
+  asp 1
+# Beginning of block's N_STMTPART
+  la 0, 2
+  la 19, 0
+  la 0, 1
+  deref
+  add
+  deref
+  st
+  la 19, 0
+  la 0, 1
+  deref
+  add
+  la 19, 0
+  la 0, 1
+  deref
+  lc 1
+  add
+  add
+  deref
+  st
+  la 19, 0
+  la 0, 1
+  deref
+  lc 1
+  add
+  add
+  la 0, 2
+  deref
+  st
+  la 2, 1
+  lc 1
+  st
+  asp -1
+  ji
+L.4:
+  save 1, 0
+  asp 3
+# Beginning of block's N_STMTPART
+  la 2, 1
+  lc 1
+  st
+  la 1, 1
+  la 41, 0
+  deref
+  st
+L.6:
+  la 1, 1
+  deref
+  lc 1
+  .gt.
+  la 2, 1
+  deref
+  and
+  jf L.7
+  la 2, 1
+  lc 0
+  st
+  la 0, 1
+  lc 1
+  st
+L.8:
+  la 0, 1
+  deref
+  la 1, 1
+  deref
+  .lt.
+  jf L.9
+  la 19, 0
+  la 0, 1
+  deref
+  add
+  deref
+  la 19, 0
+  la 0, 1
+  deref
+  lc 1
+  add
+  add
+  deref
+  .gt.
+  jf L.10
+  js L.5
+  jp L.11
+L.10:
+L.11:
+  la 0, 1
+  la 0, 1
+  deref
+  lc 1
+  add
+  st
+  jp L.8
+L.9:
+  la 1, 1
+  la 1, 1
+  deref
+  lc 1
+  sub
+  st
+  jp L.6
+L.7:
+  asp -3
+  ji
+L.12:
+  save 1, 0
+  asp 4
+# Beginning of block's N_STMTPART
+  la 0, 1
+  lc 1
+  st
+  la 1, 1
+  la 41, 0
+  deref
+  st
+  la 3, 1
+  lc 0
+  st
+L.13:
+  la 0, 1
+  deref
+  la 1, 1
+  deref
+  .le.
+  la 3, 1
+  deref
+  not
+  and
+  jf L.14
+  la 2, 1
+  la 0, 1
+  deref
+  la 1, 1
+  deref
+  add
+  lc 2
+  div
+  st
+  la 19, 0
+  la 2, 1
+  deref
+  add
+  deref
+  la 40, 0
+  deref
+  .gt.
+  jf L.15
+  la 1, 1
+  la 2, 1
+  deref
+  lc 1
+  sub
+  st
+  jp L.16
+L.15:
+  la 19, 0
+  la 2, 1
+  deref
+  add
+  deref
+  la 40, 0
+  deref
+  .lt.
+  jf L.17
+  la 0, 1
+  la 2, 1
+  deref
+  lc 1
+  add
+  st
+  jp L.18
+L.17:
+  la 3, 1
+  lc 1
+  st
+L.18:
+L.16:
+  jp L.13
+L.14:
+  la 3, 1
+  deref
+  jf L.19
+  la 43, 0
+  la 2, 1
+  deref
+  st
+  jp L.20
+L.19:
+  la 43, 0
+  lc 0
+  st
+L.20:
+  asp -4
+  ji
+L.3:
+# Beginning of block's N_STMTPART
+  la 41, 0
+  lc 0
+  st
+  lc 62
+  cwrite
+  lc 32
+  cwrite
+  la 40, 0
+  iread
+  st
+L.21:
+  la 40, 0
+  deref
+  lc 0
+  .ge.
+  la 41, 0
+  deref
+  lc 20
+  .lt.
+  and
+  jf L.22
+  la 41, 0
+  la 41, 0
+  deref
+  lc 1
+  add
+  st
+  la 19, 0
+  la 41, 0
+  deref
+  add
+  la 40, 0
+  deref
+  st
+  lc 62
+  cwrite
+  lc 32
+  cwrite
+  la 40, 0
+  iread
+  st
+  jp L.21
+L.22:
+  js L.4
+  lc 40
+  cwrite
+  lc 32
+  cwrite
+  la 42, 0
+  lc 1
+  st
+L.23:
+  la 42, 0
+  deref
+  la 41, 0
+  deref
+  .le.
+  jf L.24
+  la 19, 0
+  la 42, 0
+  deref
+  add
+  deref
+  iwrite
+  lc 32
+  cwrite
+  la 42, 0
+  la 42, 0
+  deref
+  lc 1
+  add
+  st
+  jp L.23
+L.24:
+  lc 41
+  cwrite
+  lc 92
+  cwrite
+  lc 63
+  cwrite
+  lc 32
+  cwrite
+  la 40, 0
+  iread
+  st
+L.25:
+  la 40, 0
+  deref
+  lc 0
+  .ge.
+  jf L.26
+  js L.12
+  la 43, 0
+  deref
+  lc 0
+  .eq.
+  jf L.27
+  lc 78
+  cwrite
+  lc 111
+  cwrite
+  lc 32
+  cwrite
+  lc 109
+  cwrite
+  lc 97
+  cwrite
+  lc 116
+  cwrite
+  lc 99
+  cwrite
+  lc 104
+  cwrite
+  lc 32
+  cwrite
+  lc 102
+  cwrite
+  lc 111
+  cwrite
+  lc 114
+  cwrite
+  lc 32
+  cwrite
+  la 40, 0
+  deref
+  iwrite
+  lc 92
+  cwrite
+  jp L.28
+L.27:
+  lc 83
+  cwrite
+  lc 116
+  cwrite
+  lc 117
+  cwrite
+  lc 102
+  cwrite
+  lc 102
+  cwrite
+  lc 91
+  cwrite
+  la 43, 0
+  deref
+  iwrite
+  lc 93
+  cwrite
+  lc 32
+  cwrite
+  lc 61
+  cwrite
+  lc 32
+  cwrite
+  la 40, 0
+  deref
+  iwrite
+  lc 92
+  cwrite
+L.28:
+  lc 63
+  cwrite
+  lc 32
+  cwrite
+  la 40, 0
+  iread
+  st
+  jp L.25
+L.26:
+  lc 101
+  cwrite
+  lc 110
+  cwrite
+  lc 100
+  cwrite
+  lc 92
+  cwrite
+  halt
+L.1:
+  bss 500
+  end

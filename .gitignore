@@ -3,6 +3,7 @@
 *.lo
 *.o
 *.obj
+*.dSYM
 
 # Compiled Dynamic libraries
 *.so
@@ -24,6 +25,11 @@
 
 # Assignment files
 jarusn.*
-lex.yy.c
-mipl.tab.c
+*.yy.c
+*.tab.c
 
+tests/
+diffs/
+parser
+oal/oal_interpreter
+oal_interpreter

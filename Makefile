@@ -1,4 +1,3 @@
-
 TESTDIR=tests
 
 TESTFILES=$(wildcard $(TESTDIR)/*.txt)
@@ -8,9 +7,9 @@ CC=g++
 
 CFLAGS=-g
 
-.PHONY: all parser clean test cleantest submit
+.PHONY: all parser clean test cleantest submit oal
 
-all: parser
+all: parser oal
 
 lex.yy.c: mipl.l
 	flex mipl.l
@@ -21,17 +20,25 @@ mipl.tab.c: lex.yy.c mipl.y
 parser: mipl.tab.c
 	${CC} ${CFLAGS} mipl.tab.c -o parser
 
+oal:
+	${MAKE} -C oal
+	cp oal/oal_interpreter .
+
 clean: cleantest
 	-rm mipl.tab.c
 	-rm lex.yy.c
 	-rm parser
+	-rm oal_interpreter
+	${MAKE} -C oal clean
 
-test: cleantest parser $(OUTFILES) 
+test: cleantest parser $(OUTFILES)
 	@echo "[+] All tests passed!"
 
-%.result : %.txt %.txt.out
-	-@./parser < $< > $@
-	diff -b $(word 2, $^) $@
+%.result : %.txt %.oal FORCE
+	-@./parser $< > $@
+	diff -b -w --side-by-side $(word 2, $^) $@
+
+FORCE:
 
 cleantest:
 	-rm $(TESTDIR)/*.result
@@ -39,4 +46,3 @@ cleantest:
 submit:
 	cp mipl.l jarusn.l
 	cp mipl.y jarusn.y
-

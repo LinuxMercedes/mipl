@@ -1,0 +1,13 @@
+program p;
+var x,y : integer;
+    ch : char;
+    b : boolean;
+
+begin
+  ch := 'A';
+  b := false;
+  y := -123;
+  x := y;
+  write(ch,y,x)
+end.
+

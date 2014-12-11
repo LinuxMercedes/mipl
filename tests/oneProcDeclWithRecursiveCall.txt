@@ -1,0 +1,20 @@
+(* 
+   Sample output is for input: 3 2 -1
+*)
+program p;
+
+procedure p1;
+var x : integer;
+begin
+  read(x);
+  if x < 0
+    then write('!','\')
+    else p1;
+  write('x','=',x,'\')
+end;
+
+begin
+  p1;
+  write('d','o','n','e')
+end.
+

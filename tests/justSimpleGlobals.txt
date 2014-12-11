@@ -1,0 +1,8 @@
+program p;
+
+var x, y : integer;
+
+begin
+  write(5)
+end.
+

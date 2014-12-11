@@ -1,0 +1,23 @@
+program p;
+
+var x : integer;
+
+procedure p1;
+var a,b,c : char;
+    D : array[1..10] of boolean;
+begin
+  write(1)
+end;
+
+procedure p2;
+var x : integer;
+    A : array[1..100] of integer;
+    b : boolean;
+begin
+  write(2)
+end;
+
+begin
+  write(-5)
+end.
+
