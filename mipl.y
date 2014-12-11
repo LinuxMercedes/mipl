@@ -190,7 +190,6 @@ N_VARDEC : N_IDENT N_IDENTLST T_COLON N_TYPE
 		VarInfo v;
 		v.type = $4;
 		v.level = nest_level;
-		v.offset = next_addr.back();
 
 		unsigned int type_sz = 0;
 		switch(v.type.type) {
@@ -214,7 +213,6 @@ N_VARDEC : N_IDENT N_IDENTLST T_COLON N_TYPE
 		free($1);
 		bool mult = false; /* Try to not leak memory */
 		while(it != NULL) {
-			v.offset = next_addr.back();
 			next_addr.back() += type_sz;
 
 			if(!mult && !scope.add(std::string(it->ident), v)) {
@@ -855,7 +853,6 @@ N_VARIABLE : N_ENTIREVAR
 	{
 		$$ = $1;
 		printRule("N_VARIABLE", "N_ENTIREVAR");
-		oal_program << "la " << $1.offset << ", " << $1.level << std::endl;
 	}
 | N_IDXVAR
 	{
@@ -864,15 +861,11 @@ N_VARIABLE : N_ENTIREVAR
 	}
 ;
 
-N_IDXVAR : N_ARRAYVAR
-	{
-		oal_program << "la " << ((int) $1.offset - $1.type.array.start) << ", " << $1.level << std::endl;
-	}
-	T_LBRACK N_EXPR T_RBRACK
+N_IDXVAR : N_ARRAYVAR T_LBRACK N_EXPR T_RBRACK
 	{
 		printRule("N_IDXVAR", "N_ARRAYVAR T_LBRACK N_EXPR T_RBRACK");
 
-		if($4.type != INT) {
+		if($3.type != INT) {
 			yyerror("Index expression must be of type integer");
 		}
 		$$.type.type = $1.type.extended;
