@@ -18,6 +18,7 @@
 #include "scope.h"
 #include "llvm-helpers.h"
 
+#include "llvm/Analysis/Verifier.h"
 #include "llvm/IR/DerivedTypes.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/LLVMContext.h"
@@ -45,15 +46,18 @@ using namespace llvm;
 	unsigned int nest_level = 0;
 
 	/* This might be useful for maintaining LLVM functions */
-	std::stack<std::string> current_proc;
+	std::stack<Function*> current_proc;
 
 	struct IdentList {
 		char* ident;
 		IdentList* next;
 	};
 
-	static Module *TheModule;
+	Function* main_func;
+	static Module* TheModule;
 	static IRBuilder<> Builder(getGlobalContext());
+
+	Function* get_current_function();
 %}
 
 %union {
@@ -77,9 +81,17 @@ using namespace llvm;
 %type<ilist> N_IDENTLST;
 %%
 
-N_START : N_PROG
+N_START :
+	{
+		main_func = CreateMain(TheModule);
+		BasicBlock *BB = BasicBlock::Create(getGlobalContext(), "entry", main_func);
+		Builder.SetInsertPoint(BB);
+	}
+	N_PROG
 	{
 		printRule("N_START", "N_PROG");
+		Builder.CreateRetVoid();
+		verifyFunction(*main_func);
 		TheModule->dump();
 		return 0;
 	}
@@ -154,6 +166,7 @@ N_VARDEC : N_IDENT N_IDENTLST T_COLON N_TYPE
 		VarInfo v;
 		v.type = $4;
 		v.level = nest_level;
+		v.value = CreateEntryBlockAlloca(get_current_function(), $1, v);
 
 		if(!scope.add(std::string($1), v)) {
 			free($1);
@@ -163,6 +176,7 @@ N_VARDEC : N_IDENT N_IDENTLST T_COLON N_TYPE
 		free($1);
 		bool mult = false; /* Try to not leak memory */
 		while(it != NULL) {
+			v.value = CreateEntryBlockAlloca(get_current_function(), it->ident, v);
 
 			if(!mult && !scope.add(std::string(it->ident), v)) {
 				mult = true;
@@ -290,7 +304,7 @@ N_PROCHDR : T_PROC T_IDENT T_SCOLON
 			free($2);
 			yyerror("Multiply defined identifier");
 		}
-		current_proc.push(std::string($2));
+		current_proc.push(NULL);
 		free($2);
 		scope.push();
 	}
@@ -301,13 +315,13 @@ N_STMTPART :
 		if(nest_level == 0) {
 		}
 		else {
-			VarInfo v = scope.get(current_proc.top());
+			/* VarInfo v = scope.get(current_proc.top()); */
 		}
 	}
 		N_COMPOUND
 	{
 		if(nest_level != 0) {
-			VarInfo v = scope.get(current_proc.top());
+			/* VarInfo v = scope.get(current_proc.top()); */
 		}
 		printRule("N_STMTPART", "N_COMPOUND");
 	}
@@ -830,6 +844,14 @@ void printRule(const char* lhs, const char* rhs) {
 #ifdef PRINT_RULES
 	printf("%s -> %s\n", lhs, rhs);
 #endif
+}
+
+Function* get_current_function(){
+    if (current_proc.size() > 0) {
+	return current_proc.top();
+    } else {
+	return main_func;
+    }
 }
 
 int yyerror(const char* s) {
