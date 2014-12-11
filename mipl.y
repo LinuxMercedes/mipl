@@ -50,9 +50,6 @@ using namespace llvm;
 	std::stack<std::string> current_proc;
 	unsigned int word_count = 0;
 
-	const unsigned int display_size = 20;
-	const unsigned int stack_size = 500;
-
 	std::stack<unsigned int> labels;
 
 	struct IdentList {
@@ -89,11 +86,7 @@ using namespace llvm;
 %type<ilist> N_IDENTLST;
 %%
 
-N_START :
-	{
-		next_addr.push_back(display_size);
-	}
-	N_PROG
+N_START : N_PROG
 	{
 		printRule("N_START", "N_PROG");
 		TheModule->dump();
