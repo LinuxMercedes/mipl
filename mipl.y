@@ -50,8 +50,6 @@ using namespace llvm;
 	std::stack<std::string> current_proc;
 	unsigned int word_count = 0;
 
-	std::stack<unsigned int> labels;
-
 	struct IdentList {
 		char* ident;
 		IdentList* next;
@@ -519,11 +517,7 @@ N_OUTPUT : N_EXPR
 	}
 ;
 
-N_CONDITION : T_IF N_EXPR
-	{
-		labels.push(label++);
-	}
-		T_THEN N_STMT N_ELSE
+N_CONDITION : T_IF N_EXPR T_THEN N_STMT N_ELSE
 	{
 		printRule("N_CONDITION", "T_IF N_EXPR T_THEN N_STMT N_ELSE");
 
@@ -535,37 +529,22 @@ N_CONDITION : T_IF N_EXPR
 
 N_ELSE : /* epsilon */
 	{
-		labels.pop();
 		printRule("N_ELSE", "epsilon");
 	}
-| T_ELSE
+| T_ELSE N_STMT
 	{
-		labels.pop();
-		labels.push(label++);
-	}
-	N_STMT
-	{
-		labels.pop();
 		printRule("N_ELSE", "T_ELSE N_STMT");
 	}
 ;
 
-N_WHILE : T_WHILE
+N_WHILE : T_WHILE N_EXPR
 	{
-		labels.push(label++);
-	}
-		N_EXPR
-	{
-		labels.push(label++);
-		if($3.type != BOOL) {
+		if($2.type != BOOL) {
 			yyerror("Expression must be of type boolean");
 		}
 	}
 		T_DO N_STMT
 	{
-		unsigned int out_label = labels.top();
-		labels.pop();
-		labels.pop();
 		printRule("N_WHILE", "T_WHILE N_EXPR T_DO N_STMT");
 	}
 ;
