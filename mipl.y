@@ -42,6 +42,7 @@ using namespace llvm;
 
 	unsigned int nest_level = 0;
 
+	/* This might be useful for maintaining LLVM functions */
 	std::stack<std::string> current_proc;
 
 	struct IdentList {
