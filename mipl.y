@@ -302,16 +302,12 @@ N_STMTPART :
 		}
 		else {
 			VarInfo v = scope.get(current_proc.top());
-			if(v.words > 0) {
-			}
 		}
 	}
 		N_COMPOUND
 	{
 		if(nest_level != 0) {
 			VarInfo v = scope.get(current_proc.top());
-			if(v.words > 0) {
-			}
 		}
 		printRule("N_STMTPART", "N_COMPOUND");
 	}
