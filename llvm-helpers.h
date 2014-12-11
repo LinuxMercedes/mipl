@@ -70,5 +70,5 @@ AllocaInst* CreateEntryBlockAlloca(Function* TheFunction, const char* name, VarI
 
 Function* CreateMain(Module* module) {
   FunctionType *FT = FunctionType::get(llvm::Type::getVoidTy(getGlobalContext()), false);
-  return Function::Create(FT, Function::ExternalLinkage, "__main__", module);
+  return Function::Create(FT, Function::ExternalLinkage, "main", module);
 }
