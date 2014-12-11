@@ -5,7 +5,7 @@ OUTFILES=$(TESTFILES:.txt=.result)
 
 CC=clang++
 
-CFLAGS=-g `llvm-config-3.4 --cxxflags --libs core`
+CFLAGS=-g -Wno-switch `llvm-config-3.4 --cxxflags --libs core`
 
 LDFLAGS=`llvm-config-3.4 --ldflags --libs core`
 
