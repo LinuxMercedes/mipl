@@ -2,6 +2,7 @@
 
 #include<string>
 #include<sstream>
+#include "llvm/IR/DerivedTypes.h"
 
 enum Type {
   UNDEFINED,
@@ -32,6 +33,7 @@ struct VarInfo {
   unsigned int words;
   unsigned int offset;
   unsigned int level;
+  llvm::Value* value;
 };
 
 std::string pretty_type(const Type& t) {
@@ -59,20 +61,19 @@ std::string pretty_typeinfo(const TypeInfo& t) {
     case ARRAY: {
       std::stringstream ss;
       ss << pretty_type(t.type)
-         << " "
-         << t.array.start
-         << " .. "
-         << t.array.end
-         << " OF "
-         << pretty_type(t.extended);
+	 << " "
+	 << t.array.start
+	 << " .. "
+	 << t.array.end
+	 << " OF "
+	 << pretty_type(t.extended);
       return ss.str();
     }
     default:
       return pretty_type(t.type);
   }
 }
-      
+
 std::string pretty_varinfo(const VarInfo& v) {
   return pretty_typeinfo(v.type);
 }
-

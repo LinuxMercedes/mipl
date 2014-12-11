@@ -16,6 +16,13 @@
 #include <vector>
 #include "varinfo.h"
 #include "scope.h"
+#include "llvm/IR/DerivedTypes.h"
+#include "llvm/IR/IRBuilder.h"
+#include "llvm/IR/LLVMContext.h"
+#include "llvm/IR/Module.h"
+
+using namespace llvm;
+
 #undef PRINT_RULES
 
 	void printRule(const char* lhs, const char* rhs);
@@ -55,6 +62,11 @@
 
 	std::ostringstream oal_program;
 	std::vector<unsigned int> next_addr;
+
+	Value *ErrorV(const char *Str) { yyerror(Str); return 0; }
+
+	static Module *TheModule;
+	static IRBuilder<> Builder(getGlobalContext());
 %}
 
 %union {

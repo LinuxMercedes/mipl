@@ -3,9 +3,11 @@ TESTDIR=tests
 TESTFILES=$(wildcard $(TESTDIR)/*.txt)
 OUTFILES=$(TESTFILES:.txt=.result)
 
-CC=g++
+CC=clang++
 
-CFLAGS=-g
+CFLAGS=-g `llvm-config-3.4 --cxxflags --libs core`
+
+LDFLAGS=`llvm-config-3.4 --ldflags --libs core`
 
 .PHONY: all parser clean test cleantest submit
 
@@ -18,7 +20,7 @@ mipl.tab.c: lex.yy.c mipl.y
 	bison mipl.y
 
 parser: mipl.tab.c
-	${CC} ${CFLAGS} mipl.tab.c -o parser
+	${CC} ${CFLAGS} mipl.tab.c ${LDFLAGS} -o parser
 
 clean: cleantest
 	-rm mipl.tab.c
