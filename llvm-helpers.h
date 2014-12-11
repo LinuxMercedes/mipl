@@ -10,6 +10,36 @@
 
 using namespace llvm;
 
+llvm::Type* GetType(VarInfo var) {
+  llvm::Type* type = NULL;
+
+  switch(var.type.type) {
+  case INT:
+    std::cout << "Int" << std::endl;
+    type = llvm::Type::getInt32Ty(getGlobalContext());
+    break;
+  case CHAR:
+    std::cout << "Char" << std::endl;
+    type = llvm::Type::getInt8Ty(getGlobalContext());
+    break;
+  case BOOL:
+    std::cout << "Bool" << std::endl;
+    type = llvm::Type::getInt1Ty(getGlobalContext());
+    break;
+  case ARRAY:
+    std::cout << "Array" << std::endl;
+    VarInfo v;
+    v.type.type = var.type.extended;
+    type = ArrayType::get(GetType(v), var.type.array.end - var.type.array.start + 1);
+    break;
+  default:
+    std::cerr << "Uh.... we should never reach this spot." << std::endl;
+    break;
+  }
+
+  return type;
+}
+
 Value* CreateIntConst(int value) {
   return ConstantInt::get(getGlobalContext(), APInt(32, value));
 }
@@ -31,27 +61,19 @@ Value* CreateBoolConst(int value) {
 }
 
 AllocaInst* CreateEntryBlockAlloca(Function* TheFunction, const char* name, VarInfo var) {
-    IRBuilder<> TmpB(&TheFunction->getEntryBlock(), TheFunction->getEntryBlock().begin());
+  std::cerr << "Creating " << name << std::endl;
+  IRBuilder<> TmpB(&TheFunction->getEntryBlock(), TheFunction->getEntryBlock().begin());
 
-    llvm::Type* type;
-    Value* array_size = NULL;
-    switch(var.type.type) {
-      case INT:
-	type = llvm::Type::getInt32Ty(getGlobalContext());
-	break;
-      case CHAR:
-	type = llvm::Type::getInt8Ty(getGlobalContext());
-	break;
-      case BOOL:
-	type = llvm::Type::getInt1Ty(getGlobalContext());
-	break;
-      case ARRAY:
-	type = llvm::Type::getInt1Ty(getGlobalContext());
-	break;
-      default:
-	std::cerr << "Uh.... we should never reach this spot." << std::endl;
-	break;
-    }
+  llvm::Type* type = GetType(var);
+  Value* array_size = NULL;
+  if (var.type.type == ARRAY) {
+    array_size = CreateIntConst(var.type.array.end - var.type.array.end + 1);
+  }
 
-    return TmpB.CreateAlloca(type, array_size, name);
+  return TmpB.CreateAlloca(type, array_size, name);
+}
+
+Function* CreateMain(Module* module) {
+  FunctionType *FT = FunctionType::get(llvm::Type::getVoidTy(getGlobalContext()), false);
+  return Function::Create(FT, Function::ExternalLinkage, "__main__", module);
 }
