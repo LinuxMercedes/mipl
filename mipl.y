@@ -384,6 +384,8 @@ N_ASSIGN : N_VARIABLE T_ASSIGN N_EXPR
 		if($1.type.type != $3.type) {
 			yyerror("Expression must be of same type as variable");
 		}
+
+		Builder.CreateStore($3.value, $1.value);
 	}
 ;
 
@@ -623,7 +625,10 @@ N_FACTOR : N_SIGN N_VARIABLE
 			yyerror("Expression must be of type integer");
 		}
 		$$ = $2.type;
+		$$.value = Builder.CreateLoad($2.value);
+
 		if($1 == -1) {
+		    $$.value = Builder.CreateMul(CreateIntConst(-1), $$.value, "multmp");
 		}
 	}
 | N_CONST
