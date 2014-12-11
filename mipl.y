@@ -155,18 +155,6 @@ N_VARDEC : N_IDENT N_IDENTLST T_COLON N_TYPE
 		v.type = $4;
 		v.level = nest_level;
 
-		unsigned int type_sz = 0;
-		switch(v.type.type) {
-			case INT:
-			case BOOL:
-			case CHAR:
-				type_sz = 1;
-				break;
-			case ARRAY:
-				type_sz = v.type.array.end - v.type.array.start + 1;
-				break;
-		}
-
 		if(!scope.add(std::string($1), v)) {
 			free($1);
 			yyerror("Multiply defined identifier");
