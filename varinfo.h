@@ -24,6 +24,7 @@ struct TypeInfo {
   Type extended;
   ArrayInfo array;
   const char* op;
+  llvm::Value* value;
 };
 
 struct VarInfo {

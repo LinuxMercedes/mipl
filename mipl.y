@@ -86,7 +86,7 @@ using namespace llvm;
 %type<typeinfo> N_TYPE N_ARRAY N_SIMPLE N_EXPR N_ADDOPLST N_MULTOPLST N_FACTOR N_ADDOP N_MULTOP N_RELOP N_CONST N_SIMPLEEXPR N_TERM N_OUTPUT;
 %type<varinfo> N_VARIDENT N_PROCIDENT N_VARIABLE N_IDXVAR N_ENTIREVAR N_ARRAYVAR N_INPUTVAR;
 %type<arrayinfo> N_IDXRANGE;
-%type<integer> N_IDX N_INTCONST N_SIGN T_INTCONST;
+%type<integer> N_IDX N_INTCONST N_SIGN T_INTCONST N_BOOLCONST;
 %type<ilist> N_IDENTLST;
 %%
 
@@ -916,18 +916,22 @@ N_VARIDENT : T_IDENT
 N_CONST : N_INTCONST
 	{
 		$$.type = INT;
+		$$.value = ConstantInt::get(getGlobalContext(), APInt(32, $1));
 		printRule("N_CONST", "N_INTCONST");
-		oal_program << "lc " << $1 << std::endl;
 	}
 | T_CHARCONST
 	{
+		char c = *$1;
+		unsigned int i = (unsigned int)c;
 		$$.type = CHAR;
+		$$.value = ConstantInt::get(getGlobalContext(), APInt(8, i));
 		printRule("N_CONST", "T_CHARCONST");
-		oal_program << "lc " << int($1[1]) << std::endl;
 	}
 | N_BOOLCONST
 	{
 		$$.type = BOOL;
+		$$.type = BOOL;
+		$$.value = ConstantInt::get(getGlobalContext(), APInt(1, 1));
 		printRule("N_CONST", "N_BOOLCONST");
 	}
 ;
@@ -946,13 +950,13 @@ N_INTCONST : N_SIGN T_INTCONST
 
 N_BOOLCONST : T_TRUE
 	{
+		$$ = 1;
 		printRule("N_BOOLCONST", "T_TRUE");
-		oal_program << "lc 1" << std::endl;
 	}
 | T_FALSE
 	{
+		$$ = 0;
 		printRule("N_BOOLCONST", "T_FALSE");
-		oal_program << "lc 0" << std::endl;
 	}
 ;
 
