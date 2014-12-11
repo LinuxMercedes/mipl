@@ -50,8 +50,6 @@ using namespace llvm;
 		IdentList* next;
 	};
 
-	std::vector<unsigned int> next_addr;
-
 	Value *ErrorV(const char *Str) { yyerror(Str); return 0; }
 
 	static Module *TheModule;
@@ -169,8 +167,6 @@ N_VARDEC : N_IDENT N_IDENTLST T_COLON N_TYPE
 				break;
 		}
 
-		next_addr.back() += type_sz;
-
 		if(!scope.add(std::string($1), v)) {
 			free($1);
 			yyerror("Multiply defined identifier");
@@ -179,7 +175,6 @@ N_VARDEC : N_IDENT N_IDENTLST T_COLON N_TYPE
 		free($1);
 		bool mult = false; /* Try to not leak memory */
 		while(it != NULL) {
-			next_addr.back() += type_sz;
 
 			if(!mult && !scope.add(std::string(it->ident), v)) {
 				mult = true;
@@ -294,7 +289,6 @@ N_PROCDEC : N_PROCHDR N_BLOCK
 		current_proc.pop();
 		scope.pop();
 		nest_level--;
-		next_addr.pop_back();
 	}
 ;
 
@@ -311,7 +305,6 @@ N_PROCHDR : T_PROC T_IDENT T_SCOLON
 		current_proc.push(std::string($2));
 		free($2);
 		scope.push();
-		next_addr.push_back(0);
 	}
 ;
 
