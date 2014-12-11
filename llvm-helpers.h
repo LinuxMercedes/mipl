@@ -1,6 +1,8 @@
+/* -*- mode: C++ -*- */
 #pragma once
 
 #include <iostream>
+#include <vector>
 
 #include "llvm/IR/DerivedTypes.h"
 #include "llvm/IR/IRBuilder.h"
@@ -71,4 +73,29 @@ AllocaInst* CreateEntryBlockAlloca(Function* TheFunction, const char* name, VarI
 Function* CreateMain(Module* module) {
   FunctionType *FT = FunctionType::get(llvm::Type::getVoidTy(getGlobalContext()), false);
   return Function::Create(FT, Function::ExternalLinkage, "main", module);
+}
+
+Function* PrintfPrototype(LLVMContext& ctx, Module* module) {
+    std::vector<llvm::Type*> printf_arg_types;
+    printf_arg_types.push_back(llvm::Type::getInt8PtrTy(ctx));
+
+    FunctionType* printf_type = FunctionType::get(llvm::Type::getInt32Ty(ctx), printf_arg_types, true);
+    Function *func = Function::Create(printf_type, Function::ExternalLinkage, Twine("printf"), module);
+
+    func->setCallingConv(llvm::CallingConv::C);
+    return func;
+}
+
+Value* CreatePrintfFormat(LLVMContext& ctx, Module* module, const char* format) {
+    Constant *format_const = ConstantDataArray::getString(ctx, format);
+    llvm::Type *type = ArrayType::get(llvm::IntegerType::get(ctx, 8), strlen(format) + 1);
+    GlobalVariable *var = new llvm::GlobalVariable(*module, type, true,
+                                                   GlobalValue::PrivateLinkage,
+                                                   format_const, ".str");
+    Constant *zero = Constant::getNullValue(llvm::IntegerType::getInt32Ty(ctx));
+
+    std::vector<llvm::Constant*> indices;
+    indices.push_back(zero);
+    indices.push_back(zero);
+    return ConstantExpr::getGetElementPtr(var, indices);
 }

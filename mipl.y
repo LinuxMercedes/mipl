@@ -53,7 +53,8 @@ using namespace llvm;
 		IdentList* next;
 	};
 
-	Function* main_func;
+	Function *main_func, *printf_func;
+	Value *int_format, *char_format;
 	static Module* TheModule;
 	static IRBuilder<> Builder(getGlobalContext());
 
@@ -458,9 +459,14 @@ N_INPUTVAR : N_VARIABLE
 
 N_WRITE : T_WRITE T_LPAREN N_OUTPUT
 	{
+		Value *fmt = char_format;
 		if($3.type == INT) {
-		} else {
+			fmt = int_format;
 		}
+
+		CallInst *call = Builder.CreateCall2(printf_func, fmt, $3.value);
+		call->setTailCall(false);
+
 	}
 	N_OUTPUTLST T_RPAREN
 	{
@@ -474,9 +480,13 @@ N_OUTPUTLST : /* epsilon */
 	}
 | T_COMMA N_OUTPUT
 	{
+		Value *fmt = char_format;
 		if($2.type == INT) {
-		} else {
+			fmt = int_format;
 		}
+
+		CallInst *call = Builder.CreateCall2(printf_func, fmt, $2.value);
+		call->setTailCall(false);
 	}
 	N_OUTPUTLST
 	{
@@ -872,6 +882,10 @@ int main(int argc, char** argv) {
 
 	LLVMContext &Context = getGlobalContext();
 	TheModule = new Module("MIPL program", Context);
+
+	printf_func = PrintfPrototype(Context, TheModule);
+	int_format = CreatePrintfFormat(Context, TheModule, "%d");
+	char_format = CreatePrintfFormat(Context, TheModule, "%c");
 
 	yyin = fopen(argv[1], "r");
 
