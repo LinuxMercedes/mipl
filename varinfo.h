@@ -23,16 +23,12 @@ struct TypeInfo {
   Type type;
   Type extended;
   ArrayInfo array;
-  const char* op;
   llvm::Value* value;
 };
 
 struct VarInfo {
   TypeInfo type;
   unsigned int nest_level;
-  unsigned int label;
-  unsigned int words;
-  unsigned int offset;
   unsigned int level;
   llvm::Value* value;
 };
