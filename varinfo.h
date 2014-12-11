@@ -2,7 +2,7 @@
 
 #include<string>
 #include<sstream>
-#include "llvm/IR/DerivedTypes.h"
+#include "llvm/IR/Instructions.h"
 
 enum Type {
   UNDEFINED,
@@ -30,7 +30,7 @@ struct VarInfo {
   TypeInfo type;
   unsigned int nest_level;
   unsigned int level;
-  llvm::Value* value;
+  llvm::AllocaInst* value;
 };
 
 std::string pretty_type(const Type& t) {

@@ -16,6 +16,8 @@
 #include <vector>
 #include "varinfo.h"
 #include "scope.h"
+#include "llvm-helpers.h"
+
 #include "llvm/IR/DerivedTypes.h"
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/LLVMContext.h"
@@ -49,8 +51,6 @@ using namespace llvm;
 		char* ident;
 		IdentList* next;
 	};
-
-	Value *ErrorV(const char *Str) { yyerror(Str); return 0; }
 
 	static Module *TheModule;
 	static IRBuilder<> Builder(getGlobalContext());
@@ -774,22 +774,19 @@ N_VARIDENT : T_IDENT
 N_CONST : N_INTCONST
 	{
 		$$.type = INT;
-		$$.value = ConstantInt::get(getGlobalContext(), APInt(32, $1));
+		$$.value = CreateIntConst($1);
 		printRule("N_CONST", "N_INTCONST");
 	}
 | T_CHARCONST
 	{
-		char c = *$1;
-		unsigned int i = (unsigned int)c;
 		$$.type = CHAR;
-		$$.value = ConstantInt::get(getGlobalContext(), APInt(8, i));
+		$$.value = CreateCharConst(*$1);
 		printRule("N_CONST", "T_CHARCONST");
 	}
 | N_BOOLCONST
 	{
 		$$.type = BOOL;
-		$$.type = BOOL;
-		$$.value = ConstantInt::get(getGlobalContext(), APInt(1, 1));
+		$$.value = CreateBoolConst($1);
 		printRule("N_CONST", "N_BOOLCONST");
 	}
 ;
