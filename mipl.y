@@ -40,12 +40,7 @@ using namespace llvm;
 
 	Scope scope;
 
-	unsigned int label = 1;
 	unsigned int nest_level = 0;
-
-	unsigned int stacks_label;
-	unsigned int code_start_label;
-	unsigned int main_label;
 
 	std::stack<std::string> current_proc;
 	unsigned int word_count = 0;
@@ -113,10 +108,6 @@ N_PROG : N_PROGLBL
 			yyerror("Multiply defined identifier");
 		}
 		word_count = 0;
-
-		stacks_label = label++;
-		code_start_label = label++;
-		main_label = label++;
 	}
 		N_BLOCK T_DOT
 	{
@@ -316,7 +307,6 @@ N_PROCHDR : T_PROC T_IDENT T_SCOLON
 		VarInfo p;
 		p.type.type = PROCEDURE;
 		p.nest_level = ++nest_level;
-		p.label = label++;
 		if(!scope.add(std::string($2), p)) {
 			free($2);
 			yyerror("Multiply defined identifier");
