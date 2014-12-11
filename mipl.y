@@ -97,7 +97,7 @@ N_START :
 	N_PROG
 	{
 		printRule("N_START", "N_PROG");
-		std::cout << oal_program.str();
+		TheModule->dump();
 		return 0;
 	}
 ;
@@ -983,6 +983,9 @@ int main(int argc, char** argv) {
 		printf("You must specify a file in the command line!\n");
 		exit(1);
 	}
+
+	LLVMContext &Context = getGlobalContext();
+	TheModule = new Module("MIPL program", Context);
 
 	yyin = fopen(argv[1], "r");
 
