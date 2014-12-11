@@ -48,6 +48,10 @@ echo -e "\n\nTests complete"
 echo -e "\t$passed passed"
 echo -e "\t$failed failed"
 
+echo -e "\n** Cannot test MIPL code yet **\n"
+
+exit
+
 
 echo "##############################################################################"
 echo ""
