@@ -510,7 +510,7 @@ N_OUTPUT : N_EXPR
 N_CONDITION : T_IF N_EXPR 
 	{
 		Value* cond = $2.value;
-		cond = Builder.CreateFCmpONE(cond, ConstantFP::get(getGlobalContext(), APFloat(0.0)), "ifcond");
+		cond = Builder.CreateICmpNE(cond, ConstantInt::get(getGlobalContext(), APInt(1,0)), "ifcond");
 		Function* this_fcn = Builder.GetInsertBlock()->getParent();
 		BasicBlock* thenBB = BasicBlock::Create(getGlobalContext(), "then", this_fcn);
 		BasicBlock* elseBB = BasicBlock::Create(getGlobalContext(), "else");
