@@ -47,6 +47,8 @@ using namespace llvm;
 
 	/* This might be useful for maintaining LLVM functions */
 	std::stack<Function*> current_proc;
+	std::stack<StructType*> scope_structs;
+	std::vector<Type*> current_scope;
 
 	struct IdentList {
 		char* ident;
@@ -169,7 +171,7 @@ N_VARDEC : N_IDENT N_IDENTLST T_COLON N_TYPE
 
 		VarInfo v;
 		v.type = $4;
-		v.level = nest_level;
+		v.nest_level = nest_level;
 		v.value = CreateEntryBlockAlloca(get_current_function(), $1, v);
 
 		if(!scope.add(std::string($1), v)) {

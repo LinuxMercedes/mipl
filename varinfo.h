@@ -45,7 +45,7 @@ struct TypeInfo {
 struct VarInfo {
   TypeInfo type;
   unsigned int nest_level;
-  unsigned int level;
+  unsigned int index;
   llvm::Value* value;
   llvm::Function* func;
 };
