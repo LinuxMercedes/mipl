@@ -68,7 +68,7 @@ using namespace llvm;
 	ArrayInfo arrayinfo;
 	long integer;
 	IdentList* ilist;
-	BasicBlock* if_block;
+	BasicBlock* block;
 };
 
 %token T_ASSIGN T_MULT T_PLUS T_MINUS T_DIV T_AND T_OR T_NOT T_LT T_GT T_LE T_GE T_EQ T_NE T_VAR T_ARRAY T_OF T_BOOL T_CHAR T_INT T_PROG T_PROC T_BEGIN T_END T_WHILE T_DO T_IF T_READ T_WRITE T_TRUE T_FALSE T_LBRACK T_RBRACK T_SCOLON T_COLON T_LPAREN T_RPAREN T_COMMA T_DOT T_DOTDOT T_INTCONST T_CHARCONST T_UNKNOWN T_IDENT T_THEN T_ELSE
@@ -518,26 +518,26 @@ N_CONDITION : T_IF N_EXPR
 		Builder.CreateCondBr(cond, thenBB, elseBB);
 		Builder.SetInsertPoint(thenBB);
 		
-		$<if_block>$ = elseBB;
+		$<block>$ = elseBB;
 	}
 		T_THEN N_STMT 
 	{
 		BasicBlock* mergeBB = BasicBlock::Create(getGlobalContext(), "ifend");
 		Builder.CreateBr(mergeBB);
-		$<if_block>$ = mergeBB;
+		$<block>$ = mergeBB;
 
 		Function* this_fcn = Builder.GetInsertBlock()->getParent();
-		this_fcn->getBasicBlockList().push_back($<if_block>3);
-		Builder.SetInsertPoint($<if_block>3);
+		this_fcn->getBasicBlockList().push_back($<block>3);
+		Builder.SetInsertPoint($<block>3);
 	}
 		N_ELSE
 	{
 		printRule("N_CONDITION", "T_IF N_EXPR T_THEN N_STMT N_ELSE");
 
-		Builder.CreateBr($<if_block>6);
+		Builder.CreateBr($<block>6);
 		Function* this_fcn = Builder.GetInsertBlock()->getParent();
-		this_fcn->getBasicBlockList().push_back($<if_block>6);
-		Builder.SetInsertPoint($<if_block>6);
+		this_fcn->getBasicBlockList().push_back($<block>6);
+		Builder.SetInsertPoint($<block>6);
 		
 		if($2.type != BOOL) {
 			yyerror("Expression must be of type boolean");
