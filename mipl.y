@@ -534,7 +534,7 @@ N_OUTPUT : N_EXPR
 	}
 ;
 
-N_CONDITION : T_IF N_EXPR 
+N_CONDITION : T_IF N_EXPR
 	{
 		Value* cond = $2.value;
 		cond = Builder.CreateICmpNE(cond, ConstantInt::get(getGlobalContext(), APInt(1,0)), "ifcond");
@@ -544,10 +544,10 @@ N_CONDITION : T_IF N_EXPR
 
 		Builder.CreateCondBr(cond, thenBB, elseBB);
 		Builder.SetInsertPoint(thenBB);
-		
+
 		$<block>$ = elseBB;
 	}
-		T_THEN N_STMT 
+		T_THEN N_STMT
 	{
 		BasicBlock* mergeBB = BasicBlock::Create(getGlobalContext(), "ifend");
 		Builder.CreateBr(mergeBB);
@@ -565,7 +565,7 @@ N_CONDITION : T_IF N_EXPR
 		Function* this_fcn = Builder.GetInsertBlock()->getParent();
 		this_fcn->getBasicBlockList().push_back($<block>6);
 		Builder.SetInsertPoint($<block>6);
-		
+
 		if($2.type != BOOL) {
 			yyerror("Expression must be of type boolean");
 		}
@@ -582,7 +582,7 @@ N_ELSE : /* epsilon */
 	}
 ;
 
-N_WHILE : T_WHILE 
+N_WHILE : T_WHILE
 	{
 		Function* this_fcn = Builder.GetInsertBlock()->getParent();
 		BasicBlock* condBB = BasicBlock::Create(getGlobalContext(), "whilecond", this_fcn);
@@ -1023,7 +1023,7 @@ Function* get_current_function(){
 
 int yyerror(const char* s) {
 	printf("Line %d: %s\n", yylineno, s);
-	exit(0);
+	exit(1);
 }
 
 int main(int argc, char** argv) {

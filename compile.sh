@@ -1,4 +1,5 @@
 #!/bin/bash
+set -e
 
 if [ ! -e ./IRGen ]
 then
@@ -18,4 +19,4 @@ then
     exit 1
 fi
 
-./IRGen $1 2>&1 | llc-3.4 | gcc -x assembler ${*:2} -
+./IRGen $1 2>&1 | llc-3.4 2>/dev/null | gcc -x assembler ${*:2} - 2>/dev/null
