@@ -96,6 +96,7 @@ N_START :
 		current_proc.pop();
 		Builder.CreateRetVoid();
 		verifyFunction(*main_func);
+		verifyModule(*TheModule);
 		TheModule->dump();
 		return 0;
 	}
