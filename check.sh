@@ -15,12 +15,17 @@ echo "##########################################################################
 
 for source_file in tests/*.txt
 do
-    ./compile $source_file
+    ./compile.sh $source_file -o ${source_file%.txt}.out
+
+    if [ "$?" -ne "0" ]
+    then
+        echo -e "${red}Failed to compile $source_file${NC}"
+    fi
 done
 
 echo "##############################################################################"
 echo ""
-echo "GO GO THE THING!"
+echo "GO DO THE THING!"
 echo ""
 echo "##############################################################################"
 
@@ -28,11 +33,11 @@ passed=0
 failed=0
 broken=0
 
-for result_file in tests/*.result
+for llvm_executable in tests/*.out
 do
-    filename=`basename $result_file .result`
+    filename=`basename $llvm_executable .out`
     input=tests/$filename.input
-    ./oal_interpreter $result_file < $input > tests/$filename.result.output
+    ./$llvm_executable < $input > tests/$filename.result
     if [ "$?" -ne "0" ]
     then
         broken=$((broken + 1))
@@ -43,9 +48,9 @@ for f in tests/*.txt
 do
     filename=`basename $f .txt`
     expected_result=tests/${filename}.oal.output
-    actual_result=tests/${filename}.result.output
+    actual_result=tests/${filename}.result
 
-    diff -i -b -B -w --side-by-side $actual_result $expected_result > diffs/${filename%.result}.diff.output
+    diff -i -b -B -w --side-by-side $actual_result $expected_result > diffs/${filename}.diff.output
 
     if [ "$?" -ne "0" ]
     then
