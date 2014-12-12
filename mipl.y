@@ -555,15 +555,40 @@ N_ELSE : /* epsilon */
 	}
 ;
 
-N_WHILE : T_WHILE N_EXPR
+N_WHILE : T_WHILE 
 	{
-		if($2.type != BOOL) {
+		Function* this_fcn = Builder.GetInsertBlock()->getParent();
+		BasicBlock* condBB = BasicBlock::Create(getGlobalContext(), "whilecond", this_fcn);
+		Builder.CreateBr(condBB);
+		Builder.SetInsertPoint(condBB);
+		$<block>$ = condBB;
+	}
+		N_EXPR
+	{
+		if($3.type != BOOL) {
 			yyerror("Expression must be of type boolean");
 		}
+
+		Value* cond = $3.value;
+		cond = Builder.CreateICmpNE(cond, ConstantInt::get(getGlobalContext(), APInt(1,0)), "ifcond");
+		Function* this_fcn = Builder.GetInsertBlock()->getParent();
+		BasicBlock* whileBB = BasicBlock::Create(getGlobalContext(), "while", this_fcn);
+		BasicBlock* afterBB = BasicBlock::Create(getGlobalContext(), "whileend");
+
+		Builder.CreateCondBr(cond, whileBB, afterBB);
+		Builder.SetInsertPoint(whileBB);
+
+		$<block>$ = afterBB;
 	}
 		T_DO N_STMT
 	{
 		printRule("N_WHILE", "T_WHILE N_EXPR T_DO N_STMT");
+
+		Builder.CreateBr($<block>2);
+
+		Function* this_fcn = Builder.GetInsertBlock()->getParent();
+		this_fcn->getBasicBlockList().push_back($<block>4);
+		Builder.SetInsertPoint($<block>4);
 	}
 ;
 
