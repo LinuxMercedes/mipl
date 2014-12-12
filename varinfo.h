@@ -14,6 +14,21 @@ enum Type {
   PROGRAM
 };
 
+enum OpType {
+  LT,
+  LE,
+  NE,
+  EQ,
+  GT,
+  GE,
+  ADD,
+  SUB,
+  MULT,
+  DIV,
+  AND,
+  OR
+};
+
 struct ArrayInfo {
   int start;
   int end;
@@ -23,7 +38,7 @@ struct TypeInfo {
   Type type;
   Type extended;
   ArrayInfo array;
-  const char* op;
+  OpType op;
   llvm::Value* value;
 };
 
