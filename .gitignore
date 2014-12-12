@@ -30,6 +30,4 @@ jarusn.*
 
 tests/
 diffs/
-parser
-oal/oal_interpreter
-oal_interpreter
+IRGen
