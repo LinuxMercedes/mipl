@@ -683,16 +683,19 @@ N_ADDOP : T_PLUS
 	{
 		printRule("N_ADDOP", "T_PLUS");
 		$$.type = INT;
+		$$.op = "add\n";
 	}
 | T_MINUS
 	{
 		printRule("N_ADDOP", "T_MINUS");
 		$$.type = INT;
+		$$.op = "sub\n";
 	}
 | T_OR
 	{
 		printRule("N_ADDOP", "T_OR");
 		$$.type = BOOL;
+		$$.op = "or\n";
 	}
 ;
 
@@ -700,16 +703,19 @@ N_MULTOP : T_MULT
 	{
 		printRule("N_MULTOP", "T_MULT");
 		$$.type = INT;
+		$$.op = "mult\n";
 	}
 | T_DIV
 	{
 		printRule("N_MULTOP", "T_DIV");
 		$$.type = INT;
+		$$.op = "div\n";
 	}
 | T_AND
 	{
 		printRule("N_MULTOP", "T_AND");
 		$$.type = BOOL;
+		$$.op = "and\n";
 	}
 ;
 
@@ -717,31 +723,37 @@ N_RELOP : T_LT
 	{
 		printRule("N_RELOP", "T_LT");
 		$$.type = BOOL;
+		$$.op = ".lt.\n";
 	}
 | T_LE
 	{
 		printRule("N_RELOP", "T_LE");
 		$$.type = BOOL;
+		$$.op = ".le.\n";
 	}
 | T_NE
 	{
 		printRule("N_RELOP", "T_NE");
 		$$.type = BOOL;
+		$$.op = ".ne.\n";
 	}
 | T_EQ
 	{
 		printRule("N_RELOP", "T_EQ");
 		$$.type = BOOL;
+		$$.op = ".eq.\n";
 	}
 | T_GT
 	{
 		printRule("N_RELOP", "T_GT");
 		$$.type = BOOL;
+		$$.op = ".gt.\n";
 	}
 | T_GE
 	{
 		printRule("N_RELOP", "T_GE");
 		$$.type = BOOL;
+		$$.op = ".ge.\n";
 	}
 ;
 
