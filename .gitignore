@@ -31,3 +31,5 @@ jarusn.*
 tests/
 diffs/
 IRGen
+parser
+
