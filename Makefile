@@ -9,9 +9,9 @@ CFLAGS=-g -Wno-switch `llvm-config-3.4 --cxxflags --libs core`
 
 LDFLAGS=`llvm-config-3.4 --ldflags --libs core`
 
-.PHONY: all clean test cleantest submit
+.PHONY: all clean submit
 
-all: parser
+all: IRGen
 
 lex.yy.c: mipl.l
 	flex mipl.l
@@ -19,27 +19,15 @@ lex.yy.c: mipl.l
 mipl.tab.c: lex.yy.c mipl.y
 	bison mipl.y
 
-parser: mipl.tab.c llvm-helpers.h varinfo.h scope.h
-	${CC} ${CFLAGS} mipl.tab.c ${LDFLAGS} -o parser
+IRGen: mipl.tab.c llvm-helpers.h varinfo.h scope.h
+	${CC} ${CFLAGS} mipl.tab.c ${LDFLAGS} -o $@
 
 clean: cleantest
 	-rm mipl.tab.c
 	-rm lex.yy.c
-	-rm parser
+	-rm IRGen
 	${MAKE} -C clean
 
-test: cleantest parser $(OUTFILES)
-	@echo "[+] All tests passed!"
-
-%.result : %.txt %.oal FORCE
-	-@./parser $< > $@
-	diff -b -w --side-by-side $(word 2, $^) $@
-
-FORCE:
-
-cleantest:
-	-rm $(TESTDIR)/*.result
-
 submit:
-	cp mipl.l jarusn.l
-	cp mipl.y jarusn.y
+	cp mipl.l wiselyjarusn.l
+	cp mipl.y wiselyjarusn.y

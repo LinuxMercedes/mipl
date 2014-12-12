@@ -9,66 +9,24 @@ mkdir -p diffs
 
 echo "##############################################################################"
 echo ""
-echo "Do some parsin'"
+echo "COMPILE THE THINGS!"
 echo ""
 echo "##############################################################################"
-for test_file in tests/*.txt
+
+for source_file in tests/*.txt
 do
-    file_name=`basename $test_file`
-    ./parser $test_file > tests/${file_name%.txt}.result
+    ./compile $source_file
 done
 
-
 echo "##############################################################################"
 echo ""
-echo "Do some diffin'"
-echo ""
-echo "##############################################################################"
-
-passed=0
-failed=0
-
-for actual_result in tests/*.result
-do
-    file_name=`basename $actual_result`
-    expected_result=tests/${file_name%.result}.oal
-    diff -i -b -B -w --side-by-side $actual_result $expected_result > diffs/${file_name%.result}.diff
-    if [ "$?" -ne "0" ]
-    then
-        echo -e "${red}Broken${NC}\tdiffs/$file_name$"
-        failed=$((failed + 1))
-        diff -i -b -B -w $actual_result $expected_result | diffstat
-    else
-        echo -e "${green}OK${NC}\t$actual_result"
-        passed=$((passed + 1))
-    fi
-done
-
-echo -e "\n\nTests complete"
-echo -e "\t$passed passed"
-echo -e "\t$failed failed"
-
-echo -e "\n** Cannot test MIPL code yet **\n"
-
-exit
-
-
-echo "##############################################################################"
-echo ""
-echo "Do some runnin'"
+echo "GO GO THE THING!"
 echo ""
 echo "##############################################################################"
 
 passed=0
 failed=0
 broken=0
-
-for oal_file in tests/*.oal
-do
-    filename=`basename $oal_file .oal`
-    input=tests/$filename.input
-    ./oal_interpreter $oal_file < $input > tests/$filename.oal.output
-done
 
 for result_file in tests/*.result
 do
