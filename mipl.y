@@ -765,6 +765,13 @@ N_IDXVAR : N_ARRAYVAR T_LBRACK N_EXPR T_RBRACK
 			yyerror("Index expression must be of type integer");
 		}
 		$$.type.type = $1.type.extended;
+
+		std::vector<Value*> indices;
+		indices.push_back(CreateIntConst(0));
+		indices.push_back($3.value);
+
+		BasicBlock* bb = Builder.GetInsertBlock();
+		$$.value = GetElementPtrInst::Create($1.value, indices, "index", bb);
 	}
 ;
 
