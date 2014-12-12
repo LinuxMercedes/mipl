@@ -9,7 +9,7 @@ CFLAGS=-g -Wno-switch `llvm-config-3.4 --cxxflags --libs core`
 
 LDFLAGS=`llvm-config-3.4 --ldflags --libs core`
 
-.PHONY: all parser clean test cleantest submit
+.PHONY: all clean test cleantest submit
 
 all: parser
 
@@ -19,7 +19,7 @@ lex.yy.c: mipl.l
 mipl.tab.c: lex.yy.c mipl.y
 	bison mipl.y
 
-parser: mipl.tab.c
+parser: mipl.tab.c llvm-helpers.h varinfo.h scope.h
 	${CC} ${CFLAGS} mipl.tab.c ${LDFLAGS} -o parser
 
 clean: cleantest
