@@ -10,7 +10,38 @@
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Instructions.h"
 
+#include "varinfo.h"
+
 using namespace llvm;
+
+Value* GetOperation(IRBuilder<> Builder, OpType op, Value* a, Value* b) {
+  Value* f = NULL;
+  switch(op){
+  case AND:
+    f = Builder.CreateAnd(a, b, "and");
+    break;
+  case ADD:
+    f = Builder.CreateAdd(a, b, "add");
+    break;
+  case SUB:
+    f = Builder.CreateSub(a, b, "sub");
+    break;
+  case MULT:
+    f = Builder.CreateMul(a, b, "mul");
+    break;
+  case DIV:
+    f = Builder.CreateSDiv(a, b, "add");
+    break;
+  case OR:
+    f = Builder.CreateOr(a, b, "sub");
+    break;
+  default:
+    std::cerr << "We should never reach this in GetOperation" << std::endl;
+    std::cerr << "Shouldn't have gotten a " << op << std::endl;
+  }
+
+  return f;
+}
 
 llvm::Type* GetType(VarInfo var) {
   llvm::Type* type = NULL;

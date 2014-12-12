@@ -591,6 +591,11 @@ N_SIMPLEEXPR : N_TERM N_ADDOPLST
 			}
 		}
 		$$ = $1;
+		$$.value = $1.value;
+
+		if ($2.type != UNDEFINED) {
+		    $$.value = GetOperation(Builder, $2.op, $1.value, $2.value);
+		}
 	}
 ;
 
@@ -611,6 +616,13 @@ N_ADDOPLST : /* epsilon */
 					yyerror("Expression must be of type integer");
 			}
 		}
+
+		$$ = $1;
+		$$.value = $2.value;
+
+		if ($3.type != UNDEFINED) {
+			$$.value = GetOperation(Builder, $3.op, $2.value, $3.value);
+		}
 	}
 ;
 
@@ -627,6 +639,11 @@ N_TERM : N_FACTOR N_MULTOPLST
 			}
 		}
 		$$ = $1;
+		$$.value = $1.value;
+
+		if ($2.type != UNDEFINED) {
+		    $$.value = GetOperation(Builder, $2.op, $1.value, $2.value);
+		}
 	}
 ;
 
@@ -648,6 +665,11 @@ N_MULTOPLST : /* epsilon */
 			}
 		}
 		$$ = $1;
+		$$.value = $2.value;
+
+		if ($3.type != UNDEFINED) {
+		    $$.value = GetOperation(Builder, $3.op, $2.value, $3.value);
+		}
 	}
 ;
 
