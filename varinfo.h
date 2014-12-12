@@ -47,6 +47,7 @@ struct VarInfo {
   unsigned int nest_level;
   unsigned int level;
   llvm::Value* value;
+  llvm::Function* func;
 };
 
 std::string pretty_type(const Type& t) {

@@ -88,10 +88,12 @@ N_START :
 		main_func = CreateMain(TheModule);
 		BasicBlock *BB = BasicBlock::Create(getGlobalContext(), "entry", main_func);
 		Builder.SetInsertPoint(BB);
+		current_proc.push(main_func);
 	}
 	N_PROG
 	{
 		printRule("N_START", "N_PROG");
+		current_proc.pop();
 		Builder.CreateRetVoid();
 		verifyFunction(*main_func);
 		TheModule->dump();
@@ -290,7 +292,12 @@ N_PROCDECPART : /* epsilon */
 N_PROCDEC : N_PROCHDR N_BLOCK
 	{
 		printRule("N_PROCDEC", "N_PROCHDR N_BLOCK");
+		Builder.CreateRetVoid();
+		Function* this_fcn = Builder.GetInsertBlock()->getParent();
+		verifyFunction(*this_fcn);
+
 		current_proc.pop();
+		Builder.SetInsertPoint(&current_proc.top()->back());
 		scope.pop();
 		nest_level--;
 	}
@@ -299,16 +306,27 @@ N_PROCDEC : N_PROCHDR N_BLOCK
 N_PROCHDR : T_PROC T_IDENT T_SCOLON
 	{
 		printRule("N_PROCHDR", "T_PROC T_IDENT T_SCOLON");
+		std::string pname = std::string($2);
+		free($2);
+		
+		/* A complicated version of nothing */
+		std::vector<llvm::Type*> nothing(0, llvm::Type::getVoidTy(getGlobalContext()));
+		FunctionType* FT = FunctionType::get(llvm::Type::getVoidTy(getGlobalContext()), nothing, false);
+		Function* F = Function::Create(FT, Function::ExternalLinkage, pname, TheModule);
+
+		BasicBlock* entry = BasicBlock::Create(getGlobalContext(), "entry", F);
+		Builder.SetInsertPoint(entry);
+		current_proc.push(F);
+
 		VarInfo p;
 		p.type.type = PROCEDURE;
 		p.nest_level = ++nest_level;
-		if(!scope.add(std::string($2), p)) {
-			free($2);
+		p.func = F;
+		
+		if(!scope.add(pname, p)) {
 			yyerror("Multiply defined identifier");
 		}
-		current_proc.push(NULL);
-		free($2);
-		scope.push();
+		scope.push();	
 	}
 ;
 
@@ -415,6 +433,8 @@ N_PROCIDENT : T_IDENT
 
 		for(unsigned int caller_level = nest_level; caller_level >= $$.nest_level; caller_level--) {
 		}
+
+		Builder.CreateCall($$.func);
 	}
 ;
 
