@@ -554,26 +554,27 @@ N_EXPR : N_SIMPLEEXPR
 
 		switch($2.op) {
 			case LT:
-				$$.value = Builder.CreateICmpSLT($1.value, $2.value, "ltcmp");
+				$$.value = Builder.CreateICmpSLT($1.value, $3.value, "ltcmp");
 				break;
 			case LE:
-				$$.value = Builder.CreateICmpSLE($1.value, $2.value, "lecmp");
+				$$.value = Builder.CreateICmpSLE($1.value, $3.value, "lecmp");
 				break;
 			case NE:
-				$$.value = Builder.CreateICmpNE($1.value, $2.value, "necmp");
+				$$.value = Builder.CreateICmpNE($1.value, $3.value, "necmp");
 				break;
 			case EQ:
-				$$.value = Builder.CreateICmpEQ($1.value, $2.value, "eqcmp");
+				$$.value = Builder.CreateICmpEQ($1.value, $3.value, "eqcmp");
 				break;
 			case GT:
-				$$.value = Builder.CreateICmpSGT($1.value, $2.value, "gtcmp");
+				$$.value = Builder.CreateICmpSGT($1.value, $3.value, "gtcmp");
 				break;
 			case GE:
-				$$.value = Builder.CreateICmpSGE($1.value, $2.value, "gecmp");
+				$$.value = Builder.CreateICmpSGE($1.value, $3.value, "gecmp");
 				break;
 			default:
-				std::cerr << "We should never reach this" << std::endl;
+				std::cerr << "We should never reach this for RelOps" << std::endl;
 		}
+
 	}
 ;
 
