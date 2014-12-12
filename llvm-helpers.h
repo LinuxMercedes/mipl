@@ -117,7 +117,7 @@ Function* PrintfPrototype(LLVMContext& ctx, Module* module) {
   return func;
 }
 
-Value* CreatePrintfFormat(LLVMContext& ctx, Module* module, const char* format) {
+Value* CreateFormat(LLVMContext& ctx, Module* module, const char* format) {
   Constant *format_const = ConstantDataArray::getString(ctx, format);
   llvm::Type *type = ArrayType::get(IntegerType::get(ctx, 8), strlen(format) + 1);
   GlobalVariable *var = new GlobalVariable(*module, type, true,
@@ -129,4 +129,15 @@ Value* CreatePrintfFormat(LLVMContext& ctx, Module* module, const char* format) 
   indices.push_back(zero);
   indices.push_back(zero);
   return ConstantExpr::getGetElementPtr(var, indices);
+}
+
+Function* ScanfPrototype(LLVMContext& ctx, Module* module) {
+  std::vector<llvm::Type*> scanf_arg_types;
+  scanf_arg_types.push_back(llvm::Type::getInt8PtrTy(ctx));
+
+  FunctionType* scanf_type = FunctionType::get(llvm::Type::getInt32Ty(ctx), scanf_arg_types, true);
+  Function *func = Function::Create(scanf_type, Function::ExternalLinkage, Twine("scanf"), module);
+
+  func->setCallingConv(llvm::CallingConv::C);
+  return func;
 }

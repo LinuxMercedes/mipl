@@ -53,7 +53,7 @@ using namespace llvm;
 		IdentList* next;
 	};
 
-	Function *main_func, *printf_func;
+	Function *main_func, *printf_func, *scanf_func;
 	Value *int_format, *char_format;
 	static Module* TheModule;
 	static IRBuilder<> Builder(getGlobalContext());
@@ -420,9 +420,13 @@ N_PROCIDENT : T_IDENT
 
 N_READ : T_READ T_LPAREN N_INPUTVAR
 	{
+		Value *fmt = char_format;
 		if($3.type.type == INT) {
-		} else {
+			fmt = int_format;
 		}
+
+		CallInst *call = Builder.CreateCall2(scanf_func, fmt, $3.value);
+		call->setTailCall(false);
 	}
 	N_INPUTLST T_RPAREN
 	{
@@ -436,9 +440,13 @@ N_INPUTLST : /* epsilon */
 	}
 | T_COMMA N_INPUTVAR
 	{
+		Value *fmt = char_format;
 		if($2.type.type == INT) {
-		} else {
+			fmt = int_format;
 		}
+
+		CallInst *call = Builder.CreateCall2(scanf_func, fmt, $2.value);
+		call->setTailCall(false);
 	}
 	N_INPUTLST
 	{
@@ -467,7 +475,6 @@ N_WRITE : T_WRITE T_LPAREN N_OUTPUT
 
 		CallInst *call = Builder.CreateCall2(printf_func, fmt, $3.value);
 		call->setTailCall(false);
-
 	}
 	N_OUTPUTLST T_RPAREN
 	{
@@ -1009,8 +1016,9 @@ int main(int argc, char** argv) {
 	TheModule = new Module("MIPL program", Context);
 
 	printf_func = PrintfPrototype(Context, TheModule);
-	int_format = CreatePrintfFormat(Context, TheModule, "%d");
-	char_format = CreatePrintfFormat(Context, TheModule, "%c");
+	scanf_func = ScanfPrototype(Context, TheModule);
+	int_format = CreateFormat(Context, TheModule, "%d");
+	char_format = CreateFormat(Context, TheModule, "%c");
 
 	yyin = fopen(argv[1], "r");
 
