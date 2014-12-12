@@ -10,7 +10,38 @@
 #include "llvm/IR/Module.h"
 #include "llvm/IR/Instructions.h"
 
+#include "varinfo.h"
+
 using namespace llvm;
+
+Value* GetOperation(IRBuilder<> Builder, OpType op, Value* a, Value* b) {
+  Value* f = NULL;
+  switch(op){
+  case AND:
+    f = Builder.CreateAnd(a, b, "and");
+    break;
+  case ADD:
+    f = Builder.CreateAdd(a, b, "add");
+    break;
+  case SUB:
+    f = Builder.CreateSub(a, b, "sub");
+    break;
+  case MULT:
+    f = Builder.CreateMul(a, b, "mul");
+    break;
+  case DIV:
+    f = Builder.CreateSDiv(a, b, "add");
+    break;
+  case OR:
+    f = Builder.CreateOr(a, b, "sub");
+    break;
+  default:
+    std::cerr << "We should never reach this in GetOperation" << std::endl;
+    std::cerr << "Shouldn't have gotten a " << op << std::endl;
+  }
+
+  return f;
+}
 
 llvm::Type* GetType(VarInfo var) {
   llvm::Type* type = NULL;
@@ -76,26 +107,26 @@ Function* CreateMain(Module* module) {
 }
 
 Function* PrintfPrototype(LLVMContext& ctx, Module* module) {
-    std::vector<llvm::Type*> printf_arg_types;
-    printf_arg_types.push_back(llvm::Type::getInt8PtrTy(ctx));
+  std::vector<llvm::Type*> printf_arg_types;
+  printf_arg_types.push_back(llvm::Type::getInt8PtrTy(ctx));
 
-    FunctionType* printf_type = FunctionType::get(llvm::Type::getInt32Ty(ctx), printf_arg_types, true);
-    Function *func = Function::Create(printf_type, Function::ExternalLinkage, Twine("printf"), module);
+  FunctionType* printf_type = FunctionType::get(llvm::Type::getInt32Ty(ctx), printf_arg_types, true);
+  Function *func = Function::Create(printf_type, Function::ExternalLinkage, Twine("printf"), module);
 
-    func->setCallingConv(llvm::CallingConv::C);
-    return func;
+  func->setCallingConv(llvm::CallingConv::C);
+  return func;
 }
 
 Value* CreatePrintfFormat(LLVMContext& ctx, Module* module, const char* format) {
-    Constant *format_const = ConstantDataArray::getString(ctx, format);
-    llvm::Type *type = ArrayType::get(IntegerType::get(ctx, 8), strlen(format) + 1);
-    GlobalVariable *var = new GlobalVariable(*module, type, true,
-					     GlobalValue::PrivateLinkage,
-					     format_const, ".str");
-    Constant *zero = Constant::getNullValue(IntegerType::getInt32Ty(ctx));
+  Constant *format_const = ConstantDataArray::getString(ctx, format);
+  llvm::Type *type = ArrayType::get(IntegerType::get(ctx, 8), strlen(format) + 1);
+  GlobalVariable *var = new GlobalVariable(*module, type, true,
+					   GlobalValue::PrivateLinkage,
+					   format_const, ".str");
+  Constant *zero = Constant::getNullValue(IntegerType::getInt32Ty(ctx));
 
-    std::vector<Constant*> indices;
-    indices.push_back(zero);
-    indices.push_back(zero);
-    return ConstantExpr::getGetElementPtr(var, indices);
+  std::vector<Constant*> indices;
+  indices.push_back(zero);
+  indices.push_back(zero);
+  return ConstantExpr::getGetElementPtr(var, indices);
 }
