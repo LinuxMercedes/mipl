@@ -828,7 +828,13 @@ N_CONST : N_INTCONST
 | T_CHARCONST
 	{
 		$$.type = CHAR;
-		$$.value = CreateCharConst(*$1);
+
+		char c = $1[1];
+		if (c == '\\') {
+			c = '\n';
+		}
+
+		$$.value = CreateCharConst(c);
 		printRule("N_CONST", "T_CHARCONST");
 	}
 | N_BOOLCONST
