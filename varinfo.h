@@ -30,7 +30,7 @@ struct VarInfo {
   TypeInfo type;
   unsigned int nest_level;
   unsigned int level;
-  llvm::AllocaInst* value;
+  llvm::Value* value;
 };
 
 std::string pretty_type(const Type& t) {
