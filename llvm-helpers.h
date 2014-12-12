@@ -88,13 +88,13 @@ Function* PrintfPrototype(LLVMContext& ctx, Module* module) {
 
 Value* CreatePrintfFormat(LLVMContext& ctx, Module* module, const char* format) {
     Constant *format_const = ConstantDataArray::getString(ctx, format);
-    llvm::Type *type = ArrayType::get(llvm::IntegerType::get(ctx, 8), strlen(format) + 1);
-    GlobalVariable *var = new llvm::GlobalVariable(*module, type, true,
-                                                   GlobalValue::PrivateLinkage,
-                                                   format_const, ".str");
-    Constant *zero = Constant::getNullValue(llvm::IntegerType::getInt32Ty(ctx));
+    llvm::Type *type = ArrayType::get(IntegerType::get(ctx, 8), strlen(format) + 1);
+    GlobalVariable *var = new GlobalVariable(*module, type, true,
+					     GlobalValue::PrivateLinkage,
+					     format_const, ".str");
+    Constant *zero = Constant::getNullValue(IntegerType::getInt32Ty(ctx));
 
-    std::vector<llvm::Constant*> indices;
+    std::vector<Constant*> indices;
     indices.push_back(zero);
     indices.push_back(zero);
     return ConstantExpr::getGetElementPtr(var, indices);
