@@ -7,6 +7,10 @@ NC='\x1B[0m' # No Color
 # Make a place for da diffs
 mkdir -p diffs
 
+passed=0
+failed=0
+broken=0
+
 echo "##############################################################################"
 echo ""
 echo "COMPILE THE THINGS!"
@@ -20,6 +24,7 @@ do
     if [ "$?" -ne "0" ]
     then
         echo -e "${red}Failed to compile $source_file${NC}"
+        broken=$((broken + 1))
     fi
 done
 
@@ -29,19 +34,11 @@ echo "GO DO THE THING!"
 echo ""
 echo "##############################################################################"
 
-passed=0
-failed=0
-broken=0
-
 for llvm_executable in tests/*.out
 do
     filename=`basename $llvm_executable .out`
     input=tests/$filename.input
     ./$llvm_executable < $input > tests/$filename.result
-    if [ "$?" -ne "0" ]
-    then
-        broken=$((broken + 1))
-    fi
 done
 
 for f in tests/*.txt
@@ -65,5 +62,5 @@ done
 
 echo -e "\n\nTests complete"
 echo -e "\t$passed passed"
-echo -e "\t$broken broken"
 echo -e "\t$failed failed"
+echo -e "\t$broken didn't compile"
