@@ -24,7 +24,7 @@
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/Module.h"
-#include "llvm/IR/CallSite.h"
+#include "llvm/Support/CallSite.h"
 
 using namespace llvm;
 
@@ -326,7 +326,7 @@ N_PROCDEC : N_PROCHDR N_BLOCK
 
 			/* Patch old calls */
 			while(!this_fcn->use_empty()) {
-				CallSite CS(this_fcn->user_back());
+				CallSite CS(this_fcn->use_back());
 				Instruction* call = CS.getInstruction();
 				
 				std::vector<Value*> vals;
