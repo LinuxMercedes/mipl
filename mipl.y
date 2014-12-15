@@ -98,8 +98,8 @@ N_START :
 		printRule("N_START", "N_PROG");
 		current_proc.pop();
 		Builder.CreateRetVoid();
-		verifyFunction(*main_func);
-		verifyModule(*TheModule);
+		verifyFunction(*main_func, PrintMessageAction);
+		verifyModule(*TheModule, PrintMessageAction);
 		TheModule->dump();
 		return 0;
 	}
@@ -361,7 +361,7 @@ N_PROCDEC : N_PROCHDR N_BLOCK
 			scope.pop();
 		}
 
-		verifyFunction(*this_fcn);
+		verifyFunction(*this_fcn, PrintMessageAction);
 
 		current_proc.pop();
 		nest_level--;
