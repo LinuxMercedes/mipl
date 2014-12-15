@@ -320,6 +320,8 @@ N_PROCDEC : N_PROCHDR N_BLOCK
 			new_fcn->takeName(this_fcn);
 			new_fcn->getBasicBlockList().splice(new_fcn->begin(), this_fcn->getBasicBlockList());
 
+			/* TODO: Patch old calls */
+
 			scope.pop();
 
 			/* Update muh symbol table */
@@ -338,7 +340,6 @@ N_PROCDEC : N_PROCHDR N_BLOCK
 		current_proc.pop();
 		accessed_vars.pop();
 		nest_level--;
-
 
 		Builder.SetInsertPoint(&current_proc.top()->back());
 	}
@@ -457,8 +458,6 @@ N_ASSIGN : N_VARIABLE T_ASSIGN N_EXPR
 N_PROCSTMT : N_PROCIDENT
 	{
 		printRule("N_PROCSTMT", "N_PROCIDENT");
-		for(unsigned int caller_level = $1.nest_level; caller_level <= nest_level; caller_level++) {
-		}
 	}
 ;
 
@@ -475,11 +474,13 @@ N_PROCIDENT : T_IDENT
 		if($$.type.type != PROCEDURE) {
 			yyerror("Procedure/variable mismatch");
 		}
-
-		for(unsigned int caller_level = nest_level; caller_level >= $$.nest_level; caller_level--) {
+	
+		std::vector<Value*> vals;
+		for(Function::arg_iterator it = $$.func->arg_begin(); it != $$.func->arg_end(); it++) {
+			vals.push_back(scope.get(it->getName()).value);
 		}
 
-		Builder.CreateCall($$.func);
+		Builder.CreateCall($$.func, vals);
 	}
 ;
 
@@ -808,9 +809,6 @@ N_FACTOR : N_SIGN N_VARIABLE
 		}
 		$$ = $2.type;
 		$$.value = Builder.CreateLoad($2.value);
-		if($2.nest_level < nest_level) {
-			accessed_vars.top().push_back($2);
-		}
 
 		if($1 == -1) {
 		    $$.value = Builder.CreateMul(CreateIntConst(-1), $$.value, "multmp");
@@ -990,6 +988,10 @@ N_VARIDENT : T_IDENT
 		}
 		if($$.type.type == PROCEDURE) {
 			yyerror("Procedure/variable mismatch");
+		}
+
+		if($$.nest_level < nest_level) {
+			accessed_vars.top().push_back($$);
 		}
 	}
 ;
