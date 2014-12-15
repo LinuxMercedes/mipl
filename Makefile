@@ -22,7 +22,7 @@ mipl.tab.c: lex.yy.c mipl.y
 IRGen: mipl.tab.c llvm-helpers.h varinfo.h scope.h
 	${CC} ${CFLAGS} mipl.tab.c ${LDFLAGS} -o $@
 
-clean: cleantest
+clean: 
 	-rm mipl.tab.c
 	-rm lex.yy.c
 	-rm IRGen
