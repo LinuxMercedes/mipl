@@ -297,39 +297,48 @@ N_PROCDEC : N_PROCHDR N_BLOCK
 		Builder.CreateRetVoid();
 		Function* this_fcn = current_proc.top();
 
-		/* Now that we know what state needs to be passed in, make it so. */
-		std::vector<llvm::Type*> args;
-		for(std::vector<VarInfo>::iterator it = accessed_vars.top().begin(); it != accessed_vars.top().end(); it++) {
-			args.push_back(it->value->getType());
+		if(accessed_vars.top().size()) {
+			/* Now that we know what state needs to be passed in, make it so. */
+			std::vector<llvm::Type*> args;
+			for(std::vector<VarInfo>::iterator it = accessed_vars.top().begin(); it != accessed_vars.top().end(); it++) {
+				args.push_back(it->value->getType());
+			}
+
+			/* Make a new function that takes the right args */
+			FunctionType* ft = FunctionType::get(this_fcn->getReturnType(), args, false);
+			Function* new_fcn = Function::Create(ft, this_fcn->getLinkage(), this_fcn->getName());
+		
+			/* Name all of our arguments */
+			std::vector<VarInfo>::iterator vit = accessed_vars.top().begin();
+			Function::arg_iterator ait = new_fcn->arg_begin();
+			for(;	vit != accessed_vars.top().end() && ait != new_fcn->arg_end(); ait++, vit++)	{
+				ait->setName(vit->value->getName());
+			}
+
+			/* Monkeypatch the new function over the old one. */
+			this_fcn->getParent()->getFunctionList().insert(this_fcn, new_fcn);
+			new_fcn->takeName(this_fcn);
+			new_fcn->getBasicBlockList().splice(new_fcn->begin(), this_fcn->getBasicBlockList());
+
+			scope.pop();
+
+			/* Update muh symbol table */
+			VarInfo fcn_info = scope.get(new_fcn->getName());
+			fcn_info.func = new_fcn;
+			scope.add(new_fcn->getName(), fcn_info);
+
+			this_fcn = new_fcn;
+		}
+		else {
+			scope.pop();
 		}
 
-		/* Make a new function that takes the right args */
-		FunctionType* ft = FunctionType::get(this_fcn->getReturnType(), args, false);
-		Function* new_fcn = Function::Create(ft, this_fcn->getLinkage(), this_fcn->getName());
-	
-		/* Name all of our arguments */
-		std::vector<VarInfo>::iterator vit = accessed_vars.top().begin();
-		Function::arg_iterator ait = new_fcn->arg_begin();
-		for(;	vit != accessed_vars.top().end() && ait != new_fcn->arg_end(); ait++, vit++)	{
-			ait->setName(vit->value->getName());
-		}
-
-		/* Monkeypatch the new function over the old one. */
-		this_fcn->getParent()->getFunctionList().insert(this_fcn, new_fcn);
-		new_fcn->takeName(this_fcn);
-		new_fcn->getBasicBlockList().splice(new_fcn->begin(), this_fcn->getBasicBlockList());
-
-		verifyFunction(*new_fcn);
+		verifyFunction(*this_fcn);
 
 		current_proc.pop();
-		scope.pop();
 		accessed_vars.pop();
 		nest_level--;
 
-		/* Update muh symbol table */
-		VarInfo fcn_info = scope.get(new_fcn->getName());
-		fcn_info.func = new_fcn;
-		scope.add(new_fcn->getName(), fcn_info);
 
 		Builder.SetInsertPoint(&current_proc.top()->back());
 	}
