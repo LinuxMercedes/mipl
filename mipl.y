@@ -14,6 +14,7 @@
 #include <iostream>
 #include <sstream>
 #include <vector>
+#include <set>
 #include "varinfo.h"
 #include "scope.h"
 #include "llvm-helpers.h"
@@ -47,7 +48,7 @@ using namespace llvm;
 
 	/* This might be useful for maintaining LLVM functions */
 	std::stack<Function*> current_proc;
-	std::stack<std::vector<VarInfo> > accessed_vars;
+	std::stack<std::set<VarInfo> > accessed_vars;
 
 	struct IdentList {
 		char* ident;
@@ -300,7 +301,7 @@ N_PROCDEC : N_PROCHDR N_BLOCK
 		if(accessed_vars.top().size()) {
 			/* Now that we know what state needs to be passed in, make it so. */
 			std::vector<llvm::Type*> args;
-			for(std::vector<VarInfo>::iterator it = accessed_vars.top().begin(); it != accessed_vars.top().end(); it++) {
+			for(std::set<VarInfo>::iterator it = accessed_vars.top().begin(); it != accessed_vars.top().end(); it++) {
 				args.push_back(it->value->getType());
 			}
 
@@ -309,7 +310,7 @@ N_PROCDEC : N_PROCHDR N_BLOCK
 			Function* new_fcn = Function::Create(ft, this_fcn->getLinkage(), this_fcn->getName());
 		
 			/* Name all of our arguments */
-			std::vector<VarInfo>::iterator vit = accessed_vars.top().begin();
+			std::set<VarInfo>::iterator vit = accessed_vars.top().begin();
 			Function::arg_iterator ait = new_fcn->arg_begin();
 			for(;	vit != accessed_vars.top().end() && ait != new_fcn->arg_end(); ait++, vit++)	{
 				ait->setName(vit->value->getName());
@@ -329,16 +330,25 @@ N_PROCDEC : N_PROCHDR N_BLOCK
 			fcn_info.func = new_fcn;
 			scope.add(new_fcn->getName(), fcn_info);
 
+			/* Add vars we accessed here to the level above */
+			std::set<VarInfo> fcn_vars = accessed_vars.top();
+			accessed_vars.pop();
+			for(std::set<VarInfo>::iterator it = fcn_vars.begin(); it != fcn_vars.end(); it++) {
+				if(it->nest_level < nest_level - 1) { 
+					accessed_vars.top().insert(*it);
+				}
+			}
+
 			this_fcn = new_fcn;
 		}
 		else {
+			accessed_vars.pop();
 			scope.pop();
 		}
 
 		verifyFunction(*this_fcn);
 
 		current_proc.pop();
-		accessed_vars.pop();
 		nest_level--;
 
 		Builder.SetInsertPoint(&current_proc.top()->back());
@@ -371,7 +381,7 @@ N_PROCHDR : T_PROC T_IDENT T_SCOLON
 		}
 		scope.push();	
 		
-		std::vector<VarInfo> v;
+		std::set<VarInfo> v;
 		accessed_vars.push(v);
 	}
 ;
@@ -991,7 +1001,7 @@ N_VARIDENT : T_IDENT
 		}
 
 		if($$.nest_level < nest_level) {
-			accessed_vars.top().push_back($$);
+			accessed_vars.top().insert($$);
 		}
 	}
 ;

@@ -48,6 +48,10 @@ struct VarInfo {
   unsigned int index;
   llvm::Value* value;
   llvm::Function* func;
+
+  bool operator<(const VarInfo& v) const {
+    return nest_level < v.nest_level || value->getName() < v.value->getName();
+  }
 };
 
 std::string pretty_type(const Type& t) {
