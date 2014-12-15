@@ -45,9 +45,9 @@ class Scope {
 
     VarInfo get(const std::string& name) {
       for(std::list<SymbolTable>::iterator it = scope.begin(); it != scope.end(); it++) {
-	if(it->find(name) != it->end()) {
-	  return it->at(name);
-	}
+        if(it->find(name) != it->end()) {
+          return it->at(name);
+        }
       }
 
       VarInfo v;
