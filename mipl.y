@@ -24,6 +24,7 @@
 #include "llvm/IR/IRBuilder.h"
 #include "llvm/IR/LLVMContext.h"
 #include "llvm/IR/Module.h"
+#include "llvm/IR/CallSite.h"
 
 using namespace llvm;
 
@@ -321,14 +322,28 @@ N_PROCDEC : N_PROCHDR N_BLOCK
 			new_fcn->takeName(this_fcn);
 			new_fcn->getBasicBlockList().splice(new_fcn->begin(), this_fcn->getBasicBlockList());
 
-			/* TODO: Patch old calls */
-
 			scope.pop();
+
+			/* Patch old calls */
+			while(!this_fcn->use_empty()) {
+				CallSite CS(this_fcn->user_back());
+				Instruction* call = CS.getInstruction();
+				
+				std::vector<Value*> vals;
+				for(Function::arg_iterator it = new_fcn->arg_begin(); it != new_fcn->arg_end(); it++) {
+					vals.push_back(scope.get(it->getName()).value);
+				}
+
+				Instruction* new_call = CallInst::Create(new_fcn, vals, "", call);
+				call->replaceAllUsesWith(new_call);
+				new_call->takeName(call);
+				call->eraseFromParent();
+			}
 
 			/* Update muh symbol table */
 			VarInfo fcn_info = scope.get(new_fcn->getName());
 			fcn_info.func = new_fcn;
-			scope.add(new_fcn->getName(), fcn_info);
+			scope.add(new_fcn->getName(), fcn_info, true);
 
 			/* Add vars we accessed here to the level above */
 			std::set<VarInfo> fcn_vars = accessed_vars.top();
