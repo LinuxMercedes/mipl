@@ -29,14 +29,14 @@ class Scope {
 #endif
     }
 
-    bool add(const std::string& name, const VarInfo& v) {
+    bool add(const std::string& name, const VarInfo& v, bool update=false) {
 #ifdef SCOPE_PRINTING
       std::string s = pretty_varinfo(v);
       printf("___Adding %s to symbol table with type %s\n", name.c_str(), s.c_str());
 #endif
 
-      if(scope.front().find(name) != scope.front().end()) {
-	return false;
+      if(!update && scope.front().find(name) != scope.front().end()) {
+        return false;
       }
 
       scope.front()[name] = v;

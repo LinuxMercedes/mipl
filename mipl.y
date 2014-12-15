@@ -47,8 +47,7 @@ using namespace llvm;
 
 	/* This might be useful for maintaining LLVM functions */
 	std::stack<Function*> current_proc;
-	std::stack<StructType*> scope_structs;
-	std::vector<Type*> current_scope;
+	std::stack<std::vector<VarInfo> > accessed_vars;
 
 	struct IdentList {
 		char* ident;
@@ -296,13 +295,43 @@ N_PROCDEC : N_PROCHDR N_BLOCK
 	{
 		printRule("N_PROCDEC", "N_PROCHDR N_BLOCK");
 		Builder.CreateRetVoid();
-		Function* this_fcn = Builder.GetInsertBlock()->getParent();
-		verifyFunction(*this_fcn);
+		Function* this_fcn = current_proc.top();
+
+		/* Now that we know what state needs to be passed in, make it so. */
+		std::vector<llvm::Type*> args;
+		for(std::vector<VarInfo>::iterator it = accessed_vars.top().begin(); it != accessed_vars.top().end(); it++) {
+			args.push_back(it->value->getType());
+		}
+
+		/* Make a new function that takes the right args */
+		FunctionType* ft = FunctionType::get(this_fcn->getReturnType(), args, false);
+		Function* new_fcn = Function::Create(ft, this_fcn->getLinkage(), this_fcn->getName());
+	
+		/* Name all of our arguments */
+		std::vector<VarInfo>::iterator vit = accessed_vars.top().begin();
+		Function::arg_iterator ait = new_fcn->arg_begin();
+		for(;	vit != accessed_vars.top().end() && ait != new_fcn->arg_end(); ait++, vit++)	{
+			ait->setName(vit->value->getName());
+		}
+
+		/* Monkeypatch the new function over the old one. */
+		this_fcn->getParent()->getFunctionList().insert(this_fcn, new_fcn);
+		new_fcn->takeName(this_fcn);
+		new_fcn->getBasicBlockList().splice(new_fcn->begin(), this_fcn->getBasicBlockList());
+
+		verifyFunction(*new_fcn);
 
 		current_proc.pop();
-		Builder.SetInsertPoint(&current_proc.top()->back());
 		scope.pop();
+		accessed_vars.pop();
 		nest_level--;
+
+		/* Update muh symbol table */
+		VarInfo fcn_info = scope.get(new_fcn->getName());
+		fcn_info.func = new_fcn;
+		scope.add(new_fcn->getName(), fcn_info);
+
+		Builder.SetInsertPoint(&current_proc.top()->back());
 	}
 ;
 
@@ -313,6 +342,7 @@ N_PROCHDR : T_PROC T_IDENT T_SCOLON
 		free($2);
 		
 		/* A complicated version of nothing */
+		/* We'll patch in the necessary args once we know them */
 		std::vector<llvm::Type*> nothing(0, llvm::Type::getVoidTy(getGlobalContext()));
 		FunctionType* FT = FunctionType::get(llvm::Type::getVoidTy(getGlobalContext()), nothing, false);
 		Function* F = Function::Create(FT, Function::ExternalLinkage, pname, TheModule);
@@ -330,6 +360,9 @@ N_PROCHDR : T_PROC T_IDENT T_SCOLON
 			yyerror("Multiply defined identifier");
 		}
 		scope.push();	
+		
+		std::vector<VarInfo> v;
+		accessed_vars.push(v);
 	}
 ;
 
@@ -766,6 +799,9 @@ N_FACTOR : N_SIGN N_VARIABLE
 		}
 		$$ = $2.type;
 		$$.value = Builder.CreateLoad($2.value);
+		if($2.nest_level < nest_level) {
+			accessed_vars.top().push_back($2);
+		}
 
 		if($1 == -1) {
 		    $$.value = Builder.CreateMul(CreateIntConst(-1), $$.value, "multmp");
