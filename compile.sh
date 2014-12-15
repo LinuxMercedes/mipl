@@ -19,4 +19,5 @@ then
     exit 1
 fi
 
-./IRGen $1 2>&1 | llc-3.4 2>/dev/null | gcc -x assembler ${*:2} - 2>/dev/null
+
+./IRGen $1 2>&1 | opt-3.4 -instcombine -dce -dse -constprop -S 2>/dev/null | llc-3.4 2>/dev/null | clang -x assembler ${*:2} - 2>/dev/null

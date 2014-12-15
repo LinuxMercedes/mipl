@@ -1,5 +1,11 @@
 #!/bin/bash
 
+if [ ! -e ./IRGen ]
+then
+    echo "Please build IRGen first."
+    exit 1
+fi
+
 green='\x1B[1;32m'
 red='\x1B[1;31m'
 NC='\x1B[0m' # No Color
@@ -8,6 +14,7 @@ NC='\x1B[0m' # No Color
 mkdir -p diffs
 
 passed=0
+skipped=0
 failed=0
 broken=0
 
@@ -28,6 +35,7 @@ do
     fi
 done
 
+echo ""
 echo "##############################################################################"
 echo ""
 echo "GO DO THE THING!"
@@ -47,6 +55,13 @@ do
     expected_result=tests/${filename}.oal.output
     actual_result=tests/${filename}.result
 
+    if [ ! -e "$actual_result" ]
+    then
+        echo -e "${red}Skip${NC}\t$actual_result not found. Skipping it."
+        skipped=$((skipped + 1))
+        continue
+    fi
+
     diff -i -b -B -w --side-by-side $actual_result $expected_result > diffs/${filename}.diff.output
 
     if [ "$?" -ne "0" ]
@@ -55,12 +70,13 @@ do
         failed=$((failed + 1))
         diff -i -b -B -w $actual_result $expected_result | diffstat
     else
-        echo -e "${green}OK${NC}\t$actual_result"
+        echo -e "${green}OK${NC}\t$actual_result"p
         passed=$((passed + 1))
     fi
 done
 
 echo -e "\n\nTests complete"
 echo -e "\t$passed passed"
+echo -e "\t$skipped skipped"
 echo -e "\t$failed failed"
 echo -e "\t$broken didn't compile"
