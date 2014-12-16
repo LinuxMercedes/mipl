@@ -1,11 +1,13 @@
 #!/bin/bash
 
+# Make sure we have IRGen
 if [ ! -e ./IRGen ]
 then
     echo "Please build IRGen first."
     exit 1
 fi
 
+# Console colors
 green='\x1B[1;32m'
 red='\x1B[1;31m'
 NC='\x1B[0m' # No Color
@@ -42,6 +44,7 @@ echo "GO DO THE THING!"
 echo ""
 echo "##############################################################################"
 
+# Run the executable with its respective input file
 for llvm_executable in tests/*.out
 do
     filename=`basename $llvm_executable .out`
@@ -49,6 +52,7 @@ do
     ./$llvm_executable < $input > tests/$filename.result
 done
 
+# Diff all the results
 for f in tests/*.txt
 do
     filename=`basename $f .txt`
