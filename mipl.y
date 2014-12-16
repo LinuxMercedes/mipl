@@ -857,6 +857,7 @@ N_FACTOR : N_SIGN N_VARIABLE
 			yyerror("Expression must be of type boolean");
 		}
 		$$ = $2;
+		$$.value = Builder.CreateNot($2.value, "not");
 	}
 ;
 
