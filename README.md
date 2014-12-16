@@ -139,5 +139,69 @@ the basic breakdown of ``check.sh``:
      and diff had a non-zero return code)
 5. Output the results
 
+They should like just about like this:
+
+```
+$ make
+flex mipl.l
+bison mipl.y
+mipl.y: warning: 1 shift/reduce conflict [-Wconflicts-sr]
+clang++ -g -Wno-switch `llvm-config-3.4 --cxxflags --libs core` mipl.tab.c `llvm-config-3.4 --ldflags --libs core` -o IRGen
+clang: warning: treating 'c' input as 'c++' when in C++ mode, this behavior is deprecated
+
+$ ./check.sh
+##############################################################################
+
+COMPILE THE THINGS!
+
+##############################################################################
+
+##############################################################################
+
+GO DO THE THING!
+
+##############################################################################
+OK	tests/allKindsOfThings.resultp
+OK	tests/arrayReferences.resultp
+OK	tests/assignmentSimpleArithOpsExpr.resultp
+OK	tests/assignmentSimpleNegation.resultp
+OK	tests/assignmentSimpleRelOpsExpr.resultp
+OK	tests/assignmentSimple.resultp
+OK	tests/ifThenElseFalse.resultp
+OK	tests/ifThenElseNested1.resultp
+OK	tests/ifThenElseNested2.resultp
+OK	tests/ifThenElseNested3.resultp
+OK	tests/ifThenElseNested4.resultp
+OK	tests/ifThenElseTrue.resultp
+OK	tests/ifThenFalse.resultp
+OK	tests/ifThenTrue.resultp
+OK	tests/justSimpleAndArrayGlobals.resultp
+OK	tests/justSimpleGlobals.resultp
+OK	tests/multiProcDeclWithCalls.resultp
+OK	tests/nestedProcDeclWithCalls.resultp
+OK	tests/nestedProcDeclWithLocalsNoCalls.resultp
+OK	tests/noGlobalsOrProcs.resultp
+OK	tests/oneProcDeclNoLocalsNoCalls.resultp
+OK	tests/oneProcDeclWithCall.resultp
+OK	tests/oneProcDeclWithLocalsNoCalls.resultp
+OK	tests/oneProcDeclWithRecursiveCall.resultp
+OK	tests/readIndividuals.resultp
+OK	tests/readMultiples.resultp
+OK	tests/simpleStmtsFromWithinProc.resultp
+OK	tests/twoProcDeclWithLocalsNoCalls.resultp
+OK	tests/whileNestedDeep.resultp
+OK	tests/whileNested.resultp
+OK	tests/whileSimple.resultp
+OK	tests/writeConstants.resultp
+
+
+Tests complete
+        32 passed
+        0 skipped
+        0 failed
+        0 didn't compile
+
+```
+
 
 <!-- LocalWords: LLVM MIPL executables IRGen optimizers -->
