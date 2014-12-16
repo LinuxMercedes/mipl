@@ -10,8 +10,7 @@ This MIPL compiler is built using the LLVM compiler
 infrastructure. LLVM uses an intermediate language called LLVM IR,
 which can be analyzed, optimized, and compiled to create executables
 for a variety of different architectures. LLVM is used by a number of
-modern compiler infrastructure projects including Clang, Rust, and
-Swift.
+modern compiler projects including Clang, Rust, and Swift.
 
 The compiler works in several stages. First, ``IRGen`` parses MIPL
 code and translates it into an intermediate code. Then, the
