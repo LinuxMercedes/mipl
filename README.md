@@ -54,6 +54,65 @@ passed to ``clang``, which assembles, links, and generates an
 executable.
 
 
+Building
+--------
+
+You'll need to have the following packages:
+
+- ``flex``
+- ``bison``
+- ``llvm`` Version 3.4. If you install Clang, the LLVM tools should
+  come with it.
+- ``make``
+
+Just run ``make`` to build ``IRGen``, which will generate the LLVM IR
+code for a MIPL file. **This code has been tested on S&T CLC Linux
+machines.** ``check.sh`` will run a series of tests on the compiled
+MIPL code to verify that it works properly.
+
+
+Usage
+-----
+
+After building ``IRGen``, you can start building MIPL programs!
+
+
+Building and running a MIPL program:
+
+```shell
+$ ./compile.sh tests/writeConstants.txt
+$ ./a.out
+5!-42
+```
+
+You can even pass arguments to the assembler/linker
+
+```shell
+$ ./compile.sh tests/writeConstants.txt -o writeConstants.out
+$ ./writeConstants.out
+5!-42
+```
+
+You can talk to it too
+
+```shell
+$ ./compile.sh tests/allKindsOfThings.txt
+$ ./a.out
+> 4
+> 5
+> 6
+> 7
+> -1
+( 4 5 6 7 )
+? 3
+No match for 3
+? 4
+Stuff[1] = 4
+? -1
+end
+```
+
+
 Testing
 -------
 
